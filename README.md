@@ -17,8 +17,8 @@ The repository is deliberately simple. Each exercise should leave behind working
 ## Run it
 
 ```powershell
-dotnet restore AiEngineering.HandsOn.slnx --ignore-failed-sources
-dotnet run --project src/AiEngineering.HandsOn.Api
+dotnet restore AiEngineeringLab.slnx --ignore-failed-sources
+dotnet run --project src/FoundationalModel.API
 ```
 
 Then visit:
@@ -29,7 +29,7 @@ Then visit:
 ## Test it
 
 ```powershell
-dotnet test AiEngineering.HandsOn.slnx --no-restore
+dotnet test AiEngineeringLab.slnx --no-restore
 ```
 
 ## Working with AI

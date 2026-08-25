@@ -1,7 +1,7 @@
-using AiEngineering.HandsOn.Api.Contracts;
+using FoundationalModel.API.Contracts;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AiEngineering.HandsOn.Api.Controllers;
+namespace FoundationalModel.API.Controllers;
 
 [ApiController]
 [Route("api/v1/system")]

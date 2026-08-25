@@ -1,6 +1,6 @@
-using AiEngineering.HandsOn.Api.Contracts;
+using FoundationalModel.API.Contracts;
 
-namespace AiEngineering.HandsOn.Api.Tests;
+namespace FoundationalModel.API.Tests;
 
 public sealed class ApiInfoResponseTests
 {
