@@ -1,6 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/FoundationalModel.API/FoundationalModel.API.csproj" />
+    <Project Path="src/FoundationalModel.Core/FoundationalModel.Core.csproj" Id="473a9c38-352c-44b6-b360-ad7e5bb4e892" />
+    <Project Path="src/FoundationalModel.Models/FoundationalModel.Models.csproj" Id="c7d94ed9-5b6f-4d65-8396-4f6899647220" />
+    <Project Path="src/FoundationalModel.Services/FoundationalModel.Services.csproj" Id="e70c1b80-85c7-4c5a-b2c4-39a583220567" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FoundationalModel.API.Tests/FoundationalModel.API.Tests.csproj" />
