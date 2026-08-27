@@ -1,0 +1,5 @@
+- Accross the 10 runs the output tokens, response, latency and estimated costs changed
+- Accross the 10 runs input tokens stayed consistent
+- Cost was affected by both the input and output tokens.
+- Latency was affected by the size of response.
+- Using foundational model response to the same request can return a different response but for normal Api the response is deterministic

@@ -1,0 +1,5 @@
+- input token was constant
+- output token was fluctuating with response to the length of the response.
+- latency was fluctuating based on the length of the response.
+- response was different for each run but meaning was consistent.
+- the higher the length of the response, the higher the token count and latency.
