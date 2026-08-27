@@ -5,7 +5,6 @@ using FoundationalModel.Models.Configs;
 using FoundationalModel.Models.Dtos.Requests;
 using FoundationalModel.Models.Dtos.Responses;
 using FoundationalModel.Services.Interfaces;
-using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 
@@ -44,15 +43,26 @@ namespace FoundationalModel.Services.Implementations.Providers
 
                 sw.Start();
                 var message = await _client.Messages.Create(parameters);
+                var contents = new List<string>();
+
+                foreach(var block in message.Content)
+                {
+                    if(block.TryPickText(out var textBlock))
+                    {
+                        contents.Add(textBlock.Text);
+                    }
+                }
+
+                var text = contents != null ? string.Join(
+                    "\n", contents) : string.Empty;
+
+                _anthropicProviderSettings.Models.TryGetValue(Model.ClaudeHaiku4_5.ToString(), out var modelCost);
                 response = AnthropicResponseMapper.CreateSuccess(
-                    message.Model,
-                    message.Content is null
-                        ? string.Empty
-                        : string.Join("\n", message.Content.OfType<TextBlock>().Select(x => x.Text)),
-                    message.Usage.InputTokens,
+                    Model.ClaudeHaiku4_5_20251001.ToString(),
+                    text, message.Usage.InputTokens,
                     message.Usage.OutputTokens,
                     sw.ElapsedMilliseconds,
-                    GetModelCost(Model.ClaudeHaiku4_5));
+                    modelCost);
             }
             catch(AnthropicException ex)
             {
@@ -65,12 +75,6 @@ namespace FoundationalModel.Services.Implementations.Providers
 
             return response;
 
-        }
-
-        private ModelCost? GetModelCost(Model model)
-        {
-            _anthropicProviderSettings.Models.TryGetValue(model.ToString(), out var modelCost);
-            return modelCost;
         }
     }
 }
