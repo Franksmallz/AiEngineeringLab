@@ -10,21 +10,35 @@ The repository is deliberately simple. Each exercise should leave behind working
 | --- | --- |
 | `src/` | API and application code |
 | `tests/` | Automated tests that protect behaviour |
-| `experiments/` | Short-lived spikes and experiments; record the question and result |
+| `experiments/` | experiments on the behaviour of the models on different runs; record the question and response |
 | `evaluations/` | Repeatable evaluations for quality, correctness, safety, and AI output |
 | `docs/` | Design notes, decisions, API contracts, and learning notes |
+
+
+## Architecture
+
+- Controller -> GenerateService -> IModelProvider -> AnthropicModelProvider -> ClaudeMessagesSDK -> NormalizedResponse
+
+- Controller - The endpoint for prompting the model configured for a response.
+- GenerateService - The service layer that resolves to the configured provider to process the prompts. Uses Autofac keyed resolver to resolve to the implementation for the configured provider.
+- IModelProvider - The interface that all model providers must impelement for sending prompts.
+- ClaudeMessagesSDK - The official Anthropic SDK that allows us to process a prompt using one of the official anthropic models.
+
 
 ## Run it
 
 ```powershell
 dotnet restore AiEngineeringLab.slnx --ignore-failed-sources
 dotnet run --project src/FoundationalModel.API
+##ensure that all configurations are available on appsettings
 ```
 
 Then visit:
 
-- `GET /api/v1/system/health`
-- `GET /api/v1/system/info`
+- `GET /api/v1/system/health` - for system health
+- `GET /api/v1/system/info` - for system information
+- `POST /api/generate - to prompt the configured model for response
+
 
 ## Test it
 
@@ -32,15 +46,19 @@ Then visit:
 dotnet test AiEngineeringLab.slnx --no-restore
 ```
 
-## Working with AI
-
-1. Write the problem and acceptance criteria in `docs/` before asking an AI tool to code.
-2. Keep experiments isolated from production code until their result is understood.
-3. Ask the model to explain assumptions, risks, and changed files.
-4. Review every generated change for correctness, security, privacy, maintainability, and licensing.
-5. Add or update tests before calling the work complete.
-6. Record what worked and what failed in `evaluations/`.
-
 ## Current API contract
 
-The API currently exposes a health endpoint and a basic service-information endpoint. They are intentionally small starting points for exercises involving validation, persistence, authentication, observability, integrations, and AI-assisted refactoring.
+Request : {
+  "prompt": "The question or message to be sent to the model"
+}
+
+Response: {
+  "model": "The model used to process the request",
+  "inputTokens": the amount of tokens used to process the input message - Int64,
+  "outputTokens": the amount of token used to generate the output response - Int64,
+  "latencyMs": the duration of the api request to the time a response comes back - Int64,
+  "estimatedCost": the cost of processing the message - decimal,
+  "success": true,
+  "errorMessage": "string",
+  "text": "Response"
+}
