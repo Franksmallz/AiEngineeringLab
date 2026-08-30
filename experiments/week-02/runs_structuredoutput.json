@@ -1,0 +1,72 @@
+[
+  {
+    "run": 1,
+    "prompt": "I need the names of the last 5 Nigerian President's. I need it Json strict Json format",
+    "text": "```json\n{\n  \"nigerian_presidents\": [\n    {\n      \"rank\": 1,\n      \"name\": \"Bola Ahmed Tinubu\",\n      \"term_start\": 2023,\n      \"term_end\": \"present\"\n    },\n    {\n      \"rank\": 2,\n      \"name\": \"Muhammadu Buhari\",\n      \"term_start\": 2015,\n      \"term_end\": 2023\n    },\n    {\n      \"rank\": 3,\n      \"name\":",
+    "inputTokens": 28,
+    "outputTokens": 128,
+    "latencyMs": 2602,
+    "temperature": 0.7,
+    "estimatedCost": 0.000668,
+    "maxtToken": 128,
+    "topP": 1,
+    "success": true,
+    "errorMessage": null
+  },
+  {
+    "run": 2,
+    "prompt": "I need the names of the last 5 Nigerian President's. I need it Json strict Json format",
+    "text": "```json\n{\n  \"nigerian_presidents\": [\n    {\n      \"rank\": 1,\n      \"name\": \"Bola Ahmed Tinubu\",\n      \"term_start\": 2023,\n      \"term_end\": \"present\"\n    },\n    {\n      \"rank\": 2,\n      \"name\": \"Muhammadu Buhari\",\n      \"term_start\": 2015,\n      \"term_end\": 2023\n    },\n    {\n      \"rank\": 3,\n      \"name\":",
+    "inputTokens": 28,
+    "outputTokens": 128,
+    "latencyMs": 1666,
+    "temperature": 0.7,
+    "estimatedCost": 0.000668,
+    "maxtToken": 128,
+    "topP": 1,
+    "success": true,
+    "errorMessage": null
+  },
+  {
+    "run": 3,
+    "prompt": "I need the names of the last 5 Nigerian President's. I need it Json strict Json format",
+    "text": "```json\n{\n  \"nigerian_presidents\": [\n    {\n      \"rank\": 1,\n      \"name\": \"Bola Ahmed Tinubu\",\n      \"term_start\": 2023,\n      \"term_end\": \"present\"\n    },\n    {\n      \"rank\": 2,\n      \"name\": \"Muhammadu Buhari\",\n      \"term_start\": 2015,\n      \"term_end\": 2023\n    },\n    {\n      \"rank\": 3,\n      \"name\":",
+    "inputTokens": 28,
+    "outputTokens": 128,
+    "latencyMs": 1634,
+    "temperature": 0.7,
+    "estimatedCost": 0.000668,
+    "maxtToken": 128,
+    "topP": 1,
+    "success": true,
+    "errorMessage": null
+  },
+  {
+    "run": 4,
+    "prompt": "I need the names of the last 5 Nigerian President's. I need it Json strict Json format",
+    "text": "```json\n{\n  \"nigerian_presidents\": [\n    {\n      \"rank\": 1,\n      \"name\": \"Bola Ahmed Tinubu\",\n      \"term_start\": 2023,\n      \"term_end\": \"present\"\n    },\n    {\n      \"rank\": 2,\n      \"name\": \"Muhammadu Buhari\",\n      \"term_start\": 2015,\n      \"term_end\": 2023\n    },\n    {\n      \"rank\": 3,\n      \"name\":",
+    "inputTokens": 28,
+    "outputTokens": 128,
+    "latencyMs": 1529,
+    "temperature": 0.7,
+    "estimatedCost": 0.000668,
+    "maxtToken": 128,
+    "topP": 1,
+    "success": true,
+    "errorMessage": null
+  },
+  {
+    "run": 5,
+    "prompt": "I need the names of the last 5 Nigerian President's. I need it Json strict Json format",
+    "text": "```json\n{\n  \"nigerian_presidents\": [\n    {\n      \"rank\": 1,\n      \"name\": \"Bola Ahmed Tinubu\",\n      \"term_start\": 2023,\n      \"term_end\": \"present\"\n    },\n    {\n      \"rank\": 2,\n      \"name\": \"Muhammadu Buhari\",\n      \"term_start\": 2015,\n      \"term_end\": 2023\n    },\n    {\n      \"rank\": 3,\n      \"name\":",
+    "inputTokens": 28,
+    "outputTokens": 128,
+    "latencyMs": 1560,
+    "temperature": 0.7,
+    "estimatedCost": 0.000668,
+    "maxtToken": 128,
+    "topP": 1,
+    "success": true,
+    "errorMessage": null
+  }
+]

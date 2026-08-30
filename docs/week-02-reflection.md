@@ -1,0 +1,10 @@
+- This week I learnt about how a model generates its output on receiving a token. 
+- When a model receives a response, it tokenizes the input and generates attention for each input.
+- Then converts it's vocabulary into logits, then probability distribution of the logits, then if there sampling controls like temperature, topP and TopK applies it to the logits before going ahead to generate the next token based on previous tokens (input tokens + previously generated next tokens).
+- Then tokenizes the output and returns it.
+- When temperature was changed to 1 the degree of randomness of response was noticed.
+- Max tokens was used to control the length of output response which in turn affects output token and sometimes meaning because of truncated response.
+- I didn't really see a major change on the top_p change. However, i observed that response was the same for the same prompt even though temperature was set to 0;
+- When I sent identical runs the output was not identica.
+- temperature, max-token, prompt of variable length impacted latency, cost and token usage.
+- 
