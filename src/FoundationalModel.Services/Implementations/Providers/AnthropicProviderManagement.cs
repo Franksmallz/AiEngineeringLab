@@ -30,15 +30,17 @@ namespace FoundationalModel.Services.Implementations.Providers
             {
                 var parameters = new MessageCreateParams
                 {
-                    MaxTokens = _anthropicProviderSettings.MaxTokens,
-                    Model = Model.ClaudeHaiku4_5,
+                    MaxTokens = request.MaxToken,
+                    Model = Model.ClaudeHaiku4_5_20251001,
                     Messages = [
                       new MessageParam
                         {
                             Role = Role.User,
-                            Content = request.Prompt
+                            Content = request.Prompt,
                         },
-                    ]
+                    ],
+                    Temperature  = request.Temperature,
+                    TopK = request.TopK,
                 };
 
                 sw.Start();
@@ -62,7 +64,9 @@ namespace FoundationalModel.Services.Implementations.Providers
                     text, message.Usage.InputTokens,
                     message.Usage.OutputTokens,
                     sw.ElapsedMilliseconds,
-                    modelCost);
+                    modelCost,
+                    request.Temperature,
+                    request.Prompt);
             }
             catch(AnthropicException ex)
             {

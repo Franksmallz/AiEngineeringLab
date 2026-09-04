@@ -1,0 +1,44 @@
+[
+  {
+    "run": 1,
+    "prompt": "Explain eventual consistency in exactly three bullet points",
+    "text": "# Eventual Consistency\n\n• **Delayed Synchronization**: Data changes are not instantly replicated across all nodes in a distributed system; instead, updates propagate gradually, meaning different nodes may temporarily hold different versions of the same data.\n\n• **High Availability Trade-off**: The system prioritizes availability and fault tolerance over immediate consistency, allowing operations to succeed even when some nodes are unreachable, with the guarantee that all nodes will eventually converge to the same state.\n\n• **Temporary Divergence**: During the synchronization window, clients may read stale or inconsistent data, but if no new updates occur, all nodes will eventually reach agreement on the final state.",
+    "inputTokens": 16,
+    "outputTokens": 145,
+    "latencyMs": 2997,
+    "temperature": 0.7,
+    "estimatedCost": 0.000741,
+    "maxtToken": 1024,
+    "topP": 1,
+    "success": true,
+    "errorMessage": null
+  },
+  {
+    "run": 2,
+    "prompt": "Explain idempotency and give use cases. Then go ahead to give real life examples and systems where idempotency can be used",
+    "text": "# Idempotency: Complete Guide\n\n## Definition\n\n**Idempotency** is a property where an operation produces the same result regardless of how many times it's executed. In other words, performing an operation once or multiple times yields identical outcomes.\n\nMathematically: `f(f(x)) = f(x)`\n\n---\n\n## Core Concepts\n\n### Two Types:\n\n1. **Idempotent Operations**: Calling them multiple times = calling them once\n2. **Idempotent Methods**: Same input always produces same output (deterministic)\n\n---\n\n## Use Cases\n\n### 1. **Payment Processing**\n- A user clicks \"Pay\" multiple times due to network delay\n- Should charge only once, not multiple times\n\n### 2. **API Requests**\n- Network failures cause retries\n- Retries shouldn't duplicate the original action\n\n### 3. **Database Operations**\n- `UPDATE` statements are idempotent\n- `INSERT` statements are NOT (creates duplicates)\n\n### 4. **Message Queues**\n- Messages might be delivered multiple times\n- Processing must be idempotent\n\n### 5. **Distributed Systems**\n- Network partitions cause retransmissions\n- Duplicate requests must be safely handled\n\n---\n\n## Real-Life Examples & Systems\n\n### **1. E-Commerce (Payment Processing)**\n\n```python\n# ❌ NOT Idempotent\ndef process_payment(user_id, amount):\n    charge_credit_card(user_id, amount)\n    update_order_status(order_id, \"paid\")\n    # If called twice → charged twice!\n\n# ✅ Idempotent\ndef process_payment(user_id, amount, idempotency_key):\n    # Check if already processed\n    existing_transaction = db.query(\n        \"SELECT * FROM transactions WHERE idempotency_key = ?\",\n        idempotency_key\n    )\n    \n    if existing_transaction:\n        return existing_transaction  # Return previous result\n    \n    # Process only if not already done\n    transaction = charge_credit_card(user_id, amount)\n    db.insert(\"transactions\", {\n        \"idempotency_key\": idempotency_key,\n        \"transaction_id\": transaction.id,\n        \"amount\": amount\n    })\n    return transaction\n```\n\n**Real System**: Stripe uses idempotency keys in their API\n```bash\ncurl https://api.stripe.com/v1/charges \\\n  -H \"Idempotency-Key: unique-key-12345\" \\\n  -d amount=2000 \\\n  -d currency=usd\n# Same key → same result, even if called 100 times\n```\n\n---\n\n### **2. Banking Systems (Fund Transfers)**\n\n```python\n# Scenario: User clicks \"Transfer $500\" but network times out\n# System retries automatically\n\nclass BankTransfer:\n    def transfer_funds(self, from_account, to_account, amount, \n                      transaction_id):\n        # Check if transfer already completed\n        existing = db.query(\n            \"SELECT * FROM transfers WHERE transaction_id = ?\",\n            transaction_id\n        )\n        \n        if existing:\n            return existing.status  # \"completed\"\n        \n        # Perform transfer only once\n        from_account.balance -= amount\n        to_account.balance += amount\n        \n        db.insert(\"transfers\", {\n            \"transaction_id\": transaction_id,\n            \"from\": from_account,\n            \"to\": to_account,\n            \"amount\": amount,\n            \"status\": \"completed\"\n        })\n        \n        return \"completed\"\n```\n\n---\n\n### **3. Message Queue Systems (RabbitMQ, Kafka)**\n\n```python\n# ❌ Non-idempotent consumer\ndef process_order_message(message):\n    order = json.loads(message.body)\n    inventory.decrease(order.product_id, order.quantity)\n    # If message processed twice → inventory goes negative!\n\n# ✅ Idempotent consumer\ndef process_order_message(message):\n    order = json.loads(message.body)\n    \n    # Check if already processed\n    if db.exists(\"processed_messages\", message_id=message.id):\n        return  # Already processed\n    \n    # Process\n    inventory.decrease",
+    "inputTokens": 36,
+    "outputTokens": 1024,
+    "latencyMs": 8109,
+    "temperature": 0.7,
+    "estimatedCost": 0.005156,
+    "maxtToken": 1024,
+    "topP": 1,
+    "success": true,
+    "errorMessage": null
+  },
+  {
+    "run": 3,
+    "prompt": "I am looking to go on vacation to europe. however i don't know if I have the entire money to spend. I am looking at a budget of 500 euro for 1 week. can you help me find top three hotels in paris where i can stay for one week and still have money for feeding and other curricular activies",
+    "text": "# Budget-Friendly Hotels in Paris (€500/week total)\n\nWith a €500 budget for 7 nights, you're looking at roughly **€71/night maximum** to leave room for food and activities. Here are realistic options:\n\n## Top 3 Budget Hotel Recommendations\n\n### 1. **Hipotel Paris Belleville**\n- **Price:** €50-70/night\n- **Location:** Belleville (vibrant, authentic neighborhood)\n- **Why it works:** Basic but clean rooms, friendly staff, near metro\n- **Leaves you:** ~€30-50/day for food and activities\n\n### 2. **Hotel Mayfair Paris**\n- **Price:** €55-75/night\n- **Location:** Near Gare de l'Est\n- **Why it works:** Simple rooms, good value, accessible location\n- **Leaves you:** ~€25-45/day for food and activities\n\n### 3. **Woodstock Hostel (Private Room)**\n- **Price:** €50-65/night (private room option)\n- **Location:** Latin Quarter\n- **Why it works:** Social atmosphere, budget-friendly, central location\n- **Leaves you:** ~€30-50/day for food and activities\n\n## Budget Tips for Your Remaining €150-200\n\n- **Food:** Eat at local bakeries, markets, and casual bistros (€10-15/day)\n- **Activities:** Many museums have free hours; walking tours are affordable\n- **Transport:** Get a Paris Visite pass (€30 for unlimited metro)\n\nWould you like specific restaurant recommendations or free activity suggestions?",
+    "inputTokens": 77,
+    "outputTokens": 370,
+    "latencyMs": 4617,
+    "temperature": 0.7,
+    "estimatedCost": 0.001927,
+    "maxtToken": 1024,
+    "topP": 1,
+    "success": true,
+    "errorMessage": null
+  }
+]

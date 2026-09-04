@@ -10,5 +10,7 @@
         public bool Success { get; set; }
         public string ErrorMessage { get; set; }
         public string Text { get; set; }
+        public double Temperature { get; set; }
+        public string Prompt { get; set; }
     }
 }
