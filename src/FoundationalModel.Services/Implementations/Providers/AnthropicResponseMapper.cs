@@ -11,7 +11,9 @@ public static class AnthropicResponseMapper
         long inputTokens,
         long outputTokens,
         long latencyMs,
-        ModelCost? pricing)
+        ModelCost? pricing, 
+        double temperature,
+        string prompt)
     {
         return new SendMessageResponseDto
         {
@@ -21,7 +23,9 @@ public static class AnthropicResponseMapper
             OutputTokens = outputTokens,
             LatencyMs = latencyMs,
             EstimatedCost = CalculateCost(pricing, inputTokens, outputTokens),
-            Success = true
+            Success = true,
+            Temperature = temperature,
+            Prompt = prompt
         };
     }
 
