@@ -1,0 +1,167 @@
+[
+  {
+    "id": 1,
+    "input": "What is idempotency",
+    "expectedBehavior": [
+      "Explains repeated operations",
+      "Explains same resulting effect",
+      "Provides an example"
+    ],
+    "actualResponse": "# Idempotency\n\n**Idempotency** means an operation produces the same result no matter how many times you perform it.\n\n## Simple Definition\n\nIf you do something once or a hundred times, the outcome is identical. The second, third, and subsequent attempts don't change anything.\n\n## Real-World Examples\n\n| Example | Idempotent? | Why? |\n|---------|------------|------|\n| Setting volume to 50% | ✅ Yes | Doing it again keeps it at 50% |\n| Pressing an elevator button | ✅ Yes | Pressing multiple times doesn't call multiple elevators |\n| Deleting a file | ❌ No | First delete works; second delete fails (file gone) |\n| Adding $10 to an account | ❌ No | Each addition increases the balance |\n\n## In Programming\n\n### Idempotent HTTP Methods\n- **GET** - Retrieving data doesn't change it\n- **PUT** - Replacing a resource with the same data produces the same state\n- **DELETE** - Deleting an already-deleted resource is safe (returns same result)\n\n### Non-Idempotent\n- **POST** - Creating a new resource multiple times creates multiple copies\n- **PATCH** - Applying changes multiple times may compound\n\n## Why It Matters\n\n✅ **Reliability** - Safe to retry failed operations  \n✅ **Consistency** - Predictable outcomes  \n✅ **Fault tolerance** - Network failures won't cause duplicate actions  \n\nIdempotency is crucial for building robust systems, especially in distributed computing and APIs.",
+    "correctness": 4,
+    "relevance": 5,
+    "instructionFollowing": 5,
+    "latencyMs": 5543,
+    "estimatedCost": 0.001863
+  },
+  {
+    "id": 2,
+    "input": "What is immigration",
+    "expectedBehavior": [
+      "Explains movement of people",
+      "Explains move of people from one country to another",
+      "Provides an example"
+    ],
+    "actualResponse": "# Immigration\n\nImmigration is the process of moving to a new country to live permanently or for an extended period. Here are the key aspects:\n\n## Basic Definition\nPeople who immigrate (called immigrants) leave their country of origin to settle in another country, typically seeking better opportunities, safety, or to reunite with family.\n\n## Common Reasons for Immigration\n- **Economic opportunities** – better jobs and higher wages\n- **Safety and stability** – fleeing conflict, persecution, or violence\n- **Education** – pursuing studies\n- **Family reunification** – joining relatives\n- **Quality of life** – healthcare, infrastructure, freedoms\n\n## Types\n- **Permanent immigration** – settling indefinitely with intent to become a citizen\n- **Temporary immigration** – working or studying for a set period\n- **Refugee/asylum** – fleeing persecution or danger\n\n## Legal Process\nMost countries require immigrants to:\n- Obtain visas or permits\n- Pass background checks\n- Meet health requirements\n- Demonstrate financial stability or job prospects\n\n## Key Distinctions\n- **Immigration** = moving *to* a country\n- **Emigration** = leaving *from* a country\n- **Migration** = general movement of people\n\nImmigration is a complex topic involving legal, economic, social, and humanitarian dimensions that varies significantly by country and individual circumstances.",
+    "correctness": 4,
+    "relevance": 5,
+    "instructionFollowing": 5,
+    "latencyMs": 4189,
+    "estimatedCost": 0.00146
+  },
+  {
+    "id": 3,
+    "input": "What is Atomicity",
+    "expectedBehavior": [
+      "Explains all or nothing",
+      "Explains can not be partially completed",
+      "Provides an example"
+    ],
+    "actualResponse": "# Atomicity\n\n**Atomicity** is a fundamental concept in computer science and databases that refers to the property of an operation being **\"all-or-nothing\"** — it either completes fully or doesn't execute at all.\n\n## Key Characteristics\n\n- **Indivisible**: An atomic operation cannot be interrupted or partially completed\n- **All-or-nothing**: Either the entire operation succeeds, or it fails completely with no partial results\n- **No intermediate states**: Observers never see incomplete or inconsistent states\n\n## Common Contexts\n\n### 1. **Database Transactions (ACID)**\nThe \"A\" in ACID properties:\n```\nTransfer $100 from Account A to Account B:\n✓ Debit Account A\n✓ Credit Account B\n✓ Both succeed → Transaction commits\n✗ Either fails → Entire transaction rolls back\n```\n\n### 2. **Concurrent Programming**\nAtomic operations are thread-safe without additional locking:\n```java\n// Atomic operation - no race conditions\natomicCounter.incrementAndGet();\n```\n\n### 3. **File Systems**\nAtomic file operations ensure data integrity:\n- Write-or-fail (not partial writes)\n- Rename operations complete fully\n\n## Why It Matters\n\n| Benefit | Example |\n|---------|---------|\n| **Data Consistency** | No corrupted/incomplete data |\n| **Reliability** | Predictable behavior |\n| **Safety** | Prevents race conditions |\n| **Error Handling** | Clear success/failure states |\n\n## Real-World Analogy\nLike a light switch — it's either **ON** or **OFF**, never in between.",
+    "correctness": 4,
+    "relevance": 5,
+    "instructionFollowing": 5,
+    "latencyMs": 4646,
+    "estimatedCost": 0.001902
+  },
+  {
+    "id": 4,
+    "input": "What is first principles",
+    "expectedBehavior": [
+      "Explains solving complex problems",
+      "Explains finding core truths",
+      "Provides an example"
+    ],
+    "actualResponse": "# First Principles Thinking\n\n**First principles** means breaking down complex problems into their most basic, fundamental truths—then rebuilding solutions from there.\n\n## The Core Idea\n\nInstead of accepting conventional wisdom or existing solutions, you:\n\n1. **Identify the fundamentals** - Strip away assumptions and get to what you know for certain\n2. **Question everything** - Challenge why things are done a certain way\n3. **Rebuild from scratch** - Create new solutions based on those basics\n\n## Simple Example\n\n**Conventional thinking:** \"Batteries are expensive, so electric cars will always be expensive\"\n\n**First principles:** \n- What are batteries actually made of? (Cobalt, nickel, lithium, etc.)\n- What do those materials actually cost?\n- Can we source them differently?\n- → This led to cheaper battery designs\n\n## Real-World Applications\n\n- **Elon Musk** used this to reduce rocket costs (questioning why rockets were so expensive, then rebuilding from material costs)\n- **Physics & Science** - Starting from laws of nature rather than \"how it's always been done\"\n- **Business** - Rethinking products, pricing, or processes\n\n## Why It Matters\n\nIt helps you:\n- Avoid being trapped by outdated assumptions\n- Find innovative solutions\n- Understand problems deeply\n\nThe opposite is **reasoning by analogy** (\"We do it this way because that's how it's always been done\").",
+    "correctness": 5,
+    "relevance": 5,
+    "instructionFollowing": 5,
+    "latencyMs": 5099,
+    "estimatedCost": 0.001611
+  },
+  {
+    "id": 5,
+    "input": "Explain post-partum psychosis with symptoms in three bullet points",
+    "expectedBehavior": [
+      "Explains mental health",
+      "Explains mood changes",
+      "Provides symptoms"
+    ],
+    "actualResponse": "# Postpartum Psychosis\n\n• **Definition & Onset**: A severe mental health crisis occurring within 2 weeks of childbirth (rarely up to 3 months), characterized by loss of contact with reality; considered a psychiatric emergency requiring immediate hospitalization.\n\n• **Key Symptoms**: Hallucinations (hearing voices or seeing things), delusions (false beliefs, often about the baby), paranoia, disorganized thinking, severe mood swings between mania and depression, and confusion or disorientation.\n\n• **Danger & Risk**: Poses serious risks to mother and infant safety, including potential for self-harm or harm to the baby; requires urgent psychiatric intervention, medication, and hospitalization; more common in women with bipolar disorder or previous psychotic episodes.",
+    "correctness": 4,
+    "relevance": 5,
+    "instructionFollowing": 4,
+    "latencyMs": 2847,
+    "estimatedCost": 0.000866
+  },
+  {
+    "id": 6,
+    "input": "An instrument store gives a 10% discount to all students off the original cost of an instrument. During a back to school sale an additional 15% is taken off the discounted price. Julie, a student at the local high school, purchases a flute for $306. How much did it originally cost?show how you arrive at your answer. Options A.$500, B.$401. C.400POUNDS. D.400 dollars",
+    "expectedBehavior": [
+      "Shows full working",
+      "Gets the correct answer",
+      "Selects the best option"
+    ],
+    "actualResponse": "# Finding the Original Cost of the Flute\n\nLet me work backwards from the final price Julie paid.\n\n## Setting Up the Problem\n\nLet x = original cost\n\n**Step 1: Apply the 10% student discount**\n- Discount amount: 10% of x = 0.10x\n- Price after student discount: x - 0.10x = **0.90x**\n\n**Step 2: Apply the additional 15% sale discount**\n- This 15% is taken off the already-discounted price\n- Discount amount: 15% of 0.90x = 0.15(0.90x)\n- Price after sale discount: 0.90x - 0.15(0.90x) = 0.90x(1 - 0.15) = **0.90x(0.85)**\n\n## Solving for Original Cost\n\nThe final price Julie paid was $306:\n\n$$0.90x × 0.85 = 306$$\n\n$$0.765x = 306$$\n\n$$x = \frac{306}{0.765} = 400$$\n\n## Verification\n\n- Original cost: $400\n- After 10% student discount: $400 × 0.90 = $360\n- After additional 15% off: $360 × 0.85 = $306 ✓\n\n## Answer\n\n**D. $400**",
+    "correctness": 5,
+    "relevance": 5,
+    "instructionFollowing": 5,
+    "latencyMs": 3974,
+    "estimatedCost": 0.001709
+  },
+  {
+    "id": 7,
+    "input": "ある母親から、まったく同じ年、同じ日、同じ時間に二人の女の子が生まれました。それなのに、二人は双子（ふたご）ではありません。一体なぜでしょうか？ Convert to English Language and give your answer in Italian",
+    "expectedBehavior": [
+      "Same meaning in English language",
+      "Gets the answer correct",
+      "Same meaning of the answer in italian"
+    ],
+    "actualResponse": "# English Version\n\nA mother gave birth to two girls on the exact same year, same day, and same time. Yet, they are not twins. Why is this possible?\n\n**Answer:** They are triplets (or more). The riddle says they are not twins, but it doesn't say there isn't a third child (or more) born at the same time.\n\n---\n\n# Italian Version\n\nUna madre ha partorito due ragazze nello stesso anno, nello stesso giorno e alla stessa ora. Eppure, non sono gemelle. Perché è possibile?\n\n**Risposta:** Sono trigemine (o più). L'indovinello dice che non sono gemelle, ma non dice che non c'è un terzo bambino (o più) nato nello stesso momento.",
+    "correctness": 5,
+    "relevance": 5,
+    "instructionFollowing": 5,
+    "latencyMs": 3131,
+    "estimatedCost": 0.000997
+  },
+  {
+    "id": 8,
+    "input": "ある母親から、まったく同じ年、同じ日、同じ時間に二人の女の子が生まれました。それなのに、二人は双子（ふたご）ではありません。一体なぜでしょうか？ Convert to English Language and give the answer to the riddle in Italian",
+    "expectedBehavior": [
+      "Same meaning in English language",
+      "Gets the answer correct",
+      "Same meaning of the answer in italian"
+    ],
+    "actualResponse": "# English Version of the Riddle:\n\nFrom a certain mother, two girls were born in exactly the same year, on the same day, and at the same time. Yet, the two are not twins. Why is that?\n\n---\n\n# Answer in Italian:\n\n**Perché le due ragazze sono gemelle, non gemelle fraterne (gemelle dizigoti). Sono gemelle identiche (gemelle monozigoti), oppure una delle due è nata da una gravidanza precedente e l'altra dalla stessa gravidanza, ma in anni diversi a causa del fuso orario.**\n\n*Oppure, la risposta più semplice:*\n\n**Perché sono gemelle! La domanda dice che non sono \"gemelle\" (twins), ma in realtà sono gemelle identiche o gemelle fraterne - il termine \"gemelle\" è solo un modo diverso di dire \"twins\" in italiano.**\n\n*O ancora più semplicemente:*\n\n**Perché sono parte di un gruppo di tre o più bambini nati nello stesso momento - sono terzine, quadruplici, ecc., non solo gemelle.**",
+    "correctness": 3,
+    "relevance": 4,
+    "instructionFollowing": 4,
+    "latencyMs": 4605,
+    "estimatedCost": 0.001406
+  },
+  {
+    "id": 9,
+    "input": "ある母親から、まったく同じ年、同じ日、同じ時間に二人の女の子が生まれました。それなのに、二人は双子（ふたご）ではありません。一体なぜでしょうか？ Convert to English Language and give the answer to the riddle in Italian. Don't translat the riddle to italian. Only the answer should be in italian.",
+    "expectedBehavior": [
+      "Same meaning in English language",
+      "Does not translate the riddle to italian",
+      "Only the answer in italian"
+    ],
+    "actualResponse": "# Riddle in English:\n\nFrom a certain mother, two girls were born in exactly the same year, on the same day, and at the same time. Yet, the two are not twins. Why is that?\n\n---\n\n# Answer in Italian:\n\nPerché sono tre gemelle, non due. (Una terza gemella è nata nello stesso momento.)\n\nOr more simply:\n\nPerché sono trigemine (o più gemelle).\n\n---\n\n**Explanation:** The riddle plays on the assumption that if two children are born at the same time, they must be twins. However, if there are three or more children born simultaneously, they are not called \"twins\" but rather \"triplets\" (trigemine in Italian) or multiples.",
+    "correctness": 5,
+    "relevance": 4,
+    "instructionFollowing": 3,
+    "latencyMs": 3051,
+    "estimatedCost": 0.00095
+  },
+  {
+    "id": 10,
+    "input": "A multi-step biomimetic total synthesis of a complex meroterpenoid relies on a key tandem reaction. A solution of \\((2E,4E)\\)-6-hydroxy-2-methylhexa-2,4-dienal is treated with 20 mol % of \\((S)\\)-2-diphenyl(trimethylsilyloxy)methylpyrrolidine (a Hayashi-Jørgensen catalyst) and 1.5 equivalents of a 1,3-cyclohexadiene derivative acting as a diene in the presence of an optimized Brønsted acid co-catalyst at -78 °C in dichloromethane. Over 12 hours, the reaction smoothly proceeds to deliver a heavily functionalized bicyclic core. Extensive 2D-NMR (COSY, HSQC, HMBC, and NOESY) analysis combined with chiral HPLC reveals that the reaction proceeds with 98% ee and exclusive endo-selectivity, establishing three contiguous stereocenters (including a quaternary carbon) with the newly formed ring fused in a defined topology.However, when the bulky silyl ether on the catalyst is replaced with a less sterically demanding trimethylsilyl (TMS) group under identical conditions, the enantiomeric excess drops precipitously to 42% ee, and a significant proportion of the exo-adduct is isolated alongside a regioisomeric [2+2] cyclobutane side-product. Considering the formation of the transient chiral iminium ion intermediate, the conformational preference dictated by the steric bulk of the diaryl-substituted pyrrolidine ring, and the secondary orbital interactions during the concerted [4+2] cycloaddition transition state, which of the following mechanistic rationales best accounts for the observed high facial selectivity and endo-bias in the bulky silyl ether system? explain the reason for your answer",
+    "expectedBehavior": [
+      "Explain facial shiedling",
+      "Explain forced approach",
+      "Gets the correct answer"
+    ],
+    "actualResponse": "# Mechanistic Analysis of the Hayashi-Jørgensen Catalyzed Diels-Alder Reaction\n\n## The Correct Mechanistic Rationale\n\nThe high facial selectivity (98% ee) and exclusive endo-selectivity observed with the bulky diphenyl(trimethylsilyloxy)methyl group is best explained by a combination of:\n\n1. **Enhanced steric shielding of the chiral iminium intermediate**\n2. **Conformational rigidity of the catalyst-substrate complex**\n3. **Secondary orbital interactions (SOI) in the transition state**\n4. **Optimal geometric preorganization for endo-approach**\n\n---\n\n## Detailed Mechanistic Explanation\n\n### Step 1: Iminium Formation and Facial Selectivity\n\n```\nAldehyde + Catalyst → Chiral Iminium Ion (E-geometry preferred)\n                      ↓\n                   [Bulky silyl ether creates\n                    steric pocket on one face]\n```\n\n**Why the bulky silyl ether matters:**\n\n- The **diphenyl(trimethylsilyloxy)methyl substituent** creates a substantial steric barrier on one face of the pyrrolidine ring\n- This bulky group occupies significant space in the coordination sphere, forcing the iminium π-system into a well-defined orientation\n- The diene can only approach from the **opposite face** with high probability, ensuring facial selectivity\n\n**Contrast with TMS group:**\n- The smaller trimethylsilyl group provides insufficient steric differentiation\n- The iminium intermediate maintains conformational flexibility\n- Diene approach becomes less stereocontrolled → 42% ee (near racemic)\n\n### Step 2: Endo-Selectivity and Transition State Geometry\n\nThe endo-selectivity arises from multiple factors:\n\n#### A. **Secondary Orbital Interactions (SOI)**\n\nIn the [4+2] cycloaddition transition state:\n\n```\n        Diene HOMO\n           ↓\n    [4+2] Cycloaddition TS\n           ↑\n    Iminium LUMO\n    \n    Secondary interactions:\n    • C-H···π interactions (diene → aromatic rings on catalyst)\n    • Dipole-dipole alignment (iminium dipole ↔ diene)\n```\n\n- The **bulky diphenyl groups** on the catalyst create favorable **C-H···π interactions** with the diene in the endo-approach geometry\n- These secondary orbital interactions stabilize the endo-transition state by 2-4 kcal/mol\n- The exo-approach lacks these stabilizing interactions\n\n#### B. **Conformational Preorganization**\n\nThe bulky silyl ether enforces:\n\n```\nPyrrolidine Ring Conformation:\n    \n    Bulky silyl ether\n           ↓\n    [Rigid envelope conformation]\n           ↓\n    Iminium oriented for endo-attack\n    (diene approaches from concave face)\n```\n\n- The steric bulk **locks the pyrrolidine** into a specific envelope conformation\n- This preorganization positions the iminium LUMO optimally for endo-approach\n- The diene's HOMO orbital overlaps most effectively in the endo-geometry\n\n### Step 3: Why Exo-Selectivity and [2+2] Byproducts Appear with TMS\n\n```\nTMS group (smaller):\n    ↓\nFlexible iminium intermediate\n    ↓\nMultiple accessible conformations\n    ↓\nCompeting pathways:\n    • Endo-[4+2] (major, but not exclusive)\n    • Exo-[4+2] (significant)\n    • [2+2] cyclobutane (side reaction)\n```\n\n**Mechanistic consequences:**\n\n1. **Loss of endo-selectivity**: Without steric enforcement, both endo and exo transition states are accessible with similar energies\n2. **[2+2] cyclobutane formation**: The flexible iminium can adopt conformations that favor [2+2] cycloaddition through:\n   - Orbital misalignment for [4+2]\n   - Increased HOMO-LUMO gap for [4+2]\n   - Favorable geometry for [2+2] in certain conformations\n\n---\n\n## Quantitative Comparison\n\n| Parameter | Bulky",
+    "correctness": 3,
+    "relevance": 4,
+    "instructionFollowing": 3,
+    "latencyMs": 12745,
+    "estimatedCost": 0.005569
+  },
+  {
+    "id": 11,
+    "input": "A multi-step biomimetic total synthesis of a complex meroterpenoid relies on a key tandem reaction. A solution of \\((2E,4E)\\)-6-hydroxy-2-methylhexa-2,4-dienal is treated with 20 mol % of \\((S)\\)-2-diphenyl(trimethylsilyloxy)methylpyrrolidine (a Hayashi-Jørgensen catalyst) and 1.5 equivalents of a 1,3-cyclohexadiene derivative acting as a diene in the presence of an optimized Brønsted acid co-catalyst at -78 °C in dichloromethane. Over 12 hours, the reaction smoothly proceeds to deliver a heavily functionalized bicyclic core. Extensive 2D-NMR (COSY, HSQC, HMBC, and NOESY) analysis combined with chiral HPLC reveals that the reaction proceeds with 98% ee and exclusive endo-selectivity, establishing three contiguous stereocenters (including a quaternary carbon) with the newly formed ring fused in a defined topology.However, when the bulky silyl ether on the catalyst is replaced with a less sterically demanding trimethylsilyl (TMS) group under identical conditions, the enantiomeric excess drops precipitously to 42% ee, and a significant proportion of the exo-adduct is isolated alongside a regioisomeric [2+2] cyclobutane side-product. Considering the formation of the transient chiral iminium ion intermediate, the conformational preference dictated by the steric bulk of the diaryl-substituted pyrrolidine ring, and the secondary orbital interactions during the concerted [4+2] cycloaddition transition state, which of the following mechanistic rationales best accounts for the observed high facial selectivity and endo-bias in the bulky silyl ether system? summarize the reason for your answer in three bullet points",
+    "expectedBehavior": [
+      "Explain facial shiedling",
+      "Maintains meaning after summary",
+      "Gets the correct answer"
+    ],
+    "actualResponse": "# Mechanistic Rationale for High Selectivity with Bulky Silyl Ether Catalyst\n\n## Three Key Points:\n\n• **Enhanced Steric Shielding of the Iminium Re-Face**: The bulky diphenyl(trimethylsilyloxy)methyl group creates a substantial steric barrier on one face of the pyrrolidine ring system. This sterically demanding substituent effectively shields the *re*-face of the transient chiral iminium intermediate, forcing diene approach exclusively from the *si*-face and delivering high facial selectivity (98% ee). The smaller TMS group lacks sufficient bulk to enforce this facial discrimination, allowing competitive approach from both faces.\n\n• **Conformational Lock Favoring Endo-Approach**: The bulky silyl ether substituent rigidly orients the iminium π-system and adjacent pyrrolidine geometry, establishing a well-defined conformational preference that positions the dienophile (aldehyde) in an optimal endo-oriented geometry relative to the diene. This locks the transition state into a single productive conformation. Conversely, the less hindered TMS catalyst permits greater conformational flexibility, allowing both endo and exo transition state geometries to compete, resulting in diminished endo-selectivity.\n\n• **Optimized Secondary Orbital Interactions in the [4+2] Transition State**: The rigid, bulky catalyst architecture pre-organizes the iminium intermediate to maximize favorable secondary orbital interactions (C-H···π and dipole-stabilizing interactions) during the concerted cycloaddition. This stabilizes the correct stereoisomeric transition state. The reduced steric bulk of TMS permits suboptimal orbital alignment, enabling competing pathways including the [2+2] cyclobutane side-reaction through alternative orbital overlap geometries.",
+    "correctness": 4,
+    "relevance": 5,
+    "instructionFollowing": 5,
+    "latencyMs": 5932,
+    "estimatedCost": 0.002479
+  }
+]
