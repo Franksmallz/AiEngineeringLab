@@ -31,16 +31,16 @@ namespace FoundationalModel.Services.Implementations.Providers
                 var parameters = new MessageCreateParams
                 {
                     MaxTokens = request.MaxToken,
-                    Model = Model.ClaudeHaiku4_5_20251001,
+                    Model = Model.ClaudeSonnet5,
                     Messages = [
                       new MessageParam
                         {
                             Role = Role.User,
                             Content = request.Prompt,
                         },
-                    ],
-                    Temperature  = request.Temperature,
-                    TopK = request.TopK,
+                    ]
+                    //Temperature  = request.Temperature,
+                    //TopK = request.TopK,
                 };
 
                 sw.Start();
@@ -58,9 +58,9 @@ namespace FoundationalModel.Services.Implementations.Providers
                 var text = contents != null ? string.Join(
                     "\n", contents) : string.Empty;
 
-                _anthropicProviderSettings.Models.TryGetValue(Model.ClaudeHaiku4_5.ToString(), out var modelCost);
+                _anthropicProviderSettings.Models.TryGetValue(Model.ClaudeSonnet5.ToString(), out var modelCost);
                 response = AnthropicResponseMapper.CreateSuccess(
-                    Model.ClaudeHaiku4_5_20251001.ToString(),
+                    Model.ClaudeSonnet5.ToString(),
                     text, message.Usage.InputTokens,
                     message.Usage.OutputTokens,
                     sw.ElapsedMilliseconds,
