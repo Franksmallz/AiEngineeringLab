@@ -81,7 +81,9 @@ public sealed class GenerateControllerTests
             inputTokens: 1_000,
             outputTokens: 500,
             latencyMs: 125,
-            pricing: new ModelCost { InputPerMillion = 1m, OutputPerMillion = 5m });
+            pricing: new ModelCost { InputPerMillion = 1m, OutputPerMillion = 5m },
+            temperature: 1,
+            prompt: "Define idempotency");
 
         Assert.True(response.Success);
         Assert.Equal("claude-haiku-4-5", response.Model);

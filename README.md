@@ -23,7 +23,8 @@ The repository is deliberately simple. Each exercise should leave behind working
 - GenerateService - The service layer that resolves to the configured provider to process the prompts. Uses Autofac keyed resolver to resolve to the implementation for the configured provider.
 - IModelProvider - The interface that all model providers must impelement for sending prompts.
 - ClaudeMessagesSDK - The official Anthropic SDK that allows us to process a prompt using one of the official anthropic models.
-
+- Runner - The service to test various sampling properties of the configured model.
+- Evaluation.Runner - The evaluation harness for evaluating different models using configured datasets
 
 ## Run it
 
