@@ -31,7 +31,7 @@ namespace FoundationalModel.Services.Implementations.Providers
                 var parameters = new MessageCreateParams
                 {
                     MaxTokens = request.MaxToken,
-                    Model = Model.ClaudeOpus5,
+                    Model = Model.ClaudeHaiku4_5,
                     Messages = [
                       new MessageParam
                         {

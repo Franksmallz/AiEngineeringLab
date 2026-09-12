@@ -8,6 +8,7 @@ using FoundationalModel.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenAI.Embeddings;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -25,6 +26,9 @@ var configuration = new ConfigurationBuilder()
 var anthropicSettings = configuration.GetSection(AnthropicProviderSettings.SectionName).Get<AnthropicProviderSettings>()
     ?? throw new InvalidOperationException($"Missing configuration section '{AnthropicProviderSettings.SectionName}'.");
 
+var openAiSettings = configuration.GetSection(OpenAiProviderSettings.SectionName).Get<OpenAiProviderSettings>()
+    ?? throw new InvalidOperationException($"Missing configuration section '{OpenAiProviderSettings.SectionName}'.");
+
 if (string.IsNullOrWhiteSpace(anthropicSettings.ApiKey))
 {
     throw new InvalidOperationException(
@@ -35,12 +39,15 @@ if (string.IsNullOrWhiteSpace(anthropicSettings.ApiKey))
 var services = new ServiceCollection();
 services.AddLogging(builder => builder.AddConsole());
 services.Configure<AnthropicProviderSettings>(configuration.GetSection(AnthropicProviderSettings.SectionName));
+services.Configure<OpenAiProviderSettings>(configuration.GetSection(OpenAiProviderSettings.SectionName));
 services.AddScoped(_ => new AnthropicClient
 {
     ApiKey = anthropicSettings.ApiKey,
     Timeout = TimeSpan.FromSeconds(anthropicSettings.Timeout),
     MaxRetries = anthropicSettings.MaxRetries,
 });
+
+services.AddScoped(_ => new EmbeddingClient(openAiSettings.Model, openAiSettings.ApiKey));
 
 var containerBuilder = new ContainerBuilder();
 containerBuilder.Populate(services);
@@ -50,16 +57,18 @@ await using var scope = container.BeginLifetimeScope();
 
 var generateService = scope.Resolve<IGenerateService>();
 var documentChunkService = scope.Resolve<IDocumentChunkService>();
-var retrieverService = scope.Resolve<IRetrieverService>();
+var embeddingService = scope.Resolve<IEmbeddingService>();
+var vectorRetriever = scope.Resolve<IVectorRetrieverService>();
+
 var files = Directory.GetFiles(Path.Combine(repoRoot, "data"), "*.md");
 
 var allChunks = new List<DocumentChunk>();
-foreach(var file in files)
+foreach (var file in files)
 {
     var document = await File.ReadAllTextAsync(file);
     var chunks = documentChunkService.ChunkDocument(document);
 
-    for(int i = 0; i < chunks.Count; i++)
+    for (int i = 0; i < chunks.Count; i++)
     {
         allChunks.Add(new DocumentChunk
         {
@@ -68,6 +77,11 @@ foreach(var file in files)
             Content = chunks[i]
         });
     }
+}
+
+foreach (var chunk in allChunks)
+{
+    chunk.Embedding = await embeddingService.CreateEmbeddingAsync(chunk.Content);
 }
 
 Console.WriteLine("Ask a question, or press Ctrl+C to exit.");
@@ -81,10 +95,12 @@ while (true)
         break;
     }
 
-    var retrievedChunks = retrieverService.Retrieve(question, allChunks);
-    var context = string.Join("\n\n---\n\n", retrievedChunks.Select(x => x.Content));
+    var questionEmbedding = await embeddingService.CreateEmbeddingAsync(question)
+        ?? throw new InvalidOperationException("The embedding provider returned an empty question embedding.");
+    var retrievedChunks = vectorRetriever.Retrieve(questionEmbedding, allChunks);
+    var context = string.Join("\n\n---\n\n", retrievedChunks.Select(x => $"{x.Source}\n{x.Content}"));
     var input = $"Answer the question using only the context below. If the answer is not in the context, say I don't know. Do not add facts, assumptions, or examples that are not in the context\n\nContext:\n{context}\n\nQuestion: {question}";
-   
+
     var response = await generateService.SendMessage(new SendMessageRequestDto
     {
         Prompt = input,
@@ -103,7 +119,7 @@ while (true)
         ExpectedAnswer = "Duplicate request should return existing payment result rather than creating another payment. This can solved using idempotency"
 
     };
-    
+
     Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
     var json = JsonSerializer.Serialize(ragEvaluationResult, new JsonSerializerOptions
     {
@@ -114,19 +130,6 @@ while (true)
     await File.AppendAllTextAsync(outputPath, json + Environment.NewLine);
 }
 
-static string? GetArgValue(string[] args, string name)
-{
-    for (var i = 0; i < args.Length - 1; i++)
-    {
-        if (string.Equals(args[i], name, StringComparison.OrdinalIgnoreCase))
-        {
-            return args[i + 1];
-        }
-    }
-
-    return null;
-}
-
 static string ResolveOutputPath(string[] args, string repoRoot)
 {
     var explicitPath = GetArgValue(args, "--output");
@@ -135,7 +138,7 @@ static string ResolveOutputPath(string[] args, string repoRoot)
         return Path.GetFullPath(explicitPath);
     }
 
-    return Path.Combine(repoRoot, "experiments", "week-06", "rag-results.json");
+    return Path.Combine(repoRoot, "experiments", "week-06", "rag-embeddings-results.json");
 }
 
 
@@ -155,3 +158,15 @@ static string? FindRepoRoot(string startDirectory)
     return null;
 }
 
+static string? GetArgValue(string[] args, string name)
+{
+    for (var i = 0; i < args.Length - 1; i++)
+    {
+        if (string.Equals(args[i], name, StringComparison.OrdinalIgnoreCase))
+        {
+            return args[i + 1];
+        }
+    }
+
+    return null;
+}
