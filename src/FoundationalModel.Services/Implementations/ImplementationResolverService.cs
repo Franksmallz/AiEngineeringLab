@@ -31,5 +31,18 @@ namespace FoundationalModel.Services.Implementations
                 throw;
             }
         }
+
+        public IEmbeddingProvider ResolveProvider(Core.Enums.EmbeddingProvider provider)
+        {
+            try
+            {
+                return _scope.ResolveKeyed<IEmbeddingProvider>(provider);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while resolving implementation.");
+                throw;
+            }
+        }
     }
 }
