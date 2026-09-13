@@ -81,6 +81,13 @@ while (true)
         break;
     }
 
+    Console.Write("Expected answer: ");
+    var expectedAnswer = Console.ReadLine();
+    if (string.IsNullOrWhiteSpace(expectedAnswer))
+    {
+        break;
+    }
+
     var retrievedChunks = retrieverService.Retrieve(question, allChunks);
     var context = string.Join("\n\n---\n\n", retrievedChunks.Select(x => x.Content));
     var input = $"Answer the question using only the context below. If the answer is not in the context, say I don't know. Do not add facts, assumptions, or examples that are not in the context\n\nContext:\n{context}\n\nQuestion: {question}";
@@ -100,7 +107,7 @@ while (true)
         LatencyMs = response.LatencyMs,
         RetrievedChunks = retrievedChunks,
         Question = question,
-        ExpectedAnswer = "Duplicate request should return existing payment result rather than creating another payment. This can solved using idempotency"
+        ExpectedAnswer = expectedAnswer
 
     };
     
