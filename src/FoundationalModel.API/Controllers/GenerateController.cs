@@ -46,4 +46,14 @@ public class GenerateController : ControllerBase
 
         return Ok(await _ragEvaluationService.EvaluateAsync(model, cancellationToken));
     }
+
+    [HttpPost("/generate-with-tools")]
+    [Produces(typeof(SendMessageResponseDto))]
+    public async Task<IActionResult> GenerateWithTools(SendMessageRequestDto model)
+    {
+        if (model is null || string.IsNullOrWhiteSpace(model.Prompt))
+            return BadRequest(new { error = "Prompt is required." });
+
+        return Ok(await _generateService.SendMessageWithTools(model));
+    }
 }

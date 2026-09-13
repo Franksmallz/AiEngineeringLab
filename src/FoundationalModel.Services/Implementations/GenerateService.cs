@@ -1,5 +1,6 @@
 ﻿using FoundationalModel.Models.Dtos.Requests;
 using FoundationalModel.Models.Dtos.Responses;
+using FoundationalModel.Services.Implementations.Providers;
 using FoundationalModel.Services.Interfaces;
 
 namespace FoundationalModel.Services.Implementations
@@ -17,6 +18,18 @@ namespace FoundationalModel.Services.Implementations
         {
             var providerImplementation = _implementationResolverService.ResolveProvider(Core.Enums.Providers.ANTHROPIC);
             return await providerImplementation.SendMessage(request);
+        }
+
+        public async Task<SendMessageResponseDto> SendMessageWithTools(SendMessageRequestDto request)
+        {
+            var providerImplementation = _implementationResolverService.ResolveProvider(Core.Enums.Providers.ANTHROPIC);
+
+            var messageWithTools = new SendMessageWithToolsDto
+            {
+                Prompt = request.Prompt,
+                Tools = ProviderAgenticTools.PaymentTools
+            };
+            return await providerImplementation.SendMessageWithTools(messageWithTools);
         }
     }
 }
