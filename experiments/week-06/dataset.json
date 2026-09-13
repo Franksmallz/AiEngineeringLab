@@ -1,0 +1,255 @@
+[
+  {
+    "id": 1,
+    "question": "Why is idempotency important when a network request times out?",
+    "expectedAnswer": "Because a timeout does not necessarily mean the operation failed. Idempotency allows the client to safely retry the request without creating duplicate effects or corrupting data.",
+    "expectedSource": "idempotency.md",
+    "matchingType": "semantic"
+  },
+  {
+    "id": 2,
+    "question": "How can a server recognize that it has already processed the same request?",
+    "expectedAnswer": "The client can send a unique idempotency key. The server stores the key and, when it receives the same key again, skips processing and returns the original result.",
+    "expectedSource": "idempotency.md",
+    "matchingType": "semantic"
+  },
+  {
+    "id": 3,
+    "question": "Why is adding $10 to an account not safe to repeat?",
+    "expectedAnswer": "Because every retry adds another $10, so repeating the operation changes the result each time.",
+    "expectedSource": "idempotency.md",
+    "matchingType": "direct"
+  },
+  {
+    "id": 4,
+    "question": "Give two ways a system can prevent duplicate operations.",
+    "expectedAnswer": "It can use idempotency keys to detect repeated requests and database unique constraints to block duplicate entries.",
+    "expectedSource": "idempotency.md",
+    "type": "direct"
+  },
+  {
+    "id": 5,
+    "question": "What should happen if a payment request is retried with the same idempotency key?",
+    "expectedAnswer": "The system should return the original payment result instead of processing the financial operation again.",
+    "expectedSource": "payments.md",
+    "type": "semantic"
+  },
+  {
+    "id": 6,
+    "question": "A customer did not receive a response after making a payment. Should the system immediately submit another payment?",
+    "expectedAnswer": "No. The system should first determine whether the original request reached the provider or ledger, because the payment may have succeeded even though the response was lost.",
+    "expectedSource": "payments.md",
+    "type": "semantic"
+  },
+  {
+    "id": 7,
+    "question": "What is the difference between authorization and settlement?",
+    "expectedAnswer": "Authorization confirms that the payment method can fund the transaction, while settlement is the final movement and posting of funds between accounts or institutions.",
+    "expectedSource": "payments.md",
+    "type": "direct"
+  },
+  {
+    "id": 8,
+    "question": "Why should money values not be stored using floating-point numbers?",
+    "expectedAnswer": "Financial amounts should use integers or decimal values with explicit precision because floating-point arithmetic should not be used for financial calculations.",
+    "expectedSource": "payments.md",
+    "type": "direct"
+  },
+  {
+    "id": 9,
+    "question": "What should a payment system do when the outcome of a transaction is unknown?",
+    "expectedAnswer": "It should query the provider or use reconciliation to determine the transaction outcome before attempting a new financial operation.",
+    "expectedSource": "payments.md",
+    "type": "semantic"
+  },
+  {
+    "id": 10,
+    "question": "How should a payment system correct an accounting error without rewriting history?",
+    "expectedAnswer": "It should use compensating entries rather than silently overwriting existing financial records.",
+    "expectedSource": "payments.md",
+    "type": "semantic"
+  },
+  {
+    "id": 11,
+    "question": "Why can the same webhook event be received more than once?",
+    "expectedAnswer": "Webhook delivery is normally at-least-once, so the producer may retry delivery and the consumer may receive the same event multiple times.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 12,
+    "question": "How can a webhook consumer avoid performing the same side effect twice?",
+    "expectedAnswer": "It should process events idempotently by recording the event ID before applying a non-repeatable side effect or by using a database unique constraint.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 13,
+    "question": "Why should webhook handlers respond quickly?",
+    "expectedAnswer": "The consumer should acknowledge the webhook quickly and move long-running work to a queue after validating the event.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 14,
+    "question": "What webhook failures should normally cause another delivery attempt?",
+    "expectedAnswer": "Timeouts and most 5xx responses should be treated as retryable, using exponential backoff with a maximum retry count.",
+    "expectedSource": "webhooks.md",
+    "type": "direct"
+  },[
+  {
+    "id": 1,
+    "question": "Why is idempotency important when a network request times out?",
+    "expectedAnswer": "Because a timeout does not necessarily mean the operation failed. Idempotency allows the client to safely retry the request without creating duplicate effects or corrupting data.",
+    "expectedSource": "idempotency.md",
+    "type": "semantic"
+  },
+  {
+    "id": 2,
+    "question": "How can a server recognize that it has already processed the same request?",
+    "expectedAnswer": "The client can send a unique idempotency key. The server stores the key and, when it receives the same key again, skips processing and returns the original result.",
+    "expectedSource": "idempotency.md",
+    "type": "semantic"
+  },
+  {
+    "id": 3,
+    "question": "Why is adding $10 to an account not safe to repeat?",
+    "expectedAnswer": "Because every retry adds another $10, so repeating the operation changes the result each time.",
+    "expectedSource": "idempotency.md",
+    "type": "direct"
+  },
+  {
+    "id": 4,
+    "question": "Give two ways a system can prevent duplicate operations.",
+    "expectedAnswer": "It can use idempotency keys to detect repeated requests and database unique constraints to block duplicate entries.",
+    "expectedSource": "idempotency.md",
+    "type": "direct"
+  },
+  {
+    "id": 5,
+    "question": "What should happen if a payment request is retried with the same idempotency key?",
+    "expectedAnswer": "The system should return the original payment result instead of processing the financial operation again.",
+    "expectedSource": "payments.md",
+    "type": "semantic"
+  },
+  {
+    "id": 6,
+    "question": "A customer did not receive a response after making a payment. Should the system immediately submit another payment?",
+    "expectedAnswer": "No. The system should first determine whether the original request reached the provider or ledger, because the payment may have succeeded even though the response was lost.",
+    "expectedSource": "payments.md",
+    "type": "semantic"
+  },
+  {
+    "id": 7,
+    "question": "What is the difference between authorization and settlement?",
+    "expectedAnswer": "Authorization confirms that the payment method can fund the transaction, while settlement is the final movement and posting of funds between accounts or institutions.",
+    "expectedSource": "payments.md",
+    "type": "direct"
+  },
+  {
+    "id": 8,
+    "question": "Why should money values not be stored using floating-point numbers?",
+    "expectedAnswer": "Financial amounts should use integers or decimal values with explicit precision because floating-point arithmetic should not be used for financial calculations.",
+    "expectedSource": "payments.md",
+    "type": "direct"
+  },
+  {
+    "id": 9,
+    "question": "What should a payment system do when the outcome of a transaction is unknown?",
+    "expectedAnswer": "It should query the provider or use reconciliation to determine the transaction outcome before attempting a new financial operation.",
+    "expectedSource": "payments.md",
+    "type": "semantic"
+  },
+  {
+    "id": 10,
+    "question": "How should a payment system correct an accounting error without rewriting history?",
+    "expectedAnswer": "It should use compensating entries rather than silently overwriting existing financial records.",
+    "expectedSource": "payments.md",
+    "type": "semantic"
+  },
+  {
+    "id": 11,
+    "question": "Why can the same webhook event be received more than once?",
+    "expectedAnswer": "Webhook delivery is normally at-least-once, so the producer may retry delivery and the consumer may receive the same event multiple times.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 12,
+    "question": "How can a webhook consumer avoid performing the same side effect twice?",
+    "expectedAnswer": "It should process events idempotently by recording the event ID before applying a non-repeatable side effect or by using a database unique constraint.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 13,
+    "question": "Why should webhook handlers respond quickly?",
+    "expectedAnswer": "The consumer should acknowledge the webhook quickly and move long-running work to a queue after validating the event.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 14,
+    "question": "What webhook failures should normally cause another delivery attempt?",
+    "expectedAnswer": "Timeouts and most 5xx responses should be treated as retryable, using exponential backoff with a maximum retry count.",
+    "expectedSource": "webhooks.md",
+    "type": "direct"
+  },
+  {
+    "id": 15,
+    "question": "How can a webhook receiver protect itself from replayed messages?",
+    "expectedAnswer": "It can include a timestamp in the signed data, reject messages outside the allowed time window, record event IDs, and enforce signature expiry.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 16,
+    "question": "Why should webhook signatures be calculated before parsing the JSON body?",
+    "expectedAnswer": "The signature should use the raw request body so that changes in whitespace or field order during parsing do not unexpectedly break signature verification.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 17,
+    "question": "A payment webhook says a transaction succeeded, but the payment service says otherwise. Which should be trusted?",
+    "expectedAnswer": "The payment service should remain the source of truth when a webhook event conflicts with the queried payment record.",
+    "expectedSource": "payments.md",
+    "type": "cross-document"
+  },
+  {
+    "id": 18,
+    "question": "What common reliability idea connects payment retries and webhook delivery?",
+    "expectedAnswer": "Both require idempotent processing so that retries or duplicate deliveries do not create duplicate financial or business side effects.",
+    "expectedSource": "payments.md + webhooks.md + idempotency.md",
+    "type": "cross-document"
+  }
+]
+  {
+    "id": 15,
+    "question": "How can a webhook receiver protect itself from replayed messages?",
+    "expectedAnswer": "It can include a timestamp in the signed data, reject messages outside the allowed time window, record event IDs, and enforce signature expiry.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 16,
+    "question": "Why should webhook signatures be calculated before parsing the JSON body?",
+    "expectedAnswer": "The signature should use the raw request body so that changes in whitespace or field order during parsing do not unexpectedly break signature verification.",
+    "expectedSource": "webhooks.md",
+    "type": "semantic"
+  },
+  {
+    "id": 17,
+    "question": "A payment webhook says a transaction succeeded, but the payment service says otherwise. Which should be trusted?",
+    "expectedAnswer": "The payment service should remain the source of truth when a webhook event conflicts with the queried payment record.",
+    "expectedSource": "payments.md",
+    "type": "cross-document"
+  },
+  {
+    "id": 18,
+    "question": "What common reliability idea connects payment retries and webhook delivery?",
+    "expectedAnswer": "Both require idempotent processing so that retries or duplicate deliveries do not create duplicate financial or business side effects.",
+    "expectedSource": "payments.md + webhooks.md + idempotency.md",
+    "type": "cross-document"
+  }
+]

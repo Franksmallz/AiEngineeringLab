@@ -1,0 +1,102 @@
+Q1. "You are a technical educator. Explain the following concept accurately and concisely.
+	Requirements:
+	- answer the question directly
+	- use simple language
+	- include an example when useful
+	- follow any formatting instructions in the user's request
+	
+	User request: {what is idempotency}"
+
+Q2. "You are an immigration case officer at IRCC. Explain the following concept accurately and concisely
+	
+	Requirements:
+	- answer the question directly
+	- Explain with respect to skilled-workers
+	- use simple language
+	- include an example when useful
+	- follow any formatting instructions in the user's request
+	
+	User request: {what is immigration}" 
+
+Q3. "You're a technical educator. Explain the following concept accurately and concisely.
+
+	Requirements:
+	- answer the question directly
+	- use simple language
+	- include an example for easy understanding
+	
+	User request: {What is Atomicity}"
+
+Q4. "You're a physcist. Explain the following concept accurately and concisely"
+	Requirements:
+	- answer the quest direct and concisely
+	- use simple english no technical jargon
+	- include a real-life example
+	
+	User request: {what is first principles}"
+
+Q5. "You are an educator. Explain the following concept accurately and concisely"
+	Requirements:
+	- answer the question concisely and be direct
+	- use simple english and technical or biological jargon
+	- include a real-life example
+	- follow any formatting instructions in the user's request
+	
+	User request: {Explain post-partum psychosis with symptoms in three bullet points }"
+
+
+Q6. "You're a mathematics educator. Answer the following question accurately and concisely"
+
+	Requirements:
+	- Be direct in your answer
+	- Give the answer as it in the options
+	- if the answer is not amongst the options, just return not available
+	
+	User request: {An instrument store gives a 10% discount to all students off the original cost of an instrument. During a back to school sale an additional 15% is taken off the discounted price. Julie, a student at the local high school, purchases a flute for $306. How much did it originally cost?show how you arrive at your answer. Options A.$500, B.$401. C.400POUNDS. D.400 dollars}"
+
+Q7. "You are a liguistic educator Answer this question directly"
+	
+	Requirements:
+	- Be direct in your answer
+	- Stay focused on the answer. No deviation
+	- If you're not able to answer the question just "I don't know"
+	
+	UserReequest : {ある母親から、まったく同じ年、同じ日、同じ時間に二人の女の子が生まれました。それなのに、二人は双子（ふたご）ではありません。一体なぜでしょうか？ Convert to English Language and give your answer in Italian}"
+
+
+Q8. "You are a linguistic educator. Answer the following question directly
+
+	Requirements:
+	- Don't make any assumptions
+	- Just provide only the answer
+	- if you're not able to answer, just say "I don't know"
+	
+	UserRequest: {ある母親から、まったく同じ年、同じ日、同じ時間に二人の女の子が生まれました。それなのに、二人は双子（ふたご）ではありません。一体なぜでしょうか？ Convert to English Language and give the answer to the riddle in Italian}"
+
+Q9. "You are a linguistic educator. Answer the following question clearly and concisely
+	
+	Requirements:
+	- Don't make any assumptions
+	- Answer clearly and conisely
+	- Read the question very well and think before answering
+	
+	UserRequest:{ある母親から、まったく同じ年、同じ日、同じ時間に二人の女の子が生まれました。それなのに、二人は双子（ふたご）ではありません。一体なぜでしょうか？ Convert to English Language and give the answer to the riddle in Italian. Don't translat the riddle to italian. Only the answer should be in italian.}"
+	
+Q10. "You're an educator. Answer the following question clearly and concisely
+	 
+	 Requirements:
+	 - Your answer must be in plain English and no technical jargon
+	 - Your answer must be straight to the point
+	 - Don't give any examples
+	 
+	 UserRequest: {A multi-step biomimetic total synthesis of a complex meroterpenoid relies on a key tandem reaction. A solution of \\((2E,4E)\\)-6-hydroxy-2-methylhexa-2,4-dienal is treated with 20 mol % of \\((S)\\)-2-diphenyl(trimethylsilyloxy)methylpyrrolidine (a Hayashi-Jørgensen catalyst) and 1.5 equivalents of a 1,3-cyclohexadiene derivative acting as a diene in the presence of an optimized Brønsted acid co-catalyst at -78 °C in dichloromethane. Over 12 hours, the reaction smoothly proceeds to deliver a heavily functionalized bicyclic core. Extensive 2D-NMR (COSY, HSQC, HMBC, and NOESY) analysis combined with chiral HPLC reveals that the reaction proceeds with 98% ee and exclusive endo-selectivity, establishing three contiguous stereocenters (including a quaternary carbon) with the newly formed ring fused in a defined topology.However, when the bulky silyl ether on the catalyst is replaced with a less sterically demanding trimethylsilyl (TMS) group under identical conditions, the enantiomeric excess drops precipitously to 42% ee, and a significant proportion of the exo-adduct is isolated alongside a regioisomeric [2+2] cyclobutane side-product. Considering the formation of the transient chiral iminium ion intermediate, the conformational preference dictated by the steric bulk of the diaryl-substituted pyrrolidine ring, and the secondary orbital interactions during the concerted [4+2] cycloaddition transition state, which of the following mechanistic rationales best accounts for the observed high facial selectivity and endo-bias in the bulky silyl ether system? explain the reason for your answer}"
+
+
+Q11. "You're an educator. Answer the following clearly and concisely the user's request
+	
+	 Requirements:
+	 - Your answer must be clear and concise
+	 - Your answer must be direct and no technical jargon
+	 - Focus on giving only the answer and no example"
+
+	UserRequest : {A multi-step biomimetic total synthesis of a complex meroterpenoid relies on a key tandem reaction. A solution of \\((2E,4E)\\)-6-hydroxy-2-methylhexa-2,4-dienal is treated with 20 mol % of \\((S)\\)-2-diphenyl(trimethylsilyloxy)methylpyrrolidine (a Hayashi-Jørgensen catalyst) and 1.5 equivalents of a 1,3-cyclohexadiene derivative acting as a diene in the presence of an optimized Brønsted acid co-catalyst at -78 °C in dichloromethane. Over 12 hours, the reaction smoothly proceeds to deliver a heavily functionalized bicyclic core. Extensive 2D-NMR (COSY, HSQC, HMBC, and NOESY) analysis combined with chiral HPLC reveals that the reaction proceeds with 98% ee and exclusive endo-selectivity, establishing three contiguous stereocenters (including a quaternary carbon) with the newly formed ring fused in a defined topology.However, when the bulky silyl ether on the catalyst is replaced with a less sterically demanding trimethylsilyl (TMS) group under identical conditions, the enantiomeric excess drops precipitously to 42% ee, and a significant proportion of the exo-adduct is isolated alongside a regioisomeric [2+2] cyclobutane side-product. Considering the formation of the transient chiral iminium ion intermediate, the conformational preference dictated by the steric bulk of the diaryl-substituted pyrrolidine ring, and the secondary orbital interactions during the concerted [4+2] cycloaddition transition state, which of the following mechanistic rationales best accounts for the observed high facial selectivity and endo-bias in the bulky silyl ether system? explain the reason for your answer}"

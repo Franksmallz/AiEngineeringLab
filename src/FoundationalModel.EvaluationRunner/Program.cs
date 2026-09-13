@@ -49,19 +49,16 @@ var generateService = scope.Resolve<IGenerateService>();
 
 var evaluationCase = new EvaluationCase
 {
-    Id = 11,
-    Input = "A multi-step biomimetic total synthesis of a complex meroterpenoid relies on a key tandem reaction. A solution of \\((2E,4E)\\)-6-hydroxy-2-methylhexa-2,4-dienal is treated with 20 mol % of \\((S)\\)-2-diphenyl(trimethylsilyloxy)methylpyrrolidine (a Hayashi-Jørgensen catalyst) and 1.5 equivalents of a 1,3-cyclohexadiene derivative acting as a diene in the presence of an optimized Brønsted acid co-catalyst at -78 °C in dichloromethane. Over 12 hours, the reaction smoothly proceeds to deliver a heavily functionalized bicyclic core. Extensive 2D-NMR (COSY, HSQC, HMBC, and NOESY) analysis combined with chiral HPLC reveals that the reaction proceeds with 98% ee and exclusive endo-selectivity, establishing three contiguous stereocenters (including a quaternary carbon) with the newly formed ring fused in a defined topology.However, when the bulky silyl ether on the catalyst is replaced with a less sterically demanding trimethylsilyl (TMS) group under identical conditions, the enantiomeric excess drops precipitously to 42% ee, and a significant proportion of the exo-adduct is isolated alongside a regioisomeric [2+2] cyclobutane side-product. Considering the formation of the transient chiral iminium ion intermediate, the conformational preference dictated by the steric bulk of the diaryl-substituted pyrrolidine ring, and the secondary orbital interactions during the concerted [4+2] cycloaddition transition state, which of the following mechanistic rationales best accounts for the observed high facial selectivity and endo-bias in the bulky silyl ether system? summarize the reason for your answer in three bullet points",
-    ExpectedBehavior = [
-      "Explain facial shiedling",
-    "Maintains meaning after summary",
-    "Gets the correct answer"
-  ]
+    Id = 0,
+    Input = string.Empty
 };
 
 var response = await generateService.SendMessage(new SendMessageRequestDto { Prompt = evaluationCase.Input, Temperature = 0, MaxToken = 1024 });
 evaluationCase.ActualResponse = System.Text.RegularExpressions.Regex.Unescape(response.Text);
 evaluationCase.LatencyMs = response.LatencyMs;
 evaluationCase.EstimatedCost = response.EstimatedCost;
+evaluationCase.InputToken = response.InputTokens;
+evaluationCase.OutputToken = response.OutputTokens;
 
 Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
 var json = JsonSerializer.Serialize(evaluationCase, new JsonSerializerOptions
@@ -96,7 +93,7 @@ static string ResolveOutputPath(string[] args)
    var repoRoot = FindRepoRoot(AppContext.BaseDirectory)
         ?? throw new InvalidOperationException("Could not locate the repository root. Pass --output explicitly.");
 
-    return Path.Combine(repoRoot, "evaluations", "week-03-04", "sonnet5-results.json");
+    return Path.Combine(repoRoot, "evaluations", "week-05", "v3-results-test.json");
 }
 
 static string? FindRepoRoot(string startDirectory)
