@@ -18,6 +18,8 @@ namespace FoundationalModel.Services.Autofac
 
             builder.RegisterType<AnthropicProviderManagement>()
                .Keyed<IModelProvider>(Providers.ANTHROPIC).InstancePerLifetimeScope();
+            builder.RegisterType<OpenAiProviderManagement>()
+               .Keyed<IEmbeddingProvider>(EmbeddingProvider.OPENAI).InstancePerLifetimeScope();
         }
     }
 }

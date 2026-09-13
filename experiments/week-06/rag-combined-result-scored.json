@@ -1,0 +1,974 @@
+[
+  {
+    "id": 1,
+    "question": "Why is idempotency important when a network request times out?",
+    "expectedAnswer": "Because a timeout does not necessarily mean the operation failed. Idempotency allows the client to safely retry the request without creating duplicate effects or corrupting data.",
+    "expectedSource": "idempotency.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 7
+      },
+      {
+        "source": "webhooks.md",
+        "content": "1. The consumer registers or configures a callback URL.\n2. The producer records an event.\n3. The producer sends an HTTP request to the callback URL.\n4. The consumer authenticates and validates the request.\n5. The consumer processes the event and returns a successful status code.\n6. The producer records the delivery result and retries when appropriate.\n\nThe consumer should acknowledge quickly. Long-running work should be placed on a queue after the event has been validated.\n\n## Example Event\n\n```json\n{\n  \"id\": \"evt_01JABC123\",\n  \"type\": \"payment.succeeded\",\n  \"occurredAt\": \"2026-09-11T10:30:00Z\",\n  \"version\": 1,\n  \"data\": {\n    \"paymentId\": \"pay_123\",\n    \"amount\": 10000,\n    \"currency\": \"NGN\",\n    \"status\": \"succeeded\"\n  }\n}\n```\n\nEvery event should have a stable event ID, event type, creation timestamp, schema version, and business payload. The event ID is important for deduplication.\n\n## Reliability Requirements",
+        "score": 6
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 5
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 0.7200248720059512
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 0.5354091851390692
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Increments:** Adding $10 to an account balance. Every retry adds another $10.\n- **Blind creations:** Creating a new user or order without an explicit client-side identifier. Each retry creates a new duplicate row.\n- **Toggling:** Pressing a play/pause button. Repeating the action flips the state back and forth.\n\n## Common Implementation Strategies\n\n### Idempotency Keys\n\nThe client attaches a unique identifier, such as a UUID, to the request header. The server tracks this key in a fast cache such as Redis. If the same key arrives again, the server skips processing and replays the cached original response.\n\n### Unique Constraints\n\nStrict database-level unique keys, such as email addresses or composite tokens, allow the database itself to block duplicate entry attempts.",
+        "score": 0.46414558528497457
+      }
+    ],
+    "keywordResponse": "According to the context, idempotency is important when a network request times out because it **enables safe retries**. \n\nSpecifically, the context states: \"If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\"\n\nIn distributed systems, networks are inherently unreliable and requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data or creating unintended duplicate records.",
+    "embeddingResponse": "According to the context, idempotency is important when a network request times out because it **enables safe retries**. Specifically, if a timeout occurs, the client can safely resend the exact same request until a confirmation is received without corrupting data or creating unintended duplicate records.\n\nThe context also explains that in distributed systems, networks are inherently unreliable and requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations.",
+    "keywordLatencyMs": 1619,
+    "embeddingLatencyMs": 1442,
+    "keywordEstimatedCost": 0.001307,
+    "embeddingEstimatedCost": 0.001225,
+    "totalLatencyMs": 3061,
+    "totalEstimatedCost": 0.002532,
+    "keywordRetrievalRelevance": 4,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 2,
+    "question": "How can a server recognize that it has already processed the same request?",
+    "expectedAnswer": "The client can send a unique idempotency key. The server stores the key and, when it receives the same key again, skips processing and returns the original result.",
+    "expectedSource": "idempotency.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 7
+      },
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 6
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 6
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "- **Increments:** Adding $10 to an account balance. Every retry adds another $10.\n- **Blind creations:** Creating a new user or order without an explicit client-side identifier. Each retry creates a new duplicate row.\n- **Toggling:** Pressing a play/pause button. Repeating the action flips the state back and forth.\n\n## Common Implementation Strategies\n\n### Idempotency Keys\n\nThe client attaches a unique identifier, such as a UUID, to the request header. The server tracks this key in a fast cache such as Redis. If the same key arrives again, the server skips processing and replays the cached original response.\n\n### Unique Constraints\n\nStrict database-level unique keys, such as email addresses or composite tokens, allow the database itself to block duplicate entry attempts.",
+        "score": 0.4516716471953711
+      },
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 0.3578001497693258
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 0.355763174983388
+      }
+    ],
+    "keywordResponse": "I don't know. The context provided does not explain how a server can recognize that it has already processed the same request. While the context discusses idempotency and its benefits (such as enabling safe retries), it does not describe the mechanisms or methods a server uses to detect duplicate requests.",
+    "embeddingResponse": "Based on the context, a server can recognize that it has already processed the same request using **Idempotency Keys**:\n\nThe client attaches a unique identifier, such as a UUID, to the request header. The server tracks this key in a fast cache such as Redis. If the same key arrives again, the server skips processing and replays the cached original response.",
+    "keywordLatencyMs": 1210,
+    "embeddingLatencyMs": 5939,
+    "keywordEstimatedCost": 0.000975,
+    "embeddingEstimatedCost": 0.001047,
+    "totalLatencyMs": 7149,
+    "totalEstimatedCost": 0.002022,
+    "keywordRetrievalRelevance": 2,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 1,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 3,
+    "question": "Why is adding $10 to an account not safe to repeat?",
+    "expectedAnswer": "Because every retry adds another $10, so repeating the operation changes the result each time.",
+    "expectedSource": "idempotency.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "- **Increments:** Adding $10 to an account balance. Every retry adds another $10.\n- **Blind creations:** Creating a new user or order without an explicit client-side identifier. Each retry creates a new duplicate row.\n- **Toggling:** Pressing a play/pause button. Repeating the action flips the state back and forth.\n\n## Common Implementation Strategies\n\n### Idempotency Keys\n\nThe client attaches a unique identifier, such as a UUID, to the request header. The server tracks this key in a fast cache such as Redis. If the same key arrives again, the server skips processing and replays the cached original response.\n\n### Unique Constraints\n\nStrict database-level unique keys, such as email addresses or composite tokens, allow the database itself to block duplicate entry attempts.",
+        "score": 7
+      },
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 6
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 6
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 0.4249451859225112
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Increments:** Adding $10 to an account balance. Every retry adds another $10.\n- **Blind creations:** Creating a new user or order without an explicit client-side identifier. Each retry creates a new duplicate row.\n- **Toggling:** Pressing a play/pause button. Repeating the action flips the state back and forth.\n\n## Common Implementation Strategies\n\n### Idempotency Keys\n\nThe client attaches a unique identifier, such as a UUID, to the request header. The server tracks this key in a fast cache such as Redis. If the same key arrives again, the server skips processing and replays the cached original response.\n\n### Unique Constraints\n\nStrict database-level unique keys, such as email addresses or composite tokens, allow the database itself to block duplicate entry attempts.",
+        "score": 0.38458610894063394
+      },
+      {
+        "source": "payments.md",
+        "content": "Amounts should be represented as integers or decimal values with explicit precision. Floating-point arithmetic should not be used for financial calculations.\n\n## Idempotency and Retries\n\nPayment creation, capture, refund, reversal, and posting operations must be safe to retry. A timeout does not prove that the operation failed; the request may have succeeded while the response was lost.\n\n- Require an idempotency key for every operation that creates or changes financial state.\n- Store the key with the operation, request fingerprint, final status, and response.\n- Return the original result when the same key is received again.\n- Reject reuse of a key with a different amount, currency, payment ID, or operation type.\n- Use provider references to avoid submitting the same operation twice downstream.\n- Make database writes and ledger entries atomic where possible.\n\n## Failure Handling\n\nPayment failures should be classified rather than treated as one generic error.",
+        "score": 0.3689117586064591
+      }
+    ],
+    "keywordResponse": "According to the context, adding $10 to an account balance is not safe to repeat because **every retry adds another $10**. This is listed under \"Non-Idempotent Operations (Dangerous to Repeat)\" in the context, demonstrating that repeating the operation changes the system state further rather than leaving it unchanged.",
+    "embeddingResponse": "According to the context, adding $10 to an account is not safe to repeat because it is a non-idempotent operation. Every retry adds another $10, so repeating the operation results in duplicate additions to the account balance rather than leaving the system in the same final state.",
+    "keywordLatencyMs": 1254,
+    "embeddingLatencyMs": 1128,
+    "keywordEstimatedCost": 0.001025,
+    "embeddingEstimatedCost": 0.001022,
+    "totalLatencyMs": 2382,
+    "totalEstimatedCost": 0.002047,
+    "keywordRetrievalRelevance": 5,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 4,
+    "question": "Give two ways a system can prevent duplicate operations.",
+    "expectedAnswer": "It can use idempotency keys to detect repeated requests and database unique constraints to block duplicate entries.",
+    "expectedSource": "idempotency.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 6
+      },
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 5
+      },
+      {
+        "source": "payments.md",
+        "content": "# Payments\n\nPayment processing is the movement of value from a payer to a payee through a sequence of controlled states. A reliable payment system separates the customer request from authorization, capture, settlement, notification, reconciliation, and exception handling.\n\n## Core Payment Concepts\n\n- **Payer:** The customer or account providing the funds.\n- **Payee:** The customer, merchant, or account receiving the funds.\n- **Authorization:** Confirmation that the payment method can fund the transaction.\n- **Capture:** The instruction to finalize an authorized amount.\n- **Settlement:** The movement and final posting of funds between accounts or institutions.\n- **Refund:** Returning a completed payment to the payer.\n- **Reversal:** Cancelling or undoing an authorization or in-flight transaction before final settlement.\n- **Reconciliation:** Comparing internal records with processor, bank, or ledger records.\n\n## Typical Payment Lifecycle",
+        "score": 3
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 0.6172955412735622
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Increments:** Adding $10 to an account balance. Every retry adds another $10.\n- **Blind creations:** Creating a new user or order without an explicit client-side identifier. Each retry creates a new duplicate row.\n- **Toggling:** Pressing a play/pause button. Repeating the action flips the state back and forth.\n\n## Common Implementation Strategies\n\n### Idempotency Keys\n\nThe client attaches a unique identifier, such as a UUID, to the request header. The server tracks this key in a fast cache such as Redis. If the same key arrives again, the server skips processing and replays the cached original response.\n\n### Unique Constraints\n\nStrict database-level unique keys, such as email addresses or composite tokens, allow the database itself to block duplicate entry attempts.",
+        "score": 0.5045540469814838
+      },
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 0.4525060449991786
+      }
+    ],
+    "keywordResponse": "Based on the context provided, I don't know of two specific ways a system can prevent duplicate operations that are explicitly stated in the given text.\n\nThe context mentions that idempotency **prevents duplication** and explains what idempotency is (executing an operation multiple times has the same effect as executing it once), but it does not describe two distinct mechanisms or methods for preventing duplicate operations.",
+    "embeddingResponse": "Based on the context, two ways a system can prevent duplicate operations are:\n\n1. **Idempotency Keys:** The client attaches a unique identifier, such as a UUID, to the request header. The server tracks this key in a fast cache such as Redis. If the same key arrives again, the server skips processing and replays the cached original response.\n\n2. **Unique Constraints:** Strict database-level unique keys, such as email addresses or composite tokens, allow the database itself to block duplicate entry attempts.",
+    "keywordLatencyMs": 1478,
+    "embeddingLatencyMs": 1217,
+    "keywordEstimatedCost": 0.001101,
+    "embeddingEstimatedCost": 0.001231,
+    "totalLatencyMs": 2695,
+    "totalEstimatedCost": 0.002332,
+    "keywordRetrievalRelevance": 2,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 1,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 5,
+    "question": "What should happen if a payment request is retried with the same idempotency key?",
+    "expectedAnswer": "The system should return the original payment result instead of processing the financial operation again.",
+    "expectedSource": "payments.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "Amounts should be represented as integers or decimal values with explicit precision. Floating-point arithmetic should not be used for financial calculations.\n\n## Idempotency and Retries\n\nPayment creation, capture, refund, reversal, and posting operations must be safe to retry. A timeout does not prove that the operation failed; the request may have succeeded while the response was lost.\n\n- Require an idempotency key for every operation that creates or changes financial state.\n- Store the key with the operation, request fingerprint, final status, and response.\n- Return the original result when the same key is received again.\n- Reject reuse of a key with a different amount, currency, payment ID, or operation type.\n- Use provider references to avoid submitting the same operation twice downstream.\n- Make database writes and ledger entries atomic where possible.\n\n## Failure Handling\n\nPayment failures should be classified rather than treated as one generic error.",
+        "score": 10
+      },
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 9
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Increments:** Adding $10 to an account balance. Every retry adds another $10.\n- **Blind creations:** Creating a new user or order without an explicit client-side identifier. Each retry creates a new duplicate row.\n- **Toggling:** Pressing a play/pause button. Repeating the action flips the state back and forth.\n\n## Common Implementation Strategies\n\n### Idempotency Keys\n\nThe client attaches a unique identifier, such as a UUID, to the request header. The server tracks this key in a fast cache such as Redis. If the same key arrives again, the server skips processing and replays the cached original response.\n\n### Unique Constraints\n\nStrict database-level unique keys, such as email addresses or composite tokens, allow the database itself to block duplicate entry attempts.",
+        "score": 8
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "Amounts should be represented as integers or decimal values with explicit precision. Floating-point arithmetic should not be used for financial calculations.\n\n## Idempotency and Retries\n\nPayment creation, capture, refund, reversal, and posting operations must be safe to retry. A timeout does not prove that the operation failed; the request may have succeeded while the response was lost.\n\n- Require an idempotency key for every operation that creates or changes financial state.\n- Store the key with the operation, request fingerprint, final status, and response.\n- Return the original result when the same key is received again.\n- Reject reuse of a key with a different amount, currency, payment ID, or operation type.\n- Use provider references to avoid submitting the same operation twice downstream.\n- Make database writes and ledger entries atomic where possible.\n\n## Failure Handling\n\nPayment failures should be classified rather than treated as one generic error.",
+        "score": 0.5427606768543445
+      },
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 0.5169903521148647
+      },
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 0.5101794950093768
+      }
+    ],
+    "keywordResponse": "According to the context, if a payment request is retried with the same idempotency key, the server should:\n\n1. **Return the original result** - The server should return the same response that was given when the key was first received.\n\n2. **Skip reprocessing** - The operation should not be processed again.\n\nThe context states: \"Return the original result when the same key is received again.\"\n\nAdditionally, the server must **reject reuse of a key with different parameters** - it should reject the retry if the same key is used with a different amount, currency, payment ID, or operation type.",
+    "embeddingResponse": "According to the context, if a payment request is retried with the same idempotency key, the system should **return the original result**.\n\nSpecifically, the context states:\n\n- Store the idempotency key with the operation, request fingerprint, final status, and response.\n- **Return the original result when the same key is received again.**\n\nHowever, the system should also reject the retry if it attempts to reuse the key with a different amount, currency, payment ID, or operation type.",
+    "keywordLatencyMs": 1565,
+    "embeddingLatencyMs": 1522,
+    "keywordEstimatedCost": 0.001304,
+    "embeddingEstimatedCost": 0.001198,
+    "totalLatencyMs": 3087,
+    "totalEstimatedCost": 0.002502,
+    "keywordRetrievalRelevance": 5,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 6,
+    "question": "A customer did not receive a response after making a payment. Should the system immediately submit another payment?",
+    "expectedAnswer": "No. The system should first determine whether the original request reached the provider or ledger, because the payment may have succeeded even though the response was lost.",
+    "expectedSource": "payments.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 10
+      },
+      {
+        "source": "payments.md",
+        "content": "Amounts should be represented as integers or decimal values with explicit precision. Floating-point arithmetic should not be used for financial calculations.\n\n## Idempotency and Retries\n\nPayment creation, capture, refund, reversal, and posting operations must be safe to retry. A timeout does not prove that the operation failed; the request may have succeeded while the response was lost.\n\n- Require an idempotency key for every operation that creates or changes financial state.\n- Store the key with the operation, request fingerprint, final status, and response.\n- Return the original result when the same key is received again.\n- Reject reuse of a key with a different amount, currency, payment ID, or operation type.\n- Use provider references to avoid submitting the same operation twice downstream.\n- Make database writes and ledger entries atomic where possible.\n\n## Failure Handling\n\nPayment failures should be classified rather than treated as one generic error.",
+        "score": 7
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 7
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 0.523251673884144
+      },
+      {
+        "source": "payments.md",
+        "content": "# Payments\n\nPayment processing is the movement of value from a payer to a payee through a sequence of controlled states. A reliable payment system separates the customer request from authorization, capture, settlement, notification, reconciliation, and exception handling.\n\n## Core Payment Concepts\n\n- **Payer:** The customer or account providing the funds.\n- **Payee:** The customer, merchant, or account receiving the funds.\n- **Authorization:** Confirmation that the payment method can fund the transaction.\n- **Capture:** The instruction to finalize an authorized amount.\n- **Settlement:** The movement and final posting of funds between accounts or institutions.\n- **Refund:** Returning a completed payment to the payer.\n- **Reversal:** Cancelling or undoing an authorization or in-flight transaction before final settlement.\n- **Reconciliation:** Comparing internal records with processor, bank, or ledger records.\n\n## Typical Payment Lifecycle",
+        "score": 0.4446787131161325
+      },
+      {
+        "source": "payments.md",
+        "content": "```text\nInitiated -> Pending -> Authorized -> Captured -> Settled\n                 |          |            |\n                 v          v            v\n              Failed     Declined      Reversed\n\nSettled -> Partially Refunded -> Refunded\n```\n\nThe exact states vary by provider, but each state should have a clear meaning and permitted transitions. A payment should not move directly from an untrusted client request to a settled state without the required authorization and posting steps.\n\n## Payment Request Design\n\nA payment request should contain:\n\n- A client-generated idempotency key.\n- A unique payment ID generated by the payment service.\n- Amount represented in the smallest currency unit, such as kobo or cents.\n- Currency and payer/payee identifiers.\n- A clear description or reference.\n- The requested operation and creation timestamp.\n- Correlation information for tracing across services.",
+        "score": 0.4306948428591614
+      }
+    ],
+    "keywordResponse": "No. According to the context, you should not automatically retry a payment operation just because the client did not receive a response.\n\nThe guidance states:\n\n> \"Never automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\"\n\nInstead, you should first determine whether the original request actually reached the provider or ledger before attempting a new financial operation.",
+    "embeddingResponse": "No. According to the context:\n\n\"Never automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\"\n\nThe system should first determine whether the original request actually reached the provider or ledger before attempting a new financial operation.",
+    "keywordLatencyMs": 1105,
+    "embeddingLatencyMs": 957,
+    "keywordEstimatedCost": 0.001119,
+    "embeddingEstimatedCost": 0.00101,
+    "totalLatencyMs": 2062,
+    "totalEstimatedCost": 0.002129,
+    "keywordRetrievalRelevance": 4,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 7,
+    "question": "What is the difference between authorization and settlement?",
+    "expectedAnswer": "Authorization confirms that the payment method can fund the transaction, while settlement is the final movement and posting of funds between accounts or institutions.",
+    "expectedSource": "payments.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "# Payments\n\nPayment processing is the movement of value from a payer to a payee through a sequence of controlled states. A reliable payment system separates the customer request from authorization, capture, settlement, notification, reconciliation, and exception handling.\n\n## Core Payment Concepts\n\n- **Payer:** The customer or account providing the funds.\n- **Payee:** The customer, merchant, or account receiving the funds.\n- **Authorization:** Confirmation that the payment method can fund the transaction.\n- **Capture:** The instruction to finalize an authorized amount.\n- **Settlement:** The movement and final posting of funds between accounts or institutions.\n- **Refund:** Returning a completed payment to the payer.\n- **Reversal:** Cancelling or undoing an authorization or in-flight transaction before final settlement.\n- **Reconciliation:** Comparing internal records with processor, bank, or ledger records.\n\n## Typical Payment Lifecycle",
+        "score": 5
+      },
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 4
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Increments:** Adding $10 to an account balance. Every retry adds another $10.\n- **Blind creations:** Creating a new user or order without an explicit client-side identifier. Each retry creates a new duplicate row.\n- **Toggling:** Pressing a play/pause button. Repeating the action flips the state back and forth.\n\n## Common Implementation Strategies\n\n### Idempotency Keys\n\nThe client attaches a unique identifier, such as a UUID, to the request header. The server tracks this key in a fast cache such as Redis. If the same key arrives again, the server skips processing and replays the cached original response.\n\n### Unique Constraints\n\nStrict database-level unique keys, such as email addresses or composite tokens, allow the database itself to block duplicate entry attempts.",
+        "score": 3
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "```text\nInitiated -> Pending -> Authorized -> Captured -> Settled\n                 |          |            |\n                 v          v            v\n              Failed     Declined      Reversed\n\nSettled -> Partially Refunded -> Refunded\n```\n\nThe exact states vary by provider, but each state should have a clear meaning and permitted transitions. A payment should not move directly from an untrusted client request to a settled state without the required authorization and posting steps.\n\n## Payment Request Design\n\nA payment request should contain:\n\n- A client-generated idempotency key.\n- A unique payment ID generated by the payment service.\n- Amount represented in the smallest currency unit, such as kobo or cents.\n- Currency and payer/payee identifiers.\n- A clear description or reference.\n- The requested operation and creation timestamp.\n- Correlation information for tracing across services.",
+        "score": 0.37940160235754833
+      },
+      {
+        "source": "payments.md",
+        "content": "# Payments\n\nPayment processing is the movement of value from a payer to a payee through a sequence of controlled states. A reliable payment system separates the customer request from authorization, capture, settlement, notification, reconciliation, and exception handling.\n\n## Core Payment Concepts\n\n- **Payer:** The customer or account providing the funds.\n- **Payee:** The customer, merchant, or account receiving the funds.\n- **Authorization:** Confirmation that the payment method can fund the transaction.\n- **Capture:** The instruction to finalize an authorized amount.\n- **Settlement:** The movement and final posting of funds between accounts or institutions.\n- **Refund:** Returning a completed payment to the payer.\n- **Reversal:** Cancelling or undoing an authorization or in-flight transaction before final settlement.\n- **Reconciliation:** Comparing internal records with processor, bank, or ledger records.\n\n## Typical Payment Lifecycle",
+        "score": 0.37710127792826287
+      },
+      {
+        "source": "payments.md",
+        "content": "- Record immutable transaction and provider references.\n- Keep an audit trail for state changes, actors, timestamps, and reasons.\n- Ensure debits and credits balance for every settled movement.\n- Run scheduled reconciliation against provider statements or settlement files.\n- Investigate unmatched, duplicated, missing, or incorrectly valued entries.\n- Do not silently overwrite financial records; use compensating entries for corrections.\n\n## Notifications and Webhooks\n\nPayment status updates are commonly delivered through webhooks. Consumers must authenticate webhook requests, validate the event, handle duplicate delivery, and tolerate out-of-order events. The payment service should remain the source of truth when an event conflicts with a queried payment record.\n\nNotifications should not be the only mechanism that changes a payment state. A missed webhook must be recoverable through polling, replay, reconciliation, or an operational repair workflow.\n\n## Security and Compliance",
+        "score": 0.3379871759601062
+      }
+    ],
+    "keywordResponse": "Based on the context provided:\n\n**Authorization:** Confirmation that the payment method can fund the transaction.\n\n**Settlement:** The movement and final posting of funds between accounts or institutions.\n\nThe key difference is that authorization is a confirmation step that validates the payment method has sufficient funds, while settlement is the actual movement and final posting of those funds between accounts or institutions.",
+    "embeddingResponse": "Based on the context provided:\n\n- **Authorization:** Confirmation that the payment method can fund the transaction.\n- **Settlement:** The movement and final posting of funds between accounts or institutions.\n\nThe key difference is that authorization verifies the payer has sufficient funds and the payment method is valid, while settlement is the actual movement and posting of those funds to complete the transaction.",
+    "keywordLatencyMs": 1178,
+    "embeddingLatencyMs": 1049,
+    "keywordEstimatedCost": 0.001012,
+    "embeddingEstimatedCost": 0.00108,
+    "totalLatencyMs": 2227,
+    "totalEstimatedCost": 0.002092,
+    "keywordRetrievalRelevance": 3,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 4
+  },
+  {
+    "id": 8,
+    "question": "Why should money values not be stored using floating-point numbers?",
+    "expectedAnswer": "Financial amounts should use integers or decimal values with explicit precision because floating-point arithmetic should not be used for financial calculations.",
+    "expectedSource": "payments.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "Amounts should be represented as integers or decimal values with explicit precision. Floating-point arithmetic should not be used for financial calculations.\n\n## Idempotency and Retries\n\nPayment creation, capture, refund, reversal, and posting operations must be safe to retry. A timeout does not prove that the operation failed; the request may have succeeded while the response was lost.\n\n- Require an idempotency key for every operation that creates or changes financial state.\n- Store the key with the operation, request fingerprint, final status, and response.\n- Return the original result when the same key is received again.\n- Reject reuse of a key with a different amount, currency, payment ID, or operation type.\n- Use provider references to avoid submitting the same operation twice downstream.\n- Make database writes and ledger entries atomic where possible.\n\n## Failure Handling\n\nPayment failures should be classified rather than treated as one generic error.",
+        "score": 5
+      },
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 3
+      },
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 3
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "Amounts should be represented as integers or decimal values with explicit precision. Floating-point arithmetic should not be used for financial calculations.\n\n## Idempotency and Retries\n\nPayment creation, capture, refund, reversal, and posting operations must be safe to retry. A timeout does not prove that the operation failed; the request may have succeeded while the response was lost.\n\n- Require an idempotency key for every operation that creates or changes financial state.\n- Store the key with the operation, request fingerprint, final status, and response.\n- Return the original result when the same key is received again.\n- Reject reuse of a key with a different amount, currency, payment ID, or operation type.\n- Use provider references to avoid submitting the same operation twice downstream.\n- Make database writes and ledger entries atomic where possible.\n\n## Failure Handling\n\nPayment failures should be classified rather than treated as one generic error.",
+        "score": 0.40022863035001066
+      },
+      {
+        "source": "payments.md",
+        "content": "- Every payment has a unique internal ID and provider reference.\n- State transitions are explicit and validated.\n- Mutating operations require idempotency.\n- Unknown outcomes have a query and reconciliation path.\n- Retries are bounded, observable, and safe.\n- Webhook delivery is authenticated and deduplicated.\n- Ledger entries are balanced and immutable.\n- Metrics cover success, decline, failure, latency, retry, and reconciliation rates.\n- Alerts exist for stuck payments, settlement mismatches, and unusual duplicate activity.",
+        "score": 0.23525654368721308
+      },
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 0.23184235844444842
+      }
+    ],
+    "keywordResponse": "According to the context, amounts should be represented as integers or decimal values with explicit precision because floating-point arithmetic should not be used for financial calculations.\n\nThe context does not explain the specific reasons why floating-point numbers are unsuitable for financial calculations, only that they should not be used.",
+    "embeddingResponse": "According to the context, floating-point arithmetic should not be used for financial calculations. However, the context does not explicitly explain *why* floating-point numbers should not be used for money values. It only states that \"Amounts should be represented as integers or decimal values with explicit precision\" instead.",
+    "keywordLatencyMs": 1164,
+    "embeddingLatencyMs": 1154,
+    "keywordEstimatedCost": 0.000947,
+    "embeddingEstimatedCost": 0.000922,
+    "totalLatencyMs": 2318,
+    "totalEstimatedCost": 0.001869,
+    "keywordRetrievalRelevance": 4,
+    "embeddingRetrievalRelevance": 4,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 9,
+    "question": "What should a payment system do when the outcome of a transaction is unknown?",
+    "expectedAnswer": "It should query the provider or use reconciliation to determine the transaction outcome before attempting a new financial operation.",
+    "expectedSource": "payments.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "- Record immutable transaction and provider references.\n- Keep an audit trail for state changes, actors, timestamps, and reasons.\n- Ensure debits and credits balance for every settled movement.\n- Run scheduled reconciliation against provider statements or settlement files.\n- Investigate unmatched, duplicated, missing, or incorrectly valued entries.\n- Do not silently overwrite financial records; use compensating entries for corrections.\n\n## Notifications and Webhooks\n\nPayment status updates are commonly delivered through webhooks. Consumers must authenticate webhook requests, validate the event, handle duplicate delivery, and tolerate out-of-order events. The payment service should remain the source of truth when an event conflicts with a queried payment record.\n\nNotifications should not be the only mechanism that changes a payment state. A missed webhook must be recoverable through polling, replay, reconciliation, or an operational repair workflow.\n\n## Security and Compliance",
+        "score": 9
+      },
+      {
+        "source": "payments.md",
+        "content": "# Payments\n\nPayment processing is the movement of value from a payer to a payee through a sequence of controlled states. A reliable payment system separates the customer request from authorization, capture, settlement, notification, reconciliation, and exception handling.\n\n## Core Payment Concepts\n\n- **Payer:** The customer or account providing the funds.\n- **Payee:** The customer, merchant, or account receiving the funds.\n- **Authorization:** Confirmation that the payment method can fund the transaction.\n- **Capture:** The instruction to finalize an authorized amount.\n- **Settlement:** The movement and final posting of funds between accounts or institutions.\n- **Refund:** Returning a completed payment to the payer.\n- **Reversal:** Cancelling or undoing an authorization or in-flight transaction before final settlement.\n- **Reconciliation:** Comparing internal records with processor, bank, or ledger records.\n\n## Typical Payment Lifecycle",
+        "score": 8
+      },
+      {
+        "source": "payments.md",
+        "content": "Amounts should be represented as integers or decimal values with explicit precision. Floating-point arithmetic should not be used for financial calculations.\n\n## Idempotency and Retries\n\nPayment creation, capture, refund, reversal, and posting operations must be safe to retry. A timeout does not prove that the operation failed; the request may have succeeded while the response was lost.\n\n- Require an idempotency key for every operation that creates or changes financial state.\n- Store the key with the operation, request fingerprint, final status, and response.\n- Return the original result when the same key is received again.\n- Reject reuse of a key with a different amount, currency, payment ID, or operation type.\n- Use provider references to avoid submitting the same operation twice downstream.\n- Make database writes and ledger entries atomic where possible.\n\n## Failure Handling\n\nPayment failures should be classified rather than treated as one generic error.",
+        "score": 8
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 0.5381357992279701
+      },
+      {
+        "source": "payments.md",
+        "content": "- Every payment has a unique internal ID and provider reference.\n- State transitions are explicit and validated.\n- Mutating operations require idempotency.\n- Unknown outcomes have a query and reconciliation path.\n- Retries are bounded, observable, and safe.\n- Webhook delivery is authenticated and deduplicated.\n- Ledger entries are balanced and immutable.\n- Metrics cover success, decline, failure, latency, retry, and reconciliation rates.\n- Alerts exist for stuck payments, settlement mismatches, and unusual duplicate activity.",
+        "score": 0.5279424798327451
+      },
+      {
+        "source": "payments.md",
+        "content": "Amounts should be represented as integers or decimal values with explicit precision. Floating-point arithmetic should not be used for financial calculations.\n\n## Idempotency and Retries\n\nPayment creation, capture, refund, reversal, and posting operations must be safe to retry. A timeout does not prove that the operation failed; the request may have succeeded while the response was lost.\n\n- Require an idempotency key for every operation that creates or changes financial state.\n- Store the key with the operation, request fingerprint, final status, and response.\n- Return the original result when the same key is received again.\n- Reject reuse of a key with a different amount, currency, payment ID, or operation type.\n- Use provider references to avoid submitting the same operation twice downstream.\n- Make database writes and ledger entries atomic where possible.\n\n## Failure Handling\n\nPayment failures should be classified rather than treated as one generic error.",
+        "score": 0.5059218488317841
+      }
+    ],
+    "keywordResponse": "I don't know. The context does not explicitly address what a payment system should do when the outcome of a transaction is unknown.\n\nThe context does mention that \"A timeout does not prove that the operation failed; the request may have succeeded while the response was lost\" and discusses idempotency and retries, but it does not specifically describe the action to take when the outcome is unknown.",
+    "embeddingResponse": "According to the context, when the outcome of a transaction is unknown, the payment system should:\n\n**Query the provider or reconcile before attempting a new financial operation.**\n\nAdditionally, the context states that unknown outcomes should have \"a query and reconciliation path\" as part of the system design, and that the payment record should preserve information about unknown outcomes to enable this reconciliation process.",
+    "keywordLatencyMs": 1294,
+    "embeddingLatencyMs": 1432,
+    "keywordEstimatedCost": 0.00111,
+    "embeddingEstimatedCost": 0.001009,
+    "totalLatencyMs": 2726,
+    "totalEstimatedCost": 0.002119,
+    "keywordRetrievalRelevance": 2,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 1,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 10,
+    "question": "How should a payment system correct an accounting error without rewriting history?",
+    "expectedAnswer": "It should use compensating entries rather than silently overwriting existing financial records.",
+    "expectedSource": "payments.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 5
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 5
+      },
+      {
+        "source": "payments.md",
+        "content": "```text\nInitiated -> Pending -> Authorized -> Captured -> Settled\n                 |          |            |\n                 v          v            v\n              Failed     Declined      Reversed\n\nSettled -> Partially Refunded -> Refunded\n```\n\nThe exact states vary by provider, but each state should have a clear meaning and permitted transitions. A payment should not move directly from an untrusted client request to a settled state without the required authorization and posting steps.\n\n## Payment Request Design\n\nA payment request should contain:\n\n- A client-generated idempotency key.\n- A unique payment ID generated by the payment service.\n- Amount represented in the smallest currency unit, such as kobo or cents.\n- Currency and payer/payee identifiers.\n- A clear description or reference.\n- The requested operation and creation timestamp.\n- Correlation information for tracing across services.",
+        "score": 5
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 0.5184420581891598
+      },
+      {
+        "source": "payments.md",
+        "content": "- Record immutable transaction and provider references.\n- Keep an audit trail for state changes, actors, timestamps, and reasons.\n- Ensure debits and credits balance for every settled movement.\n- Run scheduled reconciliation against provider statements or settlement files.\n- Investigate unmatched, duplicated, missing, or incorrectly valued entries.\n- Do not silently overwrite financial records; use compensating entries for corrections.\n\n## Notifications and Webhooks\n\nPayment status updates are commonly delivered through webhooks. Consumers must authenticate webhook requests, validate the event, handle duplicate delivery, and tolerate out-of-order events. The payment service should remain the source of truth when an event conflicts with a queried payment record.\n\nNotifications should not be the only mechanism that changes a payment state. A missed webhook must be recoverable through polling, replay, reconciliation, or an operational repair workflow.\n\n## Security and Compliance",
+        "score": 0.48511589390399235
+      },
+      {
+        "source": "payments.md",
+        "content": "Amounts should be represented as integers or decimal values with explicit precision. Floating-point arithmetic should not be used for financial calculations.\n\n## Idempotency and Retries\n\nPayment creation, capture, refund, reversal, and posting operations must be safe to retry. A timeout does not prove that the operation failed; the request may have succeeded while the response was lost.\n\n- Require an idempotency key for every operation that creates or changes financial state.\n- Store the key with the operation, request fingerprint, final status, and response.\n- Return the original result when the same key is received again.\n- Reject reuse of a key with a different amount, currency, payment ID, or operation type.\n- Use provider references to avoid submitting the same operation twice downstream.\n- Make database writes and ledger entries atomic where possible.\n\n## Failure Handling\n\nPayment failures should be classified rather than treated as one generic error.",
+        "score": 0.4642415546421151
+      }
+    ],
+    "keywordResponse": "I don't know. The context provided does not contain information about how a payment system should correct an accounting error without rewriting history.",
+    "embeddingResponse": "According to the context, a payment system should correct an accounting error by using **compensating entries for corrections** rather than silently overwriting financial records.\n\nThe context specifically states: \"Do not silently overwrite financial records; use compensating entries for corrections.\"",
+    "keywordLatencyMs": 882,
+    "embeddingLatencyMs": 1082,
+    "keywordEstimatedCost": 0.000823,
+    "embeddingEstimatedCost": 0.000963,
+    "totalLatencyMs": 1964,
+    "totalEstimatedCost": 0.001786,
+    "keywordRetrievalRelevance": 1,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 1,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 11,
+    "question": "Why can the same webhook event be received more than once?",
+    "expectedAnswer": "Webhook delivery is normally at-least-once, so the producer may retry delivery and the consumer may receive the same event multiple times.",
+    "expectedSource": "webhooks.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 7
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 6
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 6
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 0.5758068428752084
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 0.5137380476008603
+      },
+      {
+        "source": "webhooks.md",
+        "content": "- Use HTTPS for every production callback URL.\n- Authenticate requests with a signature, shared secret, mTLS, or an equivalent mechanism.\n- Include a timestamp in the signed material and reject messages outside an allowed clock-skew window.\n- Protect against replay by recording event IDs and enforcing signature expiry.\n- Validate the payload schema, event type, and expected account or tenant.\n- Do not trust identifiers or amounts solely because they arrived in a webhook; validate them against the system of record when necessary.\n\nA common signature pattern is:\n\n```text\nsignature = HMAC-SHA256(secret, timestamp + \".\" + raw_request_body)\n```\n\nThe signature must be calculated over the raw request body before JSON parsing so that whitespace or field-order changes do not invalidate verification unexpectedly.\n\n## Versioning and Compatibility",
+        "score": 0.40005566363458545
+      }
+    ],
+    "keywordResponse": "The context does not explicitly explain *why* the same webhook event can be received more than once. \n\nThe context only states that \"Webhook delivery is normally at-least-once. A consumer may receive the same event more than once,\" and provides guidance on how to handle this situation (by making processing idempotent), but it does not explain the underlying reasons for why duplicate delivery occurs.",
+    "embeddingResponse": "According to the context, webhook delivery is normally **at-least-once**. The context states: \"A consumer may receive the same event more than once, so processing must be idempotent.\"\n\nHowever, the context does not explain *why* the same event can be received more than once—it only states that this is the case and that consumers must be prepared to handle it idempotently.",
+    "keywordLatencyMs": 1556,
+    "embeddingLatencyMs": 1287,
+    "keywordEstimatedCost": 0.00106,
+    "embeddingEstimatedCost": 0.00103,
+    "totalLatencyMs": 2843,
+    "totalEstimatedCost": 0.00209,
+    "keywordRetrievalRelevance": 5,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 3,
+    "embeddingCorrectness": 3,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 12,
+    "question": "How can a webhook consumer avoid performing the same side effect twice?",
+    "expectedAnswer": "It should process events idempotently by recording the event ID before applying a non-repeatable side effect or by using a database unique constraint.",
+    "expectedSource": "webhooks.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 7
+      },
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 6
+      },
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 6
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 0.6282634749795794
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 0.5679302271070221
+      },
+      {
+        "source": "webhooks.md",
+        "content": "1. The consumer registers or configures a callback URL.\n2. The producer records an event.\n3. The producer sends an HTTP request to the callback URL.\n4. The consumer authenticates and validates the request.\n5. The consumer processes the event and returns a successful status code.\n6. The producer records the delivery result and retries when appropriate.\n\nThe consumer should acknowledge quickly. Long-running work should be placed on a queue after the event has been validated.\n\n## Example Event\n\n```json\n{\n  \"id\": \"evt_01JABC123\",\n  \"type\": \"payment.succeeded\",\n  \"occurredAt\": \"2026-09-11T10:30:00Z\",\n  \"version\": 1,\n  \"data\": {\n    \"paymentId\": \"pay_123\",\n    \"amount\": 10000,\n    \"currency\": \"NGN\",\n    \"status\": \"succeeded\"\n  }\n}\n```\n\nEvery event should have a stable event ID, event type, creation timestamp, schema version, and business payload. The event ID is important for deduplication.\n\n## Reliability Requirements",
+        "score": 0.4221758158990828
+      }
+    ],
+    "keywordResponse": "According to the context, a webhook consumer can avoid performing the same side effect twice by:\n\n1. **Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.** - This ensures that even if the same event is received multiple times, the side effect is only applied once.\n\n2. **Return a success status only after the event has been durably accepted.** - This confirms the event has been safely stored before acknowledging receipt.\n\nThe context also notes that webhook delivery is at-least-once, meaning consumers may receive the same event more than once, so processing must be idempotent.",
+    "embeddingResponse": "According to the context, a webhook consumer can avoid performing the same side effect twice by:\n\n1. **Store the event ID before applying a non-repeatable side effect**, or use a database unique constraint.\n\nThis is necessary because webhook delivery is normally at-least-once, meaning a consumer may receive the same event more than once, so processing must be idempotent.",
+    "keywordLatencyMs": 1286,
+    "embeddingLatencyMs": 1031,
+    "keywordEstimatedCost": 0.001296,
+    "embeddingEstimatedCost": 0.001065,
+    "totalLatencyMs": 2317,
+    "totalEstimatedCost": 0.002361,
+    "keywordRetrievalRelevance": 4,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 13,
+    "question": "Why should webhook handlers respond quickly?",
+    "expectedAnswer": "The consumer should acknowledge the webhook quickly and move long-running work to a queue after validating the event.",
+    "expectedSource": "webhooks.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "# Understanding Idempotency\n\nIdempotency is a foundational concept in software engineering, API design, and distributed systems.\n\n## What Is Idempotency?\n\nIdempotency is the property of an operation where executing it multiple times has the exact same side effect as executing it a single time. In simple terms, once a request succeeds, repeating it should not change the state of the system further or create unintended duplicate records.\n\n## Why It Matters\n\nIn distributed systems, networks are inherently unreliable. Requests can time out, drop, or fail halfway through. Idempotency guarantees safety by allowing clients to retry failed or ambiguous operations without corrupting data.",
+        "score": 2
+      },
+      {
+        "source": "payments.md",
+        "content": "- Record immutable transaction and provider references.\n- Keep an audit trail for state changes, actors, timestamps, and reasons.\n- Ensure debits and credits balance for every settled movement.\n- Run scheduled reconciliation against provider statements or settlement files.\n- Investigate unmatched, duplicated, missing, or incorrectly valued entries.\n- Do not silently overwrite financial records; use compensating entries for corrections.\n\n## Notifications and Webhooks\n\nPayment status updates are commonly delivered through webhooks. Consumers must authenticate webhook requests, validate the event, handle duplicate delivery, and tolerate out-of-order events. The payment service should remain the source of truth when an event conflicts with a queried payment record.\n\nNotifications should not be the only mechanism that changes a payment state. A missed webhook must be recoverable through polling, replay, reconciliation, or an operational repair workflow.\n\n## Security and Compliance",
+        "score": 2
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 2
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 0.5612307020254695
+      },
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 0.5414881764456239
+      },
+      {
+        "source": "webhooks.md",
+        "content": "- Use HTTPS for every production callback URL.\n- Authenticate requests with a signature, shared secret, mTLS, or an equivalent mechanism.\n- Include a timestamp in the signed material and reject messages outside an allowed clock-skew window.\n- Protect against replay by recording event IDs and enforcing signature expiry.\n- Validate the payload schema, event type, and expected account or tenant.\n- Do not trust identifiers or amounts solely because they arrived in a webhook; validate them against the system of record when necessary.\n\nA common signature pattern is:\n\n```text\nsignature = HMAC-SHA256(secret, timestamp + \".\" + raw_request_body)\n```\n\nThe signature must be calculated over the raw request body before JSON parsing so that whitespace or field-order changes do not invalidate verification unexpectedly.\n\n## Versioning and Compatibility",
+        "score": 0.4293361003810825
+      }
+    ],
+    "keywordResponse": "I don't know. The context provided does not explain why webhook handlers should respond quickly.",
+    "embeddingResponse": "I don't know. The context provided does not explain why webhook handlers should respond quickly.",
+    "keywordLatencyMs": 807,
+    "embeddingLatencyMs": 752,
+    "keywordEstimatedCost": 0.00072,
+    "embeddingEstimatedCost": 0.00069,
+    "totalLatencyMs": 1559,
+    "totalEstimatedCost": 0.00141,
+    "keywordRetrievalRelevance": 1,
+    "embeddingRetrievalRelevance": 3,
+    "keywordCorrectness": 1,
+    "embeddingCorrectness": 1,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 14,
+    "question": "What webhook failures should normally cause another delivery attempt?",
+    "expectedAnswer": "Timeouts and most 5xx responses should be treated as retryable, using exponential backoff with a maximum retry count.",
+    "expectedSource": "webhooks.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 3
+      },
+      {
+        "source": "payments.md",
+        "content": "- Record immutable transaction and provider references.\n- Keep an audit trail for state changes, actors, timestamps, and reasons.\n- Ensure debits and credits balance for every settled movement.\n- Run scheduled reconciliation against provider statements or settlement files.\n- Investigate unmatched, duplicated, missing, or incorrectly valued entries.\n- Do not silently overwrite financial records; use compensating entries for corrections.\n\n## Notifications and Webhooks\n\nPayment status updates are commonly delivered through webhooks. Consumers must authenticate webhook requests, validate the event, handle duplicate delivery, and tolerate out-of-order events. The payment service should remain the source of truth when an event conflicts with a queried payment record.\n\nNotifications should not be the only mechanism that changes a payment state. A missed webhook must be recoverable through polling, replay, reconciliation, or an operational repair workflow.\n\n## Security and Compliance",
+        "score": 3
+      },
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 3
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 0.6419612589074108
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 0.49830289716642834
+      },
+      {
+        "source": "webhooks.md",
+        "content": "- Use HTTPS for every production callback URL.\n- Authenticate requests with a signature, shared secret, mTLS, or an equivalent mechanism.\n- Include a timestamp in the signed material and reject messages outside an allowed clock-skew window.\n- Protect against replay by recording event IDs and enforcing signature expiry.\n- Validate the payload schema, event type, and expected account or tenant.\n- Do not trust identifiers or amounts solely because they arrived in a webhook; validate them against the system of record when necessary.\n\nA common signature pattern is:\n\n```text\nsignature = HMAC-SHA256(secret, timestamp + \".\" + raw_request_body)\n```\n\nThe signature must be calculated over the raw request body before JSON parsing so that whitespace or field-order changes do not invalidate verification unexpectedly.\n\n## Versioning and Compatibility",
+        "score": 0.40554634833672665
+      }
+    ],
+    "keywordResponse": "According to the context, the following webhook failures should normally cause another delivery attempt:\n\n- **Timeouts**\n- **Most `5xx` responses**\n\nThese should be treated as retryable, and delivery should be retried using exponential backoff with a maximum retry count.",
+    "embeddingResponse": "According to the context, the following webhook failures should normally cause another delivery attempt:\n\n- **Timeouts**\n- **Most `5xx` responses**\n\nThe context states: \"Treat timeouts and most `5xx` responses as retryable.\"",
+    "keywordLatencyMs": 1089,
+    "embeddingLatencyMs": 880,
+    "keywordEstimatedCost": 0.000919,
+    "embeddingEstimatedCost": 0.000878,
+    "totalLatencyMs": 1969,
+    "totalEstimatedCost": 0.001797,
+    "keywordRetrievalRelevance": 3,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 4,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 15,
+    "question": "How can a webhook receiver protect itself from replayed messages?",
+    "expectedAnswer": "It can include a timestamp in the signed data, reject messages outside the allowed time window, record event IDs, and enforce signature expiry.",
+    "expectedSource": "webhooks.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "idempotency.md",
+        "content": "- **Prevents duplication:** Avoids creating duplicate orders, charging a customer's credit card twice, or adding multiple identical rows to a database.\n- **Enables safe retries:** If a timeout occurs, the client can safely resend the exact same request until a confirmation is received.\n- **Improves system resilience:** Network glitches or crashed microservices can be recovered automatically by replaying events without manual database cleanup.\n\n## Real-World Examples\n\n### Idempotent Operations (Safe to Repeat)\n\n- **Setting a value:** Changing a status to `PAID` or `ACTIVE`. No matter how many times the operation runs, the status remains unchanged.\n- **Deletion:** Deleting a record with a specific ID. The first call removes it; subsequent calls find nothing to delete but leave the system in the same final state.\n- **Turning something on:** Turning a light switch `ON`. If it is already on, repeating the operation changes nothing.\n\n### Non-Idempotent Operations (Dangerous to Repeat)",
+        "score": 3
+      },
+      {
+        "source": "payments.md",
+        "content": "# Payments\n\nPayment processing is the movement of value from a payer to a payee through a sequence of controlled states. A reliable payment system separates the customer request from authorization, capture, settlement, notification, reconciliation, and exception handling.\n\n## Core Payment Concepts\n\n- **Payer:** The customer or account providing the funds.\n- **Payee:** The customer, merchant, or account receiving the funds.\n- **Authorization:** Confirmation that the payment method can fund the transaction.\n- **Capture:** The instruction to finalize an authorized amount.\n- **Settlement:** The movement and final posting of funds between accounts or institutions.\n- **Refund:** Returning a completed payment to the payer.\n- **Reversal:** Cancelling or undoing an authorization or in-flight transaction before final settlement.\n- **Reconciliation:** Comparing internal records with processor, bank, or ledger records.\n\n## Typical Payment Lifecycle",
+        "score": 3
+      },
+      {
+        "source": "payments.md",
+        "content": "- Use TLS for all payment traffic.\n- Authenticate and authorize every payment operation.\n- Never log full card numbers, security codes, credentials, or unnecessary personal data.\n- Encrypt sensitive data at rest and in transit.\n- Apply least privilege to payment and ledger services.\n- Use audit logs that cannot be altered without detection.\n- Validate currency, amount limits, account ownership, and beneficiary details.\n- Protect against replay, tampering, duplicate submission, and race conditions.\n\n## Operational Checklist",
+        "score": 3
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 0.5678340265220081
+      },
+      {
+        "source": "webhooks.md",
+        "content": "- Use HTTPS for every production callback URL.\n- Authenticate requests with a signature, shared secret, mTLS, or an equivalent mechanism.\n- Include a timestamp in the signed material and reject messages outside an allowed clock-skew window.\n- Protect against replay by recording event IDs and enforcing signature expiry.\n- Validate the payload schema, event type, and expected account or tenant.\n- Do not trust identifiers or amounts solely because they arrived in a webhook; validate them against the system of record when necessary.\n\nA common signature pattern is:\n\n```text\nsignature = HMAC-SHA256(secret, timestamp + \".\" + raw_request_body)\n```\n\nThe signature must be calculated over the raw request body before JSON parsing so that whitespace or field-order changes do not invalidate verification unexpectedly.\n\n## Versioning and Compatibility",
+        "score": 0.5199836681562102
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 0.42738678509166056
+      }
+    ],
+    "keywordResponse": "I don't know. The context provided discusses idempotency, payment processing concepts, and security best practices for payment systems, but it does not contain information about how a webhook receiver can protect itself from replayed messages.",
+    "embeddingResponse": "According to the context, a webhook receiver can protect itself from replayed messages by:\n\n1. **Recording event IDs** - Keep a record of which event IDs have already been processed\n2. **Enforcing signature expiry** - Include a timestamp in the signed material and reject messages outside an allowed clock-skew window\n\nThe context specifically states: \"Protect against replay by recording event IDs and enforcing signature expiry.\"\n\nAdditionally, the context recommends including a timestamp in the signed material as part of the signature calculation, which helps detect and reject replayed messages that fall outside the allowed time window.",
+    "keywordLatencyMs": 1076,
+    "embeddingLatencyMs": 1974,
+    "keywordEstimatedCost": 0.00088,
+    "embeddingEstimatedCost": 0.00125,
+    "totalLatencyMs": 3050,
+    "totalEstimatedCost": 0.00213,
+    "keywordRetrievalRelevance": 1,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 1,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 16,
+    "question": "Why should webhook signatures be calculated before parsing the JSON body?",
+    "expectedAnswer": "The signature should use the raw request body so that changes in whitespace or field order during parsing do not unexpectedly break signature verification.",
+    "expectedSource": "webhooks.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "- Use HTTPS for every production callback URL.\n- Authenticate requests with a signature, shared secret, mTLS, or an equivalent mechanism.\n- Include a timestamp in the signed material and reject messages outside an allowed clock-skew window.\n- Protect against replay by recording event IDs and enforcing signature expiry.\n- Validate the payload schema, event type, and expected account or tenant.\n- Do not trust identifiers or amounts solely because they arrived in a webhook; validate them against the system of record when necessary.\n\nA common signature pattern is:\n\n```text\nsignature = HMAC-SHA256(secret, timestamp + \".\" + raw_request_body)\n```\n\nThe signature must be calculated over the raw request body before JSON parsing so that whitespace or field-order changes do not invalidate verification unexpectedly.\n\n## Versioning and Compatibility",
+        "score": 7
+      },
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 4
+      },
+      {
+        "source": "payments.md",
+        "content": "- Record immutable transaction and provider references.\n- Keep an audit trail for state changes, actors, timestamps, and reasons.\n- Ensure debits and credits balance for every settled movement.\n- Run scheduled reconciliation against provider statements or settlement files.\n- Investigate unmatched, duplicated, missing, or incorrectly valued entries.\n- Do not silently overwrite financial records; use compensating entries for corrections.\n\n## Notifications and Webhooks\n\nPayment status updates are commonly delivered through webhooks. Consumers must authenticate webhook requests, validate the event, handle duplicate delivery, and tolerate out-of-order events. The payment service should remain the source of truth when an event conflicts with a queried payment record.\n\nNotifications should not be the only mechanism that changes a payment state. A missed webhook must be recoverable through polling, replay, reconciliation, or an operational repair workflow.\n\n## Security and Compliance",
+        "score": 4
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "- Use HTTPS for every production callback URL.\n- Authenticate requests with a signature, shared secret, mTLS, or an equivalent mechanism.\n- Include a timestamp in the signed material and reject messages outside an allowed clock-skew window.\n- Protect against replay by recording event IDs and enforcing signature expiry.\n- Validate the payload schema, event type, and expected account or tenant.\n- Do not trust identifiers or amounts solely because they arrived in a webhook; validate them against the system of record when necessary.\n\nA common signature pattern is:\n\n```text\nsignature = HMAC-SHA256(secret, timestamp + \".\" + raw_request_body)\n```\n\nThe signature must be calculated over the raw request body before JSON parsing so that whitespace or field-order changes do not invalidate verification unexpectedly.\n\n## Versioning and Compatibility",
+        "score": 0.5431795559716632
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 0.41157854392826054
+      },
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 0.3548407904321077
+      }
+    ],
+    "keywordResponse": "According to the context, webhook signatures should be calculated over the raw request body before JSON parsing so that **whitespace or field-order changes do not invalidate verification unexpectedly**.",
+    "embeddingResponse": "According to the context, webhook signatures should be calculated over the raw request body before JSON parsing so that **whitespace or field-order changes do not invalidate verification unexpectedly**.",
+    "keywordLatencyMs": 977,
+    "embeddingLatencyMs": 737,
+    "keywordEstimatedCost": 0.000862,
+    "embeddingEstimatedCost": 0.00079,
+    "totalLatencyMs": 1714,
+    "totalEstimatedCost": 0.001652,
+    "keywordRetrievalRelevance": 4,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 17,
+    "question": "A payment webhook says a transaction succeeded, but the payment service says otherwise. Which should be trusted?",
+    "expectedAnswer": "The payment service should remain the source of truth when a webhook event conflicts with the queried payment record.",
+    "expectedSource": "payments.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "- Record immutable transaction and provider references.\n- Keep an audit trail for state changes, actors, timestamps, and reasons.\n- Ensure debits and credits balance for every settled movement.\n- Run scheduled reconciliation against provider statements or settlement files.\n- Investigate unmatched, duplicated, missing, or incorrectly valued entries.\n- Do not silently overwrite financial records; use compensating entries for corrections.\n\n## Notifications and Webhooks\n\nPayment status updates are commonly delivered through webhooks. Consumers must authenticate webhook requests, validate the event, handle duplicate delivery, and tolerate out-of-order events. The payment service should remain the source of truth when an event conflicts with a queried payment record.\n\nNotifications should not be the only mechanism that changes a payment state. A missed webhook must be recoverable through polling, replay, reconciliation, or an operational repair workflow.\n\n## Security and Compliance",
+        "score": 8
+      },
+      {
+        "source": "payments.md",
+        "content": "```text\nInitiated -> Pending -> Authorized -> Captured -> Settled\n                 |          |            |\n                 v          v            v\n              Failed     Declined      Reversed\n\nSettled -> Partially Refunded -> Refunded\n```\n\nThe exact states vary by provider, but each state should have a clear meaning and permitted transitions. A payment should not move directly from an untrusted client request to a settled state without the required authorization and posting steps.\n\n## Payment Request Design\n\nA payment request should contain:\n\n- A client-generated idempotency key.\n- A unique payment ID generated by the payment service.\n- Amount represented in the smallest currency unit, such as kobo or cents.\n- Currency and payer/payee identifiers.\n- A clear description or reference.\n- The requested operation and creation timestamp.\n- Correlation information for tracing across services.",
+        "score": 6
+      },
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 6
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "- Record immutable transaction and provider references.\n- Keep an audit trail for state changes, actors, timestamps, and reasons.\n- Ensure debits and credits balance for every settled movement.\n- Run scheduled reconciliation against provider statements or settlement files.\n- Investigate unmatched, duplicated, missing, or incorrectly valued entries.\n- Do not silently overwrite financial records; use compensating entries for corrections.\n\n## Notifications and Webhooks\n\nPayment status updates are commonly delivered through webhooks. Consumers must authenticate webhook requests, validate the event, handle duplicate delivery, and tolerate out-of-order events. The payment service should remain the source of truth when an event conflicts with a queried payment record.\n\nNotifications should not be the only mechanism that changes a payment state. A missed webhook must be recoverable through polling, replay, reconciliation, or an operational repair workflow.\n\n## Security and Compliance",
+        "score": 0.534665430158744
+      },
+      {
+        "source": "payments.md",
+        "content": "- Every payment has a unique internal ID and provider reference.\n- State transitions are explicit and validated.\n- Mutating operations require idempotency.\n- Unknown outcomes have a query and reconciliation path.\n- Retries are bounded, observable, and safe.\n- Webhook delivery is authenticated and deduplicated.\n- Ledger entries are balanced and immutable.\n- Metrics cover success, decline, failure, latency, retry, and reconciliation rates.\n- Alerts exist for stuck payments, settlement mismatches, and unusual duplicate activity.",
+        "score": 0.49987506916446256
+      },
+      {
+        "source": "payments.md",
+        "content": "- **Validation failure:** The request is invalid and should not be retried unchanged.\n- **Decline:** The payment method or institution rejected the transaction; the customer may need to choose another method.\n- **Transient provider failure:** Retry according to a bounded backoff policy.\n- **Timeout or unknown outcome:** Query the provider or reconcile before attempting a new financial operation.\n- **Internal processing failure:** Preserve the payment record and retry from the last safe step.\n- **Duplicate request:** Return the existing payment result rather than creating another payment.\n\nNever automatically retry a payment operation just because the client did not receive a response. First determine whether the original request reached the provider or ledger.\n\n## Ledger and Reconciliation\n\nThe payment record and the accounting ledger should be treated as separate concerns. The payment record describes the workflow; the ledger records the financial effect.",
+        "score": 0.46863745246334093
+      }
+    ],
+    "keywordResponse": "According to the context, the payment service should remain the source of truth when an event conflicts with a queried payment record.",
+    "embeddingResponse": "According to the context, the payment service should be trusted. The context states:\n\n\"The payment service should remain the source of truth when an event conflicts with a queried payment record.\"",
+    "keywordLatencyMs": 826,
+    "embeddingLatencyMs": 954,
+    "keywordEstimatedCost": 0.000815,
+    "embeddingEstimatedCost": 0.000807,
+    "totalLatencyMs": 1780,
+    "totalEstimatedCost": 0.001622,
+    "keywordRetrievalRelevance": 5,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 5,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  },
+  {
+    "id": 18,
+    "question": "What common reliability idea connects payment retries and webhook delivery?",
+    "expectedAnswer": "Both require idempotent processing so that retries or duplicate deliveries do not create duplicate financial or business side effects.",
+    "expectedSource": "payments.md + webhooks.md + idempotency.md",
+    "keywordRetrievedChunks": [
+      {
+        "source": "payments.md",
+        "content": "- Record immutable transaction and provider references.\n- Keep an audit trail for state changes, actors, timestamps, and reasons.\n- Ensure debits and credits balance for every settled movement.\n- Run scheduled reconciliation against provider statements or settlement files.\n- Investigate unmatched, duplicated, missing, or incorrectly valued entries.\n- Do not silently overwrite financial records; use compensating entries for corrections.\n\n## Notifications and Webhooks\n\nPayment status updates are commonly delivered through webhooks. Consumers must authenticate webhook requests, validate the event, handle duplicate delivery, and tolerate out-of-order events. The payment service should remain the source of truth when an event conflicts with a queried payment record.\n\nNotifications should not be the only mechanism that changes a payment state. A missed webhook must be recoverable through polling, replay, reconciliation, or an operational repair workflow.\n\n## Security and Compliance",
+        "score": 4
+      },
+      {
+        "source": "payments.md",
+        "content": "- Every payment has a unique internal ID and provider reference.\n- State transitions are explicit and validated.\n- Mutating operations require idempotency.\n- Unknown outcomes have a query and reconciliation path.\n- Retries are bounded, observable, and safe.\n- Webhook delivery is authenticated and deduplicated.\n- Ledger entries are balanced and immutable.\n- Metrics cover success, decline, failure, latency, retry, and reconciliation rates.\n- Alerts exist for stuck payments, settlement mismatches, and unusual duplicate activity.",
+        "score": 4
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 4
+      }
+    ],
+    "embeddingRetrievedChunks": [
+      {
+        "source": "webhooks.md",
+        "content": "Webhook delivery is normally at-least-once. A consumer may receive the same event more than once, so processing must be idempotent.\n\n- Store the event ID before applying a non-repeatable side effect, or use a database unique constraint.\n- Return a success status only after the event has been durably accepted.\n- Treat timeouts and most `5xx` responses as retryable.\n- Use exponential backoff with a maximum retry count.\n- Send permanently failed events to a dead-letter queue or delivery dashboard.\n- Preserve the original event ID across all retries.\n\n## Security",
+        "score": 0.6423091667750553
+      },
+      {
+        "source": "webhooks.md",
+        "content": "# Webhooks\n\nWebhooks are HTTP callbacks that allow one system to notify another system when an event occurs. Instead of repeatedly polling an API, the receiving system exposes an endpoint and the sending system delivers event messages to it.\n\n## Why Webhooks Matter\n\nWebhooks are useful when a result is produced asynchronously or may change after the original request has completed. Common examples include payment updates, order status changes, account events, and background job completion.\n\n- **Near real-time updates:** Consumers receive changes shortly after they happen.\n- **Lower polling overhead:** Consumers do not need to repeatedly ask whether anything changed.\n- **Asynchronous workflows:** A request can be accepted first and completed later.\n- **Loose coupling:** The producer and consumer can evolve independently around a documented event contract.\n\n## Typical Webhook Flow",
+        "score": 0.5298032109166502
+      },
+      {
+        "source": "payments.md",
+        "content": "- Every payment has a unique internal ID and provider reference.\n- State transitions are explicit and validated.\n- Mutating operations require idempotency.\n- Unknown outcomes have a query and reconciliation path.\n- Retries are bounded, observable, and safe.\n- Webhook delivery is authenticated and deduplicated.\n- Ledger entries are balanced and immutable.\n- Metrics cover success, decline, failure, latency, retry, and reconciliation rates.\n- Alerts exist for stuck payments, settlement mismatches, and unusual duplicate activity.",
+        "score": 0.5137800662791467
+      }
+    ],
+    "keywordResponse": "I don't know. The context discusses both payment retries and webhook delivery as separate topics, but it does not explicitly state what common reliability idea connects them.",
+    "embeddingResponse": "Based on the context provided, the common reliability idea that connects payment retries and webhook delivery is **idempotency**.\n\nFor webhooks, the context states that \"A consumer may receive the same event more than once, so processing must be idempotent\" and recommends storing the event ID before applying non-repeatable side effects.\n\nFor payments, the context states that \"Mutating operations require idempotency\" and \"Retries are bounded, observable, and safe.\"\n\nBoth systems use idempotency to safely handle retries and potential duplicates without causing unintended side effects.",
+    "keywordLatencyMs": 937,
+    "embeddingLatencyMs": 1322,
+    "keywordEstimatedCost": 0.00076,
+    "embeddingEstimatedCost": 0.001177,
+    "totalLatencyMs": 2259,
+    "totalEstimatedCost": 0.001937,
+    "keywordRetrievalRelevance": 3,
+    "embeddingRetrievalRelevance": 5,
+    "keywordCorrectness": 1,
+    "embeddingCorrectness": 5,
+    "keywordGroundedness": 5,
+    "embeddingGroundedness": 5
+  }
+]
