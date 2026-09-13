@@ -95,6 +95,13 @@ while (true)
         break;
     }
 
+    Console.Write("Expected answer: ");
+    var expectedAnswer = Console.ReadLine();
+    if (string.IsNullOrWhiteSpace(expectedAnswer))
+    {
+        break;
+    }
+
     var questionEmbedding = await embeddingService.CreateEmbeddingAsync(question)
         ?? throw new InvalidOperationException("The embedding provider returned an empty question embedding.");
     var retrievedChunks = vectorRetriever.Retrieve(questionEmbedding, allChunks);
@@ -116,7 +123,7 @@ while (true)
         LatencyMs = response.LatencyMs,
         RetrievedChunks = retrievedChunks,
         Question = question,
-        ExpectedAnswer = "Duplicate request should return existing payment result rather than creating another payment. This can solved using idempotency"
+        ExpectedAnswer = expectedAnswer
 
     };
 
