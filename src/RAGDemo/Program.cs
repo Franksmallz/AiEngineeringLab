@@ -10,8 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+
+var repoRoot = FindRepoRoot(AppContext.BaseDirectory)
+    ?? throw new InvalidOperationException("Could not locate the repository root.");
+var outputPath = ResolveOutputPath(args, repoRoot);
 var environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
-var outputPath = ResolveOutputPath(args);
 var configuration = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)
     .AddJsonFile("appsettings.json", optional: true)
@@ -46,28 +49,77 @@ await using var container = containerBuilder.Build();
 await using var scope = container.BeginLifetimeScope();
 
 var generateService = scope.Resolve<IGenerateService>();
+var documentChunkService = scope.Resolve<IDocumentChunkService>();
+var retrieverService = scope.Resolve<IRetrieverService>();
+var files = Directory.GetFiles(Path.Combine(repoRoot, "data"), "*.md");
 
-var evaluationCase = new EvaluationCase
+var allChunks = new List<DocumentChunk>();
+foreach(var file in files)
 {
-    Id = 0,
-    Input = string.Empty
-};
+    var document = await File.ReadAllTextAsync(file);
+    var chunks = documentChunkService.ChunkDocument(document);
 
-var response = await generateService.SendMessage(new SendMessageRequestDto { Prompt = evaluationCase.Input, Temperature = 0, MaxToken = 1024 });
-evaluationCase.ActualResponse = System.Text.RegularExpressions.Regex.Unescape(response.Text);
-evaluationCase.LatencyMs = response.LatencyMs;
-evaluationCase.EstimatedCost = response.EstimatedCost;
-evaluationCase.InputToken = response.InputTokens;
-evaluationCase.OutputToken = response.OutputTokens;
+    for(int i = 0; i < chunks.Count; i++)
+    {
+        allChunks.Add(new DocumentChunk
+        {
+            Id = $"{Path.GetFileNameWithoutExtension(file)}-{i + 1}",
+            Source = Path.GetFileName(file),
+            Content = chunks[i]
+        });
+    }
+}
 
-Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
-var json = JsonSerializer.Serialize(evaluationCase, new JsonSerializerOptions
+Console.WriteLine("Ask a question, or press Ctrl+C to exit.");
+
+while (true)
 {
-    WriteIndented = true,
-    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-});
-await File.AppendAllTextAsync(outputPath, json + Environment.NewLine);
+    Console.Write("\n> ");
+    var question = Console.ReadLine();
+    if (string.IsNullOrWhiteSpace(question))
+    {
+        break;
+    }
+
+    Console.Write("Expected answer: ");
+    var expectedAnswer = Console.ReadLine();
+    if (string.IsNullOrWhiteSpace(expectedAnswer))
+    {
+        break;
+    }
+
+    var retrievedChunks = retrieverService.Retrieve(question, allChunks);
+    var context = string.Join("\n\n---\n\n", retrievedChunks.Select(x => x.Content));
+    var input = $"Answer the question using only the context below. If the answer is not in the context, say I don't know. Do not add facts, assumptions, or examples that are not in the context\n\nContext:\n{context}\n\nQuestion: {question}";
+   
+    var response = await generateService.SendMessage(new SendMessageRequestDto
+    {
+        Prompt = input,
+        MaxToken = anthropicSettings.MaxTokens
+    });
+
+    var ragEvaluationResult = new RagEvaluationResult
+    {
+        ActualResponse = System.Text.RegularExpressions.Regex.Unescape(response.Text),
+        EstimatedCost = response.EstimatedCost,
+        InputTokens = response.InputTokens,
+        OutputTokens = response.OutputTokens,
+        LatencyMs = response.LatencyMs,
+        RetrievedChunks = retrievedChunks,
+        Question = question,
+        ExpectedAnswer = expectedAnswer
+
+    };
+    
+    Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+    var json = JsonSerializer.Serialize(ragEvaluationResult, new JsonSerializerOptions
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    });
+    await File.AppendAllTextAsync(outputPath, json + Environment.NewLine);
+}
 
 static string? GetArgValue(string[] args, string name)
 {
@@ -82,7 +134,7 @@ static string? GetArgValue(string[] args, string name)
     return null;
 }
 
-static string ResolveOutputPath(string[] args)
+static string ResolveOutputPath(string[] args, string repoRoot)
 {
     var explicitPath = GetArgValue(args, "--output");
     if (!string.IsNullOrWhiteSpace(explicitPath))
@@ -90,11 +142,9 @@ static string ResolveOutputPath(string[] args)
         return Path.GetFullPath(explicitPath);
     }
 
-   var repoRoot = FindRepoRoot(AppContext.BaseDirectory)
-        ?? throw new InvalidOperationException("Could not locate the repository root. Pass --output explicitly.");
-
-    return Path.Combine(repoRoot, "evaluations", "week-05", "v3-results-test.json");
+    return Path.Combine(repoRoot, "experiments", "week-06", "rag-results.json");
 }
+
 
 static string? FindRepoRoot(string startDirectory)
 {
