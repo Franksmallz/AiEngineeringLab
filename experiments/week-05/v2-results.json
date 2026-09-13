@@ -1,0 +1,135 @@
+[
+	{
+  "id": 1,
+  "input": "You are a technical educator. Explain the following concept accurately and concisely.\r\n\tRequirements:\r\n\t- answer the question directly\r\n\t- use simple language\r\n\t- include an example when useful\r\n\t- follow any formatting instructions in the user's request\r\n\t\r\n\tUser request: {what is idempotency}",
+  "actualResponse": "# Idempotency\n\n**Definition:** An operation is idempotent if performing it multiple times produces the same result as performing it once. The extra repetitions have no additional effect.\n\n## Simple Explanation\n\nIdempotency means \"doing it again doesn't change anything.\" Whether you do an operation one time or one hundred times, the end result is identical.\n\n## Common Examples\n\n- **HTTP DELETE request**: Deleting a file is idempotent. Delete it once → gone. Delete it again → still gone (no error, same outcome).\n\n- **Setting a value**: Setting a variable `x = 5` multiple times results in `x = 5`. It doesn't become 55 or keep incrementing.\n\n- **Pressing an elevator button**: Pressing \"Floor 3\" once or ten times still takes you to Floor 3.\n\n## Counter-Example (Non-Idempotent)\n\nIncrementing a counter is **not** idempotent. Running `x = x + 1` twice gives a different result than running it once.\n\n## Why It Matters\n\nIdempotency is important in:\n- **APIs** – Safe to retry requests without worrying about duplicate effects\n- **Databases** – Transactions can be replayed safely\n- **Distributed systems** – Handles network failures gracefully",
+  "correctness": 5,
+  "relevance": 4,
+  "instructionFollowing": 4,
+  "latencyMs": 4584,
+  "outputToken": 297,
+  "inputToken": 76,
+  "estimatedCost": 0.001561
+},
+{
+  "id": 2,
+  "input": "You are an immigration case officer at IRCC. Explain the following concept accurately and concisely\r\n\t\r\n\tRequirements:\r\n\t- answer the question directly\r\n\t- Explain with respect to skilled-workers\r\n\t- use simple language\r\n\t- include an example when useful\r\n\t- follow any formatting instructions in the user's request\r\n\t\r\n\tUser request: {what is immigration}",
+  "actualResponse": "# What is Immigration\n\n**Direct Answer:** Immigration is the process of moving to a new country to live permanently or for an extended period.\n\n## For Skilled Workers\n\nAs a skilled worker, immigration means you're applying to move to Canada based on your work experience, education, and job qualifications. Canada welcomes skilled workers through programs like:\n\n- **Express Entry** - for workers with in-demand skills\n- **Provincial Nominee Programs (PNPs)** - for workers needed in specific provinces\n- **Work permits** - temporary authorization to work while you apply for permanent residence\n\n## Why It Matters\n\nImmigration lets you:\n- Get permanent resident status\n- Eventually become a Canadian citizen\n- Bring family members with you\n- Access healthcare, education, and social benefits\n\n## Simple Example\n\nIf you're a software engineer from India with 5 years of experience, you could apply through Express Entry. If accepted, you'd receive permanent residence, allowing you to live and work in Canada permanently.\n\n---\n\n**Key Point:** Immigration for skilled workers is merit-based—your qualifications, language skills, work experience, and education determine your eligibility.",
+  "correctness": 5,
+  "relevance": 4,
+  "instructionFollowing": 4,
+  "latencyMs": 4816,
+  "outputToken": 247,
+  "inputToken": 90,
+  "estimatedCost": 0.001325
+},
+{
+  "id": 3,
+  "input": "You're a technical educator. Explain the following concept accurately and concisely.\r\n\r\n\tRequirements:\r\n\t- answer the question directly\r\n\t- use simple language\r\n\t- include an example for easy understanding\r\n\t\r\n\tUser request: {What is Atomicity}",
+  "actualResponse": "# Atomicity\n\n**Definition:**\nAtomicity means an operation completes fully or not at all—there's no in-between state. Either everything happens successfully, or nothing happens.\n\n**In simple terms:**\nThink of it like an all-or-nothing transaction. If something goes wrong partway through, the entire operation is undone (rolled back) to its starting point.\n\n**Real-world example:**\nImagine transferring $100 from your bank account to a friend's account:\n\n- **With atomicity:** Either both happen together (your balance decreases AND their balance increases), or neither happens\n- **Without atomicity:** Your $100 could disappear without reaching your friend (the system crashes between the two steps)\n\n**Why it matters:**\nWithout atomicity, you could end up in broken, inconsistent states—like money vanishing or being duplicated. That's why databases and financial systems prioritize atomic operations.",
+  "correctness": 5,
+  "relevance": 5,
+  "instructionFollowing": 4,
+  "latencyMs": 3988,
+  "outputToken": 204,
+  "inputToken": 64,
+  "estimatedCost": 0.001084
+},
+{
+  "id": 4,
+  "input": "You're a physcist. Explain the following concept accurately and concisely\"\r\n\tRequirements:\r\n\t- answer the quest direct and concisely\r\n\t- use simple english no technical jargon\r\n\t- include a real-life example\r\n\t\r\n\tUser request: {what is first principles}",
+  "actualResponse": "# First Principles Explained\n\n**What it is:**\nFirst principles means breaking down a complex problem into its most basic, fundamental facts—then rebuilding your understanding from there. You ignore assumptions and start with what you *know for certain*.\n\n**How it works:**\n1. Strip away everything you think you know\n2. Identify only the most basic truths\n3. Reason up from those truths step-by-step\n\n**Real-life example:**\n\nMost people assume \"you need a car to get around town.\" That's an assumption built on existing solutions.\n\nFirst principles thinking asks: *What do I actually need?*\n- Basic fact: I need to move from point A to point B\n- Basic fact: Moving objects requires energy\n- Basic fact: Humans can walk, cycle, or use machines\n\nThis opens new solutions: bikes, scooters, buses, or even walking paths—not just cars.\n\n**Why it matters in physics:**\nWe use first principles to solve new problems by going back to fundamental laws (like Newton's laws or energy conservation) rather than relying on existing formulas that might not apply.\n\n**Simple takeaway:** Don't accept \"that's how it's always been done.\" Ask \"why?\" and rebuild from the basics.",
+  "correctness": 5,
+  "relevance": 4,
+  "instructionFollowing": 4,
+  "latencyMs": 4780,
+  "outputToken": 275,
+  "inputToken": 73,
+  "estimatedCost": 0.001448
+},
+{
+  "id": 5,
+  "input": "You are an educator. Explain the following concept accurately and concisely\"\r\n\tRequirements:\r\n\t- answer the question concisely and be direct\r\n\t- use simple english and no technical or biological jargon\r\n\t- include a real-life example\r\n\t- follow any formatting instructions in the user's request\r\n\t\r\n\tUser request: {Explain post-partum psychosis with symptoms in three bullet points }",
+  "actualResponse": "# Postpartum Psychosis\n\n**Definition:** A severe mental health condition that occurs within weeks after childbirth, involving a loss of contact with reality.\n\n**Symptoms:**\n\n• **Hallucinations and delusions** – The mother may see, hear, or believe things that aren't real (e.g., hearing voices telling her to harm herself or the baby, or believing her baby is possessed)\n\n• **Severe mood changes and agitation** – Rapid shifts between extreme sadness, anxiety, rage, or euphoria, with restlessness and inability to sleep or sit still\n\n• **Confusion and disorganized thinking** – Difficulty concentrating, racing thoughts, incoherent speech, or inability to make sense of reality\n\n**Real-life example:** A new mother might become convinced that her newborn is in danger from an imaginary threat, or she may experience vivid hallucinations telling her to harm herself. She may also become unable to recognize family members or lose awareness of her surroundings.\n\n---\n\n**Important note:** This is a medical emergency requiring immediate professional help. It affects 1-2 in 1,000 new mothers and is treatable with medication and hospitalization.",
+  "correctness": 4,
+  "relevance": 4,
+  "instructionFollowing": 2,
+  "latencyMs": 4516,
+  "outputToken": 264,
+  "inputToken": 96,
+  "estimatedCost": 0.001416
+},
+{
+  "id": 6,
+  "input": "\"You're a mathematics educator. Answer the following question accurately and concisely\"\r\n\r\n\tRequirements:\r\n\t- Be direct in your answer\r\n\t- Give the answer as it in the options\r\n\t- if the answer is not amongst the options, just return not available\r\n\t\r\n\tUser request: {An instrument store gives a 10% discount to all students off the original cost of an instrument. During a back to school sale an additional 15% is taken off the discounted price. Julie, a student at the local high school, purchases a flute for $306. How much did it originally cost?show how you arrive at your answer. Options A.$500, B.$401. C.400POUNDS. D.400 dollars}\"",
+  "actualResponse": "# Solution\n\nLet me work backwards from the final price of $306.\n\n**Step 1:** Account for the 15% sale discount\n- If 15% is taken off, Julie pays 85% of the discounted price\n- Discounted price × 0.85 = $306\n- Discounted price = $306 ÷ 0.85 = $360\n\n**Step 2:** Account for the 10% student discount\n- If 10% is taken off, the student pays 90% of the original price\n- Original price × 0.90 = $360\n- Original price = $360 ÷ 0.90 = **$400**\n\n**Verification:**\n- Original: $400\n- After 10% student discount: $400 × 0.90 = $360\n- After 15% sale discount: $360 × 0.85 = $306 ✓\n\n**Answer: D. $400 dollars**",
+  "correctness": 0,
+  "relevance": 0,
+  "instructionFollowing": 0,
+  "latencyMs": 3403,
+  "outputToken": 226,
+  "inputToken": 164,
+  "estimatedCost": 0.001294
+},
+{
+  "id": 7,
+  "input": "\"You are a liguistic educator Answer this question directly\"\r\n\t\r\n\tRequirements:\r\n\t- Be direct in your answer\r\n\t- Stay focused on the answer. No deviation\r\n\t- If you're not able to answer the question just \"I don't know\"\r\n\t\r\n\tUserReequest : {ある母親から、まったく同じ年、同じ日、同じ時間に二人の女の子が生まれました。それなのに、二人は双子（ふたご）ではありません。一体なぜでしょうか？ Convert to English Language and give your answer in Italian}\"",
+  "actualResponse": "# English Translation:\n\"From a mother, two girls were born on the exact same year, same day, and same time. Yet they are not twins. Why is that?\"\n\n# Answer in Italian:\nPerché sono trigemelli (o più). Se ci sono tre o più bambini nati nello stesso momento, non sono chiamati \"gemelli\" ma \"trigemelli\" o \"multipli\".",
+  "correctness": 0,
+  "relevance": 0,
+  "instructionFollowing": 0,
+  "latencyMs": 2386,
+  "outputToken": 92,
+  "inputToken": 155,
+  "estimatedCost": 0.000615
+},
+{
+  "id": 8,
+  "input": "\"You are a linguistic educator. Answer the following question directly\r\n\r\n\tRequirements:\r\n\t- Don't make any assumptions\r\n\t- Just provide only the answer\r\n\t- if you're not able to answer, just say \"I don't know\"\r\n\t\r\n\tUserRequest: {ある母親から、まったく同じ年、同じ日、同じ時間に二人の女の子が生まれました。それなのに、二人は双子（ふたご）ではありません。一体なぜでしょうか？ Convert to English Language and give the answer to the riddle in Italian}\"",
+  "actualResponse": "# English Translation:\n\n\"A mother gave birth to two girls on the exact same year, same day, and same time. Yet, they are not twins. Why is that?\"\n\n# Answer to the riddle in Italian:\n\nPerché sono due di tre (o più) bambine nate nello stesso momento - sono trigemine (o multigemine), non gemelle.\n\n(Because they are two of three (or more) babies born at the same time - they are triplets (or multiples), not twins.)",
+  "correctness": 5,
+  "relevance": 4,
+  "instructionFollowing": 3,
+  "latencyMs": 2720,
+  "outputToken": 116,
+  "inputToken": 151,
+  "estimatedCost": 0.000731
+},
+{
+  "id": 9,
+  "input": "\"You are a linguistic educator. Answer the following question clearly and concisely\r\n\t\r\n\tRequirements:\r\n\t- Don't make any assumptions\r\n\t- Answer clearly and conisely\r\n\t- Read the question very well and think before answering\r\n\t\r\n\tUserRequest:{ある母親から、まったく同じ年、同じ日、同じ時間に二人の女の子が生まれました。それなのに、二人は双子（ふたご）ではありません。一体なぜでしょうか？ Convert to English Language and give the answer to the riddle in Italian. Don't translat the riddle to italian. Only the answer should be in italian.}\"",
+  "actualResponse": "# English Translation of the Riddle:\n\n\"From a certain mother, two girls were born in exactly the same year, on the same day, at the same time. Yet, the two are not twins. Why on earth is this?\"\n\n# Answer to the Riddle (in Italian):\n\n**Perché erano due delle tre bambine nate come trigemine (terzine).**\n\n*(Because they were two of three girls born as triplets.)*\n\n---\n\n**Explanation:** The riddle plays on the assumption that if two children are born at the same time, they must be twins. However, they could be part of a set of triplets, quadruplets, or higher-order multiples. Therefore, they are not twins—they are triplets (or more).",
+  "correctness": 0,
+  "relevance": 0,
+  "instructionFollowing": 0,
+  "latencyMs": 3052,
+  "outputToken": 172,
+  "inputToken": 170,
+  "estimatedCost": 0.00103
+},
+{
+  "id": 10,
+  "input": "\"You're an educator. Answer the following question clearly and concisely\r\n\t \r\n\t Requirements:\r\n\t - Your answer must be in plain English and no technical jargon\r\n\t - Your answer must be straight to the point\r\n\t - Don't give any examples\r\n\t \r\n\t UserRequest: {A multi-step biomimetic total synthesis of a complex meroterpenoid relies on a key tandem reaction. A solution of \\\\((2E,4E)\\\\)-6-hydroxy-2-methylhexa-2,4-dienal is treated with 20 mol % of \\\\((S)\\\\)-2-diphenyl(trimethylsilyloxy)methylpyrrolidine (a Hayashi-Jørgensen catalyst) and 1.5 equivalents of a 1,3-cyclohexadiene derivative acting as a diene in the presence of an optimized Brønsted acid co-catalyst at -78 °C in dichloromethane. Over 12 hours, the reaction smoothly proceeds to deliver a heavily functionalized bicyclic core. Extensive 2D-NMR (COSY, HSQC, HMBC, and NOESY) analysis combined with chiral HPLC reveals that the reaction proceeds with 98% ee and exclusive endo-selectivity, establishing three contiguous stereocenters (including a quaternary carbon) with the newly formed ring fused in a defined topology.However, when the bulky silyl ether on the catalyst is replaced with a less sterically demanding trimethylsilyl (TMS) group under identical conditions, the enantiomeric excess drops precipitously to 42% ee, and a significant proportion of the exo-adduct is isolated alongside a regioisomeric [2+2] cyclobutane side-product. Considering the formation of the transient chiral iminium ion intermediate, the conformational preference dictated by the steric bulk of the diaryl-substituted pyrrolidine ring, and the secondary orbital interactions during the concerted [4+2] cycloaddition transition state, which of the following mechanistic rationales best accounts for the observed high facial selectivity and endo-bias in the bulky silyl ether system? explain the reason for your answer}\"",
+  "actualResponse": "# Plain English Answer\n\n**The bulky silyl ether creates better facial selectivity and endo-selectivity because it acts like a steric shield.**\n\nHere's why:\n\nWhen the bulky silyl ether is on the catalyst, it physically blocks one side of the reaction space. This forces the diene (the other reacting molecule) to approach from only one direction and in only one orientation. Think of it like a bouncer at a door—the big silyl group only lets molecules in from the correct angle.\n\nWhen you replace it with the smaller TMS group, this \"shield\" is much weaker. Now the diene can approach from multiple directions and angles, leading to:\n- Wrong-sided attacks (lower ee)\n- Wrong ring geometry (exo instead of endo)\n- Unwanted side reactions (the cyclobutane product)\n\nThe bulky version also helps the reactive intermediate (the chiral iminium ion) adopt the best three-dimensional shape to guide the reaction correctly. The smaller version doesn't control this shape as well.\n\n**In short:** Bigger steric bulk = better control over where and how the two molecules come together = higher selectivity and purity of the desired product.",
+  "correctness": 4,
+  "relevance": 4,
+  "instructionFollowing": 2,
+  "latencyMs": 4536,
+  "outputToken": 264,
+  "inputToken": 525,
+  "estimatedCost": 0.001845
+},
+{
+  "id": 11,
+  "input": "\"You're an educator. Answer the following clearly and concisely the user's request\r\n\t\r\n\t Requirements:\r\n\t - Your answer must be clear and concise\r\n\t - Your answer must be direct and no technical jargon\r\n\t - Focus on giving only the answer and no example\"\r\n\r\n\tUserRequest : {A multi-step biomimetic total synthesis of a complex meroterpenoid relies on a key tandem reaction. A solution of \\\\((2E,4E)\\\\)-6-hydroxy-2-methylhexa-2,4-dienal is treated with 20 mol % of \\\\((S)\\\\)-2-diphenyl(trimethylsilyloxy)methylpyrrolidine (a Hayashi-Jørgensen catalyst) and 1.5 equivalents of a 1,3-cyclohexadiene derivative acting as a diene in the presence of an optimized Brønsted acid co-catalyst at -78 °C in dichloromethane. Over 12 hours, the reaction smoothly proceeds to deliver a heavily functionalized bicyclic core. Extensive 2D-NMR (COSY, HSQC, HMBC, and NOESY) analysis combined with chiral HPLC reveals that the reaction proceeds with 98% ee and exclusive endo-selectivity, establishing three contiguous stereocenters (including a quaternary carbon) with the newly formed ring fused in a defined topology.However, when the bulky silyl ether on the catalyst is replaced with a less sterically demanding trimethylsilyl (TMS) group under identical conditions, the enantiomeric excess drops precipitously to 42% ee, and a significant proportion of the exo-adduct is isolated alongside a regioisomeric [2+2] cyclobutane side-product. Considering the formation of the transient chiral iminium ion intermediate, the conformational preference dictated by the steric bulk of the diaryl-substituted pyrrolidine ring, and the secondary orbital interactions during the concerted [4+2] cycloaddition transition state, which of the following mechanistic rationales best accounts for the observed high facial selectivity and endo-bias in the bulky silyl ether system? explain the reason for your answer}\"",
+  "actualResponse": "# Answer\n\nThe bulky silyl ether on the catalyst works by creating a **steric shield** that blocks one face of the reactive intermediate, forcing the diene to approach from only one side (endo-direction). This shield is so effective that it controls which stereoisomer forms.\n\nWhen you replace it with the smaller TMS group, this protective barrier disappears. Now the diene can attack from both sides equally (leading to lower selectivity and the wrong stereoisomer forming). The smaller group also fails to stabilize the correct transition state geometry needed for the [4+2] reaction, allowing unwanted side-reactions like the [2+2] cyclobutane to compete.\n\n**The reason:** Steric bulk = better control. Less bulk = less control and competing pathways.",
+  "correctness": 4,
+  "relevance": 4,
+  "instructionFollowing": 2,
+  "latencyMs": 3852,
+  "outputToken": 172,
+  "inputToken": 526,
+  "estimatedCost": 0.001386
+}
+
+]
