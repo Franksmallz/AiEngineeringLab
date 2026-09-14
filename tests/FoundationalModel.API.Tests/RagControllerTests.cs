@@ -61,7 +61,12 @@ public sealed class GenerateWithRagTests
 
     private static RagEvaluationService CreateService(string root, StubEmbeddingService embeddings, StubGenerator generator) => new(
         new DocumentChunkService(), embeddings, new RetrieverService(), new VectorRetrieverService(), generator,
-        new TestEnvironment(root), Options.Create(new RagSettings()), NullLogger<RagEvaluationService>.Instance);
+        new TestEnvironment(root), Options.Create(new RagSettings()), NullLogger<RagEvaluationService>.Instance,
+        new DocumentLoader(
+            new DocumentChunkService(),
+            new TestPathResolver(root),
+            Options.Create(new RagSettings()),
+            new EmbeddingManagement(NullLogger<EmbeddingManagement>.Instance, embeddings)));
 
     private sealed class StubRagService(RagCombinedResult? result = null) : IRagEvaluationService
     {
@@ -73,6 +78,9 @@ public sealed class GenerateWithRagTests
     private sealed class StubGenerateService : IGenerateService
     {
         public Task<SendMessageResponseDto> SendMessage(SendMessageRequestDto request) =>
+            Task.FromResult(new SendMessageResponseDto());
+
+        public Task<SendMessageResponseDto> SendMessageWithTools(SendMessageRequestDto request) =>
             Task.FromResult(new SendMessageResponseDto());
     }
 
@@ -87,6 +95,9 @@ public sealed class GenerateWithRagTests
     {
         public Task<SendMessageResponseDto> SendMessage(SendMessageRequestDto request) =>
             Task.FromResult(new SendMessageResponseDto { Success = true, Text = "response" });
+
+        public Task<SendMessageResponseDto> SendMessageWithTools(SendMessageRequestDto request) =>
+            Task.FromResult(new SendMessageResponseDto { Success = true, Text = "response" });
     }
 
     private sealed class TestEnvironment(string root) : IHostEnvironment
@@ -95,5 +106,10 @@ public sealed class GenerateWithRagTests
         public string ApplicationName { get; set; } = "Tests";
         public string ContentRootPath { get; set; } = root;
         public Microsoft.Extensions.FileProviders.IFileProvider ContentRootFileProvider { get; set; } = null!;
+    }
+
+    private sealed class TestPathResolver(string root) : IPathResolver
+    {
+        public string ResolveConfiguredPath(string configuredPath) => Path.Combine(root, configuredPath);
     }
 }

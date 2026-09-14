@@ -1,14 +1,12 @@
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using FoundationalModel.Core.Enums;
 using FoundationalModel.Models.Configs;
 using FoundationalModel.Models.Dtos.Requests;
-using FoundationalModel.Core.Enums;
 using FoundationalModel.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace FoundationalModel.Services.Implementations;
 
@@ -21,7 +19,6 @@ public sealed class RagEvaluationService : IRagEvaluationService
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
-    private readonly IDocumentChunkService _chunker;
     private readonly IEmbeddingService _embeddingService;
     private readonly IRetrieverService _retriever;
     private readonly IVectorRetrieverService _vectorRetriever;
@@ -29,6 +26,7 @@ public sealed class RagEvaluationService : IRagEvaluationService
     private readonly IHostEnvironment _environment;
     private readonly RagSettings _settings;
     private readonly ILogger<RagEvaluationService> _logger;
+    private readonly IDocumentLoader _documentLoader;
 
     public RagEvaluationService(
         IDocumentChunkService chunker,
@@ -38,9 +36,9 @@ public sealed class RagEvaluationService : IRagEvaluationService
         IGenerateService generator,
         IHostEnvironment environment,
         IOptions<RagSettings> settings,
-        ILogger<RagEvaluationService> logger)
+        ILogger<RagEvaluationService> logger,
+        IDocumentLoader documentLoader)
     {
-        _chunker = chunker;
         _embeddingService = embeddingService;
         _retriever = retriever;
         _vectorRetriever = vectorRetriever;
@@ -48,6 +46,7 @@ public sealed class RagEvaluationService : IRagEvaluationService
         _environment = environment;
         _settings = settings.Value;
         _logger = logger;
+        _documentLoader = documentLoader;
     }
 
     public async Task<RagCombinedResult> EvaluateAsync(RagEvaluationRequest request, CancellationToken cancellationToken = default)
@@ -58,9 +57,8 @@ public sealed class RagEvaluationService : IRagEvaluationService
         if (request.MatchingType == MatchingType.None)
             throw new ArgumentException("MatchingType must be semantic or direct.", nameof(request.MatchingType));
 
-        var dataPath = ResolveConfiguredPath(_settings.DataDirectory);
-        var chunks = await LoadChunksAsync(dataPath, cancellationToken);
-        await EnsureEmbeddingsAsync(chunks, Path.Combine(dataPath, _settings.EmbeddingFileName), cancellationToken);
+
+        var chunks = await _documentLoader.LoadChunksAsync(cancellationToken);
 
         var keywordChunks = _retriever.Retrieve(request.Question, chunks, _settings.TopK);
         var questionEmbedding = await _embeddingService.CreateEmbeddingAsync(request.Question);
@@ -91,63 +89,6 @@ public sealed class RagEvaluationService : IRagEvaluationService
         var outputPath = ResolveConfiguredPath(_settings.ResultPath);
         await AppendResultAsync(result, outputPath, cancellationToken);
         return result;
-    }
-
-    private async Task<List<DocumentChunk>> LoadChunksAsync(string dataPath, CancellationToken cancellationToken)
-    {
-        var files = Directory.GetFiles(dataPath, "*.md").OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray();
-        if (files.Length == 0) throw new InvalidOperationException($"No markdown documents found in '{dataPath}'.");
-        var chunks = new List<DocumentChunk>();
-        foreach (var file in files)
-        {
-            var document = await File.ReadAllTextAsync(file, cancellationToken);
-            var pieces = _chunker.ChunkDocument(document);
-            for (var i = 0; i < pieces.Count; i++)
-                chunks.Add(new DocumentChunk { Id = $"{Path.GetFileName(file)}-{i + 1}", Source = Path.GetFileName(file), Content = pieces[i] });
-        }
-        return chunks;
-    }
-
-    private async Task EnsureEmbeddingsAsync(List<DocumentChunk> chunks, string path, CancellationToken cancellationToken)
-    {
-        await CacheLock.WaitAsync(cancellationToken);
-        try
-        {
-            var cache = new Dictionary<string, CachedEmbedding>(StringComparer.Ordinal);
-            if (File.Exists(path))
-            {
-                try
-                {
-                    cache = JsonSerializer.Deserialize<Dictionary<string, CachedEmbedding>>(await File.ReadAllTextAsync(path, cancellationToken), JsonOptions)
-                        ?? cache;
-                }
-                catch (JsonException ex) { _logger.LogWarning(ex, "Ignoring invalid embedding cache at {Path}.", path); }
-            }
-
-            var changed = false;
-            foreach (var chunk in chunks)
-            {
-                var hash = Hash(chunk.Content);
-                if (cache.TryGetValue(chunk.Id, out var cached) && cached.ContentHash == hash && cached.Embedding.Length > 0)
-                    chunk.Embedding = cached.Embedding;
-                else
-                {
-                    chunk.Embedding = await _embeddingService.CreateEmbeddingAsync(chunk.Content);
-                    if (chunk.Embedding is null || chunk.Embedding.Length == 0)
-                        throw new InvalidOperationException($"The embedding provider returned an empty embedding for '{chunk.Id}'.");
-                    cache[chunk.Id] = new CachedEmbedding { ContentHash = hash, Embedding = chunk.Embedding };
-                    changed = true;
-                }
-            }
-            if (changed)
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                var temporaryPath = path + ".tmp";
-                await File.WriteAllTextAsync(temporaryPath, JsonSerializer.Serialize(cache, JsonOptions), cancellationToken);
-                File.Move(temporaryPath, path, true);
-            }
-        }
-        finally { CacheLock.Release(); }
     }
 
     private async Task<FoundationalModel.Models.Dtos.Responses.SendMessageResponseDto> GenerateAsync(string question, IEnumerable<RetrievedChunk> chunks, CancellationToken cancellationToken)
@@ -208,7 +149,4 @@ public sealed class RagEvaluationService : IRagEvaluationService
         }
         return Path.Combine(_environment.ContentRootPath, configuredPath);
     }
-
-    private static string Hash(string content) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content)));
-    private sealed class CachedEmbedding { public string ContentHash { get; set; } = ""; public float[] Embedding { get; set; } = []; }
 }
