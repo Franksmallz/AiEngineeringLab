@@ -16,7 +16,8 @@ namespace FoundationalModel.Services.Implementations
             {
                 PaymentId = paymentId,
                 Status = "Pending",
-                Reason = "Provider timeout"
+                Reason = "Provider timeout",
+                TenantId = "test_tenant"
             });
         }
     }
