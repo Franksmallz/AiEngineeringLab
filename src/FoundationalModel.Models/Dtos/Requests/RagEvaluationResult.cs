@@ -16,11 +16,8 @@
         public decimal EstimatedCost {  get; set; }
     }
 
-    public class RetrievedChunk
+    public class RetrievedChunk : BaseRetrieverDto
     {
-        public string Source { get; set; } = "";
-        public string Content { get; set; } = "";
-        public double Score { get; set; } 
         public float[] Embeddings { get; set; } = [];
     }
 }

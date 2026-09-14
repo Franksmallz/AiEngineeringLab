@@ -1,4 +1,5 @@
-﻿using FoundationalModel.Models.Dtos.Requests;
+﻿using FoundationalModel.Core.Constants;
+using FoundationalModel.Models.Dtos.Requests;
 using FoundationalModel.Models.Dtos.Responses;
 using FoundationalModel.Services.Implementations.Providers;
 using FoundationalModel.Services.Interfaces;
@@ -23,13 +24,25 @@ namespace FoundationalModel.Services.Implementations
         public async Task<SendMessageResponseDto> SendMessageWithTools(SendMessageRequestDto request)
         {
             var providerImplementation = _implementationResolverService.ResolveProvider(Core.Enums.Providers.ANTHROPIC);
-
+            var user = new UserContext
+            {
+                Permissions =
+                [
+                    "balance.read",
+                    "knowlegde.read",
+                    "payment.read"
+                ],
+                TenantId = "test_tenant",
+                UserId = "user_234"
+            };
             var messageWithTools = new SendMessageWithToolsDto
             {
                 Prompt = request.Prompt,
-                Tools = ProviderAgenticTools.PaymentTools
+                Tools = ProviderAgenticTools.PaymentTools,
+                User = user,
             };
-            return await providerImplementation.SendMessageWithTools(messageWithTools);
+            
+            return await providerImplementation.SendMessageWithTools(messageWithTools, AgentPrompts.PaymentSupport);
         }
     }
 }
