@@ -111,5 +111,11 @@ public sealed class GenerateControllerTests
             ReceivedRequest = request;
             return Task.FromResult(response);
         }
+
+        public Task<SendMessageResponseDto> SendMessageWithTools(SendMessageRequestDto request)
+        {
+            ReceivedRequest = request;
+            return Task.FromResult(response);
+        }
     }
 }
