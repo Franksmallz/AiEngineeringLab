@@ -6,5 +6,6 @@ namespace FoundationalModel.Services.Interfaces
     public interface IGenerateService : IAutoDependencyService
     {
         Task<SendMessageResponseDto> SendMessage(SendMessageRequestDto request);
+        Task<SendMessageResponseDto> SendMessageWithTools(SendMessageRequestDto request);
     }
 }
