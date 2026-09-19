@@ -2,7 +2,6 @@ bin/
 obj/
 .vs/
 .idea/
-.vscode/tasks.json
 public/fonts/fa-solid-500.woff2
 TestResults/
 *.user
