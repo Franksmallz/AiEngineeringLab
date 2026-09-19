@@ -91,3 +91,14 @@ Response: {
   "errorMessage": "string",
   "text": "Response"
 }
+
+## Fine-tuning demo
+
+The `finetuning/` directory contains a Hugging Face baseline for `Qwen/Qwen2.5-0.5B`, plus training and evaluation scaffolds. Install its dependencies and run the baseline from the repository root:
+
+```powershell
+python -m pip install -r requirements-finetuning.txt
+python finetuning/baseline.py
+```
+
+The model is downloaded from Hugging Face on first run.
