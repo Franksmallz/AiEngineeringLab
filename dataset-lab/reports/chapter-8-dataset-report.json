@@ -1,0 +1,75 @@
+{
+  "passed": true,
+  "schemas": {
+    "train": {
+      "passed": true,
+      "errors": [],
+      "warnings": []
+    },
+    "eval": {
+      "passed": true,
+      "errors": [],
+      "warnings": []
+    }
+  },
+  "balance": {
+    "train": {
+      "dataset": "train",
+      "total": 50,
+      "counts": {
+        "Debit Without Final Status": 5,
+        "Duplicate Request": 5,
+        "Expired Card": 5,
+        "Insufficient Funds": 5,
+        "Invalid Beneficiary Details": 5,
+        "Pending Provider Confirmation": 5,
+        "Provider Authentication Failure": 5,
+        "Provider Timeout": 5,
+        "Provider Unavailable": 5,
+        "Webhook Delivery Failure": 5
+      },
+      "min_count": 5,
+      "max_count": 5,
+      "imbalance_ratio": 1.0,
+      "issues": []
+    },
+    "eval": {
+      "dataset": "eval",
+      "total": 20,
+      "counts": {
+        "Debit Without Final Status": 2,
+        "Duplicate Request": 2,
+        "Expired Card": 2,
+        "Insufficient Funds": 2,
+        "Invalid Beneficiary Details": 2,
+        "Pending Provider Confirmation": 2,
+        "Provider Authentication Failure": 2,
+        "Provider Timeout": 2,
+        "Provider Unavailable": 2,
+        "Webhook Delivery Failure": 2
+      },
+      "min_count": 2,
+      "max_count": 2,
+      "imbalance_ratio": 1.0,
+      "issues": []
+    }
+  },
+  "duplicates": {
+    "train": {
+      "dataset": "train",
+      "exact_groups": [],
+      "near_duplicate_pairs": []
+    },
+    "eval": {
+      "dataset": "eval",
+      "exact_groups": [],
+      "near_duplicate_pairs": []
+    }
+  },
+  "leakage": {
+    "train": "train",
+    "eval": "eval",
+    "exact_overlaps": [],
+    "near_duplicate_pairs": []
+  }
+}

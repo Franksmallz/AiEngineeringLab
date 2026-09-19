@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "created_at": "2026-09-19T18:44:12+00:00",
+  "files": {
+    "finetuning/data/train.jsonl": {
+      "sha256": "2abb6491c8d0c89a40bc4c24afcf4a7d86980c9c89a9897c6f5cf24793b9e7c4",
+      "records": 50,
+      "split": "train"
+    },
+    "finetuning/data/eval.jsonl": {
+      "sha256": "300c13d8dfd0f0ff51692e8923d8671d25e101c6642a24acc5bf6a13bd3ea039",
+      "records": 20,
+      "split": "eval"
+    }
+  }
+}
