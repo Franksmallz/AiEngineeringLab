@@ -12,4 +12,5 @@
   <Folder Name="/tests/">
     <Project Path="tests/FoundationalModel.API.Tests/FoundationalModel.API.Tests.csproj" />
   </Folder>
+  <Project Path="src/PaymentIncidentDatasetEngineering/PaymentIncidentDatasetEngineering.csproj" Id="3677e491-0336-40d7-896d-2d2a2ba5a69a" />
 </Solution>
