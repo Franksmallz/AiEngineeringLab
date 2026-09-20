@@ -4,6 +4,7 @@ using FoundationalModel.Models.Configs;
 using FoundationalModel.Models.Dtos.Requests;
 using FoundationalModel.Services.Autofac;
 using FoundationalModel.Services.Hosting;
+using FoundationalModel.Services.Implementations;
 using FoundationalModel.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,7 @@ var datasetValidator = scope.Resolve<IDatasetValidator>();
 var textSimilarityScorer = scope.Resolve<ITextSimilarityScorer>();
 var datasetWriter = scope.Resolve<IDatasetWriter>();
 var datasetAuditService = scope.Resolve<IDatasetAuditService>();
+var datasetReportGenerator = scope.Resolve<IDatasetReportGenerator>();
 
 
 var dataset = dataLoader.Load(datasetEngineeringSettings.TrainingDataFileName);
@@ -356,4 +358,14 @@ foreach(var categoryGroup in parsedDataset.GroupBy(x => x.Category))
     };
 
     await datasetWriter.WriteDatasetMetadataJson("dataset_v2_metadata.json", metadata);
+
+    var reportV1 = datasetReportGenerator.Generate("Payment Incident Dataset V1", v1);
+
+    await datasetWriter.WriteDatasetReport("dataset_v1_quality_report.md", reportV1);
+
+    var reportV2 = datasetReportGenerator.Generate("Payment Incident Dataset V2", v2);
+
+    await datasetWriter.WriteDatasetReport("dataset_v2_quality_report.md", reportV2);
+
+    Console.WriteLine("Dataset quality report generated");
 }

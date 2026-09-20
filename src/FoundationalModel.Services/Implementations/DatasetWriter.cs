@@ -66,5 +66,26 @@ namespace FoundationalModel.Services.Implementations
             await writer.WriteAsync(json);
             writer.Write('\n');
         }
+
+        public async Task WriteDatasetReport(string filename, string report)
+        {
+            var path = _pathResolver.ResolveConfiguredPath(_datasetSettings.DataDirectory);
+
+            var fullpath = Path.Combine(path, filename);
+
+            if (File.Exists(fullpath))
+            {
+                var fileInfo = new FileInfo(fullpath);
+
+                if (fileInfo.Length > 0)
+                {
+                    File.WriteAllText(fullpath, string.Empty);
+                }
+            }
+
+            using var writer = new StreamWriter(fullpath);
+            await writer.WriteAsync(report);
+            writer.Write('\n');
+        }
     }
 }
