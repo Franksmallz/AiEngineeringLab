@@ -1,4 +1,5 @@
-﻿using FoundationalModel.Models.Configs;
+﻿using Anthropic.Models.Messages;
+using FoundationalModel.Models.Configs;
 using FoundationalModel.Models.Dtos.Requests;
 using FoundationalModel.Services.Interfaces;
 using Microsoft.Extensions.Options;
@@ -24,15 +25,7 @@ namespace FoundationalModel.Services.Implementations
 
             var fullpath = Path.Combine(path, filename);
 
-            if (File.Exists(fullpath))
-            {
-                var fileInfo = new FileInfo(fullpath);
-
-                if (fileInfo.Length > 0)
-                {
-                    File.WriteAllText(fullpath, string.Empty);
-                }
-            }
+            CheckIfFileExists(fullpath);
 
             using var writer = new StreamWriter(fullpath);
 
@@ -50,15 +43,7 @@ namespace FoundationalModel.Services.Implementations
 
             var fullpath = Path.Combine(path, filename);
 
-            if (File.Exists(fullpath))
-            {
-                var fileInfo = new FileInfo(fullpath);
-
-                if (fileInfo.Length > 0)
-                {
-                    File.WriteAllText(fullpath, string.Empty);
-                }
-            }
+            CheckIfFileExists(fullpath);
 
             using var writer = new StreamWriter(fullpath);
 
@@ -73,6 +58,32 @@ namespace FoundationalModel.Services.Implementations
 
             var fullpath = Path.Combine(path, filename);
 
+            CheckIfFileExists(fullpath);
+
+            using var writer = new StreamWriter(fullpath);
+            await writer.WriteAsync(report);
+            writer.Write('\n');
+        }
+
+        public async Task WriteTrainingManifest(string filename, TrainingExperiment experiment)
+        {
+            var path = _pathResolver.ResolveConfiguredPath(_datasetSettings.DataDirectory);
+
+            var fullpath = Path.Combine(path, filename);
+
+            CheckIfFileExists(fullpath);
+
+            using var writer = new StreamWriter(fullpath);
+            var json = JsonSerializer.Serialize(experiment, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            await writer.WriteAsync(json);
+            writer.Write('\n');
+        }
+
+        private void CheckIfFileExists(string fullpath)
+        {
             if (File.Exists(fullpath))
             {
                 var fileInfo = new FileInfo(fullpath);
@@ -82,10 +93,6 @@ namespace FoundationalModel.Services.Implementations
                     File.WriteAllText(fullpath, string.Empty);
                 }
             }
-
-            using var writer = new StreamWriter(fullpath);
-            await writer.WriteAsync(report);
-            writer.Write('\n');
         }
     }
 }

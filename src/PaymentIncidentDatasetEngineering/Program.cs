@@ -368,4 +368,22 @@ foreach(var categoryGroup in parsedDataset.GroupBy(x => x.Category))
     await datasetWriter.WriteDatasetReport("dataset_v2_quality_report.md", reportV2);
 
     Console.WriteLine("Dataset quality report generated");
+
+    var experiment = new TrainingExperiment
+    {
+        ExperimentName = "payment-incident-v2-response-only",
+        TrainingDataset = "dataset_v2.jsonl",
+        TrainingDatasetVersion = "2.0",
+        EvaluationDataset = "evaluation.jsonl",
+        TrainingExampleCount = v2.Count,
+        EvaluationExampleCount = evaluationSet.Count,
+        BaseModel = "Qwen/Qwen2.5-0.5B",
+        LossStrategy = "Response-only loss",
+        Notes =
+        "Uses the Chapter 8 V2 dataset with improved scenario diversity. " +
+        "The frozen Chapter 7 evaluation set remains unchanged.",
+        CreatedAtUtc = DateTime.UtcNow
+    };
+
+    await datasetWriter.WriteTrainingManifest("training_experiment_v2.md", experiment);
 }
