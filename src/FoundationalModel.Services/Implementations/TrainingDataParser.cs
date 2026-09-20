@@ -1,6 +1,7 @@
 ﻿using FoundationalModel.Models.Dtos.Requests;
+using FoundationalModel.Services.Interfaces;
 
-namespace FoundationalModel.Services.Interfaces
+namespace FoundationalModel.Services.Implementations
 {
     public class TrainingDataParser : ITrainingDataParser
     {
