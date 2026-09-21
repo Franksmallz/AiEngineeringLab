@@ -361,11 +361,11 @@ foreach(var categoryGroup in parsedDataset.GroupBy(x => x.Category))
 
     var reportV1 = datasetReportGenerator.Generate("Payment Incident Dataset V1", v1);
 
-    await datasetWriter.WriteDatasetReport("dataset_v1_quality_report.md", reportV1);
+    await datasetWriter.WriteReport("dataset_v1_quality_report.md", "docs", reportV1);
 
     var reportV2 = datasetReportGenerator.Generate("Payment Incident Dataset V2", v2);
 
-    await datasetWriter.WriteDatasetReport("dataset_v2_quality_report.md", reportV2);
+    await datasetWriter.WriteReport("dataset_v2_quality_report.md", "docs", reportV2);
 
     Console.WriteLine("Dataset quality report generated");
 

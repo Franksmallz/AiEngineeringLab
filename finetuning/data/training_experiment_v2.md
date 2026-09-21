@@ -8,5 +8,5 @@
   "BaseModel": "Qwen/Qwen2.5-0.5B",
   "LossStrategy": "Response-only loss",
   "Notes": "Uses the Chapter 8 V2 dataset with improved scenario diversity. The frozen Chapter 7 evaluation set remains unchanged.",
-  "CreatedAtUtc": "2026-09-20T18:10:48.794507Z"
+  "CreatedAtUtc": "2026-09-21T04:29:50.4123917Z"
 }

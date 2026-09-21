@@ -1,6 +1,7 @@
 ﻿using Anthropic.Models.Messages;
 using FoundationalModel.Models.Configs;
 using FoundationalModel.Models.Dtos.Requests;
+using FoundationalModel.Models.Dtos.Responses;
 using FoundationalModel.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
@@ -52,9 +53,9 @@ namespace FoundationalModel.Services.Implementations
             writer.Write('\n');
         }
 
-        public async Task WriteDatasetReport(string filename, string report)
+        public async Task WriteReport(string filename, string directory, string report)
         {
-            var path = _pathResolver.ResolveConfiguredPath(_datasetSettings.DataDirectory);
+            var path = _pathResolver.ResolveConfiguredPath(directory);
 
             var fullpath = Path.Combine(path, filename);
 
@@ -93,6 +94,23 @@ namespace FoundationalModel.Services.Implementations
                     File.WriteAllText(fullpath, string.Empty);
                 }
             }
+        }
+
+        public async Task WriteManualEvaluationTemplate(string directory, string filename, ManualEvaluation manualEvaluation)
+        {
+            var path = _pathResolver.ResolveConfiguredPath(directory);
+
+            var fullpath = Path.Combine(path, filename);
+
+            if (File.Exists(fullpath))
+            {
+                return;
+            }
+            var json = JsonSerializer.Serialize(manualEvaluation, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            await File.WriteAllTextAsync(fullpath, json);
         }
     }
 }
