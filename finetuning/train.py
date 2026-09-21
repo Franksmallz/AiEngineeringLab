@@ -118,6 +118,8 @@ trained_count = sum(1 for label in sample["labels"] if label != -100)
 print(f"Masked prompt tokens: {masked_count}")
 print(f"Response tokens used for loss: {trained_count}")
 
+trainer.train()
+
 model.save_pretrained("outputs/qwen-payment-lora")
 tokenizer.save_pretrained("outputs/qwen-payment-lora")
 
