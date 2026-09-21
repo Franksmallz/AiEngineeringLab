@@ -4,6 +4,7 @@ using Autofac.Extensions.DependencyInjection;
 using FoundationalModel.Models.Configs;
 using FoundationalModel.Models.Dtos.Requests;
 using FoundationalModel.Services.Autofac;
+using FoundationalModel.Services.Hosting;
 using FoundationalModel.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +39,7 @@ if (string.IsNullOrWhiteSpace(anthropicSettings.ApiKey))
 
 var services = new ServiceCollection();
 services.AddLogging(builder => builder.AddConsole());
+services.AddConsoleHostEnvironment(environmentName, repoRoot);
 services.Configure<AnthropicProviderSettings>(configuration.GetSection(AnthropicProviderSettings.SectionName));
 services.Configure<OpenAiProviderSettings>(configuration.GetSection(OpenAiProviderSettings.SectionName));
 services.AddScoped(_ => new AnthropicClient

@@ -1,0 +1,1 @@
+{"Name":"Payment Incident Training Dataset","Version":"2.0","ExampleCount":50,"CategoryCount":10,"CreatedAtUtc":"2026-09-21T04:29:50.3579123Z","Description":"Improved payment incident dataset with increased scenario diversity, context-sensitive actions, retryability variation, and boundary cases.","Source":"Derived from payment incident dataset V1 during dataset engineering."}

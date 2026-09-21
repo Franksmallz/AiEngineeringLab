@@ -1,6 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import LoraConfig, get_peft_model
-from transformers import TrainingArguments, Trainer, DataCollatorForLanguageModeling
+from transformers import TrainingArguments, Trainer, DataCollatorForSeq2Seq
 import torch
 
 print("CUDA available:", torch.cuda.is_available())
@@ -19,27 +19,50 @@ dataset = load_dataset(
 )
 
 
-def format_example(example):
-    text = f"""Incident:
+
+def tokenize_example(example):
+    prompt = f"""Incident:
 {example["input"]}
 
 Response:
-{example["output"]}"""
+"""
 
-    return {"text": text}
+    response = example["output"]
 
-formatted_dataset = dataset["train"].map(format_example)
-
-def tokenize_example(example):
-    return tokenizer(
-        example["text"],
-        truncation=True,
-        max_length=512
+    prompt_tokens = tokenizer(
+        prompt,
+        add_special_tokens=False
     )
 
-tokenized_dataset = formatted_dataset.map(
-    tokenize_example
-)
+    response_tokens = tokenizer(
+        response,
+        add_special_tokens=False
+    )
+
+    input_ids = (
+        prompt_tokens["input_ids"]
+        + response_tokens["input_ids"]
+        + [tokenizer.eos_token_id]
+    )
+
+    attention_mask = [1] * len(input_ids)
+
+    labels = (
+        [-100] * len(prompt_tokens["input_ids"])
+        + response_tokens["input_ids"]
+        + [tokenizer.eos_token_id]
+    )
+
+    return {
+        "input_ids": input_ids,
+        "attention_mask": attention_mask,
+        "labels": labels
+    }
+        
+
+tokenized_dataset = dataset["train"].map(
+    tokenize_example,
+    remove_columns = dataset["train"].column_names)
 
 lora_config = LoraConfig(
     r=8,
@@ -55,9 +78,12 @@ model = get_peft_model(
     lora_config
 )
 
-data_collator = DataCollatorForLanguageModeling(
+data_collator = DataCollatorForSeq2Seq(
     tokenizer=tokenizer,
-    mlm=False
+    model=model,
+    padding = True,
+    label_pad_token_id = -100,
+    return_tensors = "pt"
 )
 
 training_args = TrainingArguments(
@@ -78,6 +104,19 @@ trainer = Trainer(
     train_dataset=tokenized_dataset,
     data_collator=data_collator
 )
+
+sample = tokenized_dataset[0]
+
+tokens = tokenizer.convert_ids_to_tokens(sample["input_ids"])
+
+for token, label in zip(tokens, sample["labels"]):
+    print(f"{token:20} -> {label}")
+
+masked_count = sum(1 for label in sample["labels"] if label == -100)
+trained_count = sum(1 for label in sample["labels"] if label != -100)
+
+print(f"Masked prompt tokens: {masked_count}")
+print(f"Response tokens used for loss: {trained_count}")
 
 trainer.train()
 

@@ -1,0 +1,165 @@
+{
+  "ModelVersion": "V1",
+  "Scores": [
+    {
+      "CaseNumber": 1,
+      "CategoryCorrect": true,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes a timeout/connection failure, but gives no retry guidance or provider-status action."
+    },
+    {
+      "CaseNumber": 2,
+      "CategoryCorrect": false,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": true,
+      "Notes": "Contradicts the incident by claiming the payment was successfully processed and a response will arrive."
+    },
+    {
+      "CaseNumber": 3,
+      "CategoryCorrect": true,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Correctly recognizes insufficient funds, but does not clearly state the required funding action or retry behavior."
+    },
+    {
+      "CaseNumber": 4,
+      "CategoryCorrect": true,
+      "RetryableCorrect": true,
+      "ActionCorrect": true,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes insufficient funds and implies the account must have sufficient funds before trying again."
+    },
+    {
+      "CaseNumber": 5,
+      "CategoryCorrect": true,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes missing callback/webhook delivery, but recommends verification rather than retrying webhook delivery."
+    },
+    {
+      "CaseNumber": 6,
+      "CategoryCorrect": true,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": true,
+      "Notes": "Recognizes notification failure but incorrectly states the transaction itself was not processed."
+    },
+    {
+      "CaseNumber": 7,
+      "CategoryCorrect": true,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes beneficiary validation failure, but does not clearly instruct correction of beneficiary details."
+    },
+    {
+      "CaseNumber": 8,
+      "CategoryCorrect": true,
+      "RetryableCorrect": true,
+      "ActionCorrect": true,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes incorrect beneficiary details and recommends correcting them before retrying."
+    },
+    {
+      "CaseNumber": 9,
+      "CategoryCorrect": true,
+      "RetryableCorrect": true,
+      "ActionCorrect": true,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes provider unavailability and recommends trying again later."
+    },
+    {
+      "CaseNumber": 10,
+      "CategoryCorrect": false,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": true,
+      "Notes": "Contradicts the incident by claiming the transaction was submitted during maintenance."
+    },
+    {
+      "CaseNumber": 11,
+      "CategoryCorrect": true,
+      "RetryableCorrect": true,
+      "ActionCorrect": true,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes an expired card and recommends obtaining a valid replacement."
+    },
+    {
+      "CaseNumber": 12,
+      "CategoryCorrect": true,
+      "RetryableCorrect": true,
+      "ActionCorrect": true,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes an invalid expiration date and recommends correcting it before retrying."
+    },
+    {
+      "CaseNumber": 13,
+      "CategoryCorrect": false,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": true,
+      "Notes": "Contradicts the input by claiming the already-completed payment was not completed."
+    },
+    {
+      "CaseNumber": 14,
+      "CategoryCorrect": true,
+      "RetryableCorrect": true,
+      "ActionCorrect": true,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes duplicate resubmission and indicates the original payment was already successfully processed."
+    },
+    {
+      "CaseNumber": 15,
+      "CategoryCorrect": true,
+      "RetryableCorrect": true,
+      "ActionCorrect": true,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes pending provider confirmation and recommends checking the provider status."
+    },
+    {
+      "CaseNumber": 16,
+      "CategoryCorrect": true,
+      "RetryableCorrect": false,
+      "ActionCorrect": true,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes pending status and recommends checking provider status, but also suggests trying again later."
+    },
+    {
+      "CaseNumber": 17,
+      "CategoryCorrect": true,
+      "RetryableCorrect": true,
+      "ActionCorrect": true,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes debit with unresolved final status and recommends verifying the provider outcome before further action."
+    },
+    {
+      "CaseNumber": 18,
+      "CategoryCorrect": false,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": true,
+      "Notes": "Invents successful completion, receipt, and notification despite the transaction being unresolved."
+    },
+    {
+      "CaseNumber": 19,
+      "CategoryCorrect": true,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": false,
+      "Notes": "Recognizes provider authentication failure but only repeats the problem without remediation."
+    },
+    {
+      "CaseNumber": 20,
+      "CategoryCorrect": true,
+      "RetryableCorrect": false,
+      "ActionCorrect": false,
+      "HasContradictionOrHallucination": true,
+      "Notes": "Recognizes authentication context but invents a completed migration to a new authentication method."
+    }
+  ]
+}

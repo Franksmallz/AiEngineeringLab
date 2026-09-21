@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/FinetunedResultsEvaluator/FinetunedResultsEvaluator.csproj" Id="1fafe2a8-f82f-4ce5-998b-9ec6f1db1ec8" />
     <Project Path="src/FoundationalModel.API/FoundationalModel.API.csproj" />
     <Project Path="src/FoundationalModel.Core/FoundationalModel.Core.csproj" Id="473a9c38-352c-44b6-b360-ad7e5bb4e892" />
     <Project Path="src/FoundationalModel.EvaluationRunner/FoundationalModel.EvaluationRunner.csproj" Id="984a4b91-9215-481a-a3af-1bb5d714db36" />
@@ -12,4 +13,5 @@
   <Folder Name="/tests/">
     <Project Path="tests/FoundationalModel.API.Tests/FoundationalModel.API.Tests.csproj" />
   </Folder>
+  <Project Path="src/PaymentIncidentDatasetEngineering/PaymentIncidentDatasetEngineering.csproj" Id="3677e491-0336-40d7-896d-2d2a2ba5a69a" />
 </Solution>

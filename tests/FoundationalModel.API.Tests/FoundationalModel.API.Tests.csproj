@@ -21,6 +21,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FoundationalModel.API\FoundationalModel.API.csproj" />
+    <ProjectReference Include="..\..\src\FoundationalModel.Models\FoundationalModel.Models.csproj" />
+    <ProjectReference Include="..\..\src\FoundationalModel.Services\FoundationalModel.Services.csproj" />
   </ItemGroup>
 
 </Project>
