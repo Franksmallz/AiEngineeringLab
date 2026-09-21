@@ -30,6 +30,19 @@ Takeaway: Sonnet scored higher, but Haiku delivered ~96% of the quality at rough
 
 Takeaway: embedding retrieval never lost a retrieval-relevance case (13 wins, 5 ties), with the biggest gains on semantically paraphrased questions. Keyword retrieval still held its own on direct lexical matches, and generation cost differed by only ~2%.
 
+**Fine-tuning: dataset quality, V1 vs V2** ([full report](docs/dataset_engineering_summary.md))
+50 payment-incident examples across 10 categories each, trained on Qwen2.5-0.5B. V1 used full-sequence loss; V2 added scenario/action diversity, context-sensitive retryability, and response-only loss (prompt tokens masked). Both evaluated on the same frozen 20-case set with manual per-case scoring.
+
+| Metric | V1 | V2 |
+|---|---:|---:|
+| Category correct | 16/20 | 15/20 |
+| Retryable correct | 8/20 | 9/20 |
+| Action correct | 9/20 | 7/20 |
+| Schema compliant | 0/20 | 0/20 |
+| Contradiction / hallucination | 6/20 | 7/20 |
+
+Takeaway: better dataset structure and a more appropriate training objective did not improve overall performance — at 50 examples on a 0.5B model, dataset quality alone wasn't enough. The honest negative result points at the next lever: supervision density (multiple examples per scenario pattern), not just curation.
+
 Also in the lab: sampling-parameter experiments (temperature, top-p, max tokens, structured output, run-to-run consistency) in [`experiments/week-02`](experiments/week-02/), prompt versioning in [`experiments/week-05`](experiments/week-05/), and weekly reflection notes in [`docs`](docs/).
 
 ## Repository layout
