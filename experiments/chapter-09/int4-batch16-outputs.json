@@ -1,0 +1,122 @@
+[
+  {
+    "input": "The processor accepted the connection but never returned a transaction response before the client timeout expired.",
+    "expected": "Category: Provider Timeout\nRetryable: Yes\nAction: Query provider before retrying.",
+    "actual": "The client timeout expired. The connection was closed by the server.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The payment request ended because no response was received from the upstream gateway within the configured time limit.",
+    "expected": "Category: Provider Timeout\nRetryable: Yes\nAction: Query provider before retrying.",
+    "actual": "The payment request was successfully processed, and the payment status is \"Processing\" or \"Success\" depending on the payment gateway.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The debit request was declined because the available account balance was less than the transaction amount.",
+    "expected": "Category: Insufficient Funds\nRetryable: No\nAction: Ask the customer to fund the account before retrying.",
+    "actual": "The account balance is insufficient to cover the transaction amount. Please provide the necessary funds to complete the transaction.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The customer tried to make the transfer, but there was not enough money in the source account to complete it.",
+    "expected": "Category: Insufficient Funds\nRetryable: No\nAction: Ask the customer to fund the account before retrying.",
+    "actual": "The customer should try to make the transfer again, and if the transfer is not successful, they should contact the customer service team to resolve the issue.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The payment has a successful final status, but the merchant says no callback was received.",
+    "expected": "Category: Webhook Delivery Failure\nRetryable: Yes\nAction: Retry webhook delivery without reprocessing the payment.",
+    "actual": "The payment has a successful final status, but the merchant says no callback was received.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The transaction completed, but notification delivery to the merchant endpoint failed after processing.",
+    "expected": "Category: Webhook Delivery Failure\nRetryable: Yes\nAction: Retry webhook delivery without reprocessing the payment.",
+    "actual": "The transaction was successfully processed, but the notification delivery to the merchant endpoint failed. The merchant has been notified of the transaction and will be able to process the transaction in the next 24 hours.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The destination institution rejected the transfer because the beneficiary account information could not be validated.",
+    "expected": "Category: Invalid Beneficiary Details\nRetryable: No\nAction: Ask the customer to correct the beneficiary details before retrying.",
+    "actual": "The beneficiary account information should be validated before the transfer is processed.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The transfer failed because the recipient account details supplied by the customer were incorrect.",
+    "expected": "Category: Invalid Beneficiary Details\nRetryable: No\nAction: Ask the customer to correct the beneficiary details before retrying.",
+    "actual": "The customer should be asked to provide the correct account details and the transfer should be attempted again.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The upstream payment service returned a temporary outage response and is not currently accepting requests.",
+    "expected": "Category: Provider Unavailable\nRetryable: Yes\nAction: Retry after checking provider availability.",
+    "actual": "The service is currently unavailable. Please try again later.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The processor is under maintenance, so the transaction could not be submitted at this time.",
+    "expected": "Category: Provider Unavailable\nRetryable: Yes\nAction: Retry after checking provider availability.",
+    "actual": "The processor is under maintenance, so the transaction could not be submitted at this time.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The card authorization was declined because the card expired last month.",
+    "expected": "Category: Expired Card\nRetryable: No\nAction: Ask the customer to use a valid payment method.",
+    "actual": "The card authorization was declined because the card expired last month.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The payment could not proceed because the card's expiration date is no longer valid.",
+    "expected": "Category: Expired Card\nRetryable: No\nAction: Ask the customer to use a valid payment method.",
+    "actual": "The cardholder has provided the expiration date as 01/01/2020, which is not valid. The cardholder should have provided the expiration date as 01/01/2021, which is valid.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "A second request arrived with the same idempotency key as a payment that had already been completed.",
+    "expected": "Category: Duplicate Request\nRetryable: No\nAction: Return the result of the original request instead of processing another payment.",
+    "actual": "The payment was not completed. The payment was not completed because the idempotency key was not valid. The payment was not completed because the idempotency key was not valid. The payment was not completed because the idempotency key was not valid. The payment was not completed because the idempotency key was not valid. The payment was not completed because the idempot",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The client resubmitted an already processed payment using the original request identifier.",
+    "expected": "Category: Duplicate Request\nRetryable: No\nAction: Return the result of the original request instead of processing another payment.",
+    "actual": "The client was not able to process the payment due to the following reasons:\n1. The client's account was not found in the system.\n2. The client's payment was not processed due to a network error.\n3. The client's payment was not processed due to a server error.\n\nTo resolve this issue, the client should:\n1. Check if the client's account exists in the system.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The transfer was accepted for processing, but the provider has not yet returned a terminal status.",
+    "expected": "Category: Pending Provider Confirmation\nRetryable: No\nAction: Query the provider for the final transaction status before taking further action.",
+    "actual": "The provider has not yet returned a terminal status. Please check the status of the terminal and contact the provider if necessary.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The provider still reports the payment as processing and there is no confirmed success or failure result.",
+    "expected": "Category: Pending Provider Confirmation\nRetryable: No\nAction: Query the provider for the final transaction status before taking further action.",
+    "actual": "The provider has not yet received the payment and is currently processing the payment. The provider will be notified when the payment is successful or failed.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The customer's account was charged, but neither the provider nor the internal payment record shows a final outcome.",
+    "expected": "Category: Debit Without Final Status\nRetryable: No\nAction: Reconcile the transaction and confirm the provider status before retrying.",
+    "actual": "The customer's account was charged, but neither the provider nor the internal payment record shows a final outcome. The customer's account was charged, but neither the provider nor the internal payment record shows a final outcome. The customer's account was charged, but neither the provider nor the internal payment record shows a final outcome. The customer's account was charged, but neither the provider nor the internal payment record shows",
+    "generated_tokens": 80
+  },
+  {
+    "input": "Funds were deducted from the customer, yet the transfer remains unresolved with no final provider confirmation.",
+    "expected": "Category: Debit Without Final Status\nRetryable: No\nAction: Reconcile the transaction and confirm the provider status before retrying.",
+    "actual": "The customer has been provided with a receipt for the funds and a receipt for the transfer. The customer has been provided with a receipt for the funds and a receipt for the transfer. The customer has been provided with a receipt for the funds and a receipt for the transfer. The customer has been provided with a receipt for the funds and a receipt for the transfer. The customer has been provided with a receipt",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The provider API rejected the request because the configured access credentials were not recognized.",
+    "expected": "Category: Provider Authentication Failure\nRetryable: No\nAction: Verify provider credentials and configuration before retrying.",
+    "actual": "The provider API rejected the request because the configured access credentials were not recognized.",
+    "generated_tokens": 80
+  },
+  {
+    "input": "The integration received an authentication error from the upstream processor due to invalid credentials.",
+    "expected": "Category: Provider Authentication Failure\nRetryable: No\nAction: Verify provider credentials and configuration before retrying.",
+    "actual": "The integration received an authentication error from the upstream processor due to invalid credentials.",
+    "generated_tokens": 80
+  }
+]

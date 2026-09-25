@@ -1,0 +1,14 @@
+{
+  "ExperimentName": "baseline-fp16",
+  "ModelName": "Qwen2.5-0.5B-payment",
+  "EvaluationFile": "evaluation.jsonl",
+  "BatchSize": 1,
+  "MaxNewTokens": 128,
+  "Temperature": 0,
+  "TopP": 1,
+  "DoSample": false,
+  "Precision": "fp16",
+  "WarmupRuns": 2,
+  "Repetitions": 3,
+  "OutputFile": "baseline-fp16-result.json"
+}

@@ -7,6 +7,7 @@
     <Project Path="src/FoundationalModel.Models/FoundationalModel.Models.csproj" Id="c7d94ed9-5b6f-4d65-8396-4f6899647220" />
     <Project Path="src/FoundationalModel.Services/FoundationalModel.Services.csproj" Id="e70c1b80-85c7-4c5a-b2c4-39a583220567" />
     <Project Path="src/FoundationModel.Runner/FoundationModel.Runner.csproj" Id="80a05c0f-bd1f-46c0-94f4-c1bca9c1a082" />
+    <Project Path="src/PaymentIncidentInferenceBenchmark/PaymentIncidentInferenceBenchmark.csproj" Id="dc8f64a2-bb67-43f3-a52d-46e9a1c3edf1" />
     <Project Path="src/RAGDEMO-Embeddings/RAGDEMO-Embeddings.csproj" Id="4783f680-1e54-4729-883c-e02737008209" />
     <Project Path="src/RAGDemo/RAGDemo.csproj" Id="72e4c7f3-e493-400f-8f94-ea387de45919" />
   </Folder>

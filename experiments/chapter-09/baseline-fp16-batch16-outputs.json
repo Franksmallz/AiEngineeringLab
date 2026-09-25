@@ -1,0 +1,142 @@
+[
+  {
+    "input": "The processor accepted the connection but never returned a transaction response before the client timeout expired.",
+    "expected": "Category: Provider Timeout\nRetryable: Yes\nAction: Query provider before retrying.",
+    "actual": "The processor returned a transaction response but the client did not receive it.\n\nThe client is not able to send a transaction response to the processor because the processor has not returned a transaction response before the client timeout expired. The client should retry the transaction after the processor has returned a transaction response.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The payment request ended because no response was received from the upstream gateway within the configured time limit.",
+    "expected": "Category: Provider Timeout\nRetryable: Yes\nAction: Query provider before retrying.",
+    "actual": "The payment request was successfully processed, and the payment details were sent to the recipient's account.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The debit request was declined because the available account balance was less than the transaction amount.",
+    "expected": "Category: Insufficient Funds\nRetryable: No\nAction: Ask the customer to fund the account before retrying.",
+    "actual": "The account balance is insufficient to cover the transaction amount. Please provide the necessary information to complete the transaction.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The customer tried to make the transfer, but there was not enough money in the source account to complete it.",
+    "expected": "Category: Insufficient Funds\nRetryable: No\nAction: Ask the customer to fund the account before retrying.",
+    "actual": "The customer should try to make the transfer again, but if the source account is not enough, the customer should contact the bank to request additional funds.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The payment has a successful final status, but the merchant says no callback was received.",
+    "expected": "Category: Webhook Delivery Failure\nRetryable: Yes\nAction: Retry webhook delivery without reprocessing the payment.",
+    "actual": "The merchant has not received a callback for the payment. This could be due to several reasons such as the merchant not being able to process the payment, the merchant's server being down, or the merchant's payment gateway being down. In such cases, the merchant may need to contact the payment gateway or the merchant's server to verify the status of the payment.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The transaction completed, but notification delivery to the merchant endpoint failed after processing.",
+    "expected": "Category: Webhook Delivery Failure\nRetryable: Yes\nAction: Retry webhook delivery without reprocessing the payment.",
+    "actual": "The transaction completed successfully, but the notification delivery to the merchant endpoint failed. The merchant endpoint is not receiving the notification because the transaction was not completed successfully. The merchant endpoint is not receiving the notification because the transaction was not completed successfully. The merchant endpoint is not receiving the notification because the transaction was not completed successfully. The merchant endpoint is not receiving the notification because the transaction was not completed successfully. The",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The destination institution rejected the transfer because the beneficiary account information could not be validated.",
+    "expected": "Category: Invalid Beneficiary Details\nRetryable: No\nAction: Ask the customer to correct the beneficiary details before retrying.",
+    "actual": "The beneficiary account information could not be validated because the beneficiary account number is not valid. The beneficiary account number should be entered in the beneficiary account field of the transfer form.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The transfer failed because the recipient account details supplied by the customer were incorrect.",
+    "expected": "Category: Invalid Beneficiary Details\nRetryable: No\nAction: Ask the customer to correct the beneficiary details before retrying.",
+    "actual": "The customer has been notified that the transfer has failed because the recipient account details supplied by the customer were incorrect. The customer will be contacted by the customer service team to resolve the issue.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The upstream payment service returned a temporary outage response and is not currently accepting requests.",
+    "expected": "Category: Provider Unavailable\nRetryable: Yes\nAction: Retry after checking provider availability.",
+    "actual": "The upstream payment service returned a temporary outage response and is not currently accepting requests.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The processor is under maintenance, so the transaction could not be submitted at this time.",
+    "expected": "Category: Provider Unavailable\nRetryable: Yes\nAction: Retry after checking provider availability.",
+    "actual": "The processor is under maintenance, so the transaction could not be submitted at this time.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The card authorization was declined because the card expired last month.",
+    "expected": "Category: Expired Card\nRetryable: No\nAction: Ask the customer to use a valid payment method.",
+    "actual": "The card authorization was declined because the card expired last month.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The payment could not proceed because the card's expiration date is no longer valid.",
+    "expected": "Category: Expired Card\nRetryable: No\nAction: Ask the customer to use a valid payment method.",
+    "actual": "The cardholder should contact the issuing bank to update the expiration date to a valid date.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "A second request arrived with the same idempotency key as a payment that had already been completed.",
+    "expected": "Category: Duplicate Request\nRetryable: No\nAction: Return the result of the original request instead of processing another payment.",
+    "actual": "The payment was not completed.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The client resubmitted an already processed payment using the original request identifier.",
+    "expected": "Category: Duplicate Request\nRetryable: No\nAction: Return the result of the original request instead of processing another payment.",
+    "actual": "The client was not able to process the payment using the original request identifier. The client should have used the new request identifier to process the payment.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The transfer was accepted for processing, but the provider has not yet returned a terminal status.",
+    "expected": "Category: Pending Provider Confirmation\nRetryable: No\nAction: Query the provider for the final transaction status before taking further action.",
+    "actual": "The provider has not yet returned a terminal status. Please contact the provider to confirm the status of the transfer.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The provider still reports the payment as processing and there is no confirmed success or failure result.",
+    "expected": "Category: Pending Provider Confirmation\nRetryable: No\nAction: Query the provider for the final transaction status before taking further action.",
+    "actual": "The provider has not yet confirmed the payment status. The provider should contact the customer to confirm the payment status.",
+    "generated_tokens": 80,
+    "latency_ms": 4.320504794000044
+  },
+  {
+    "input": "The customer's account was charged, but neither the provider nor the internal payment record shows a final outcome.",
+    "expected": "Category: Debit Without Final Status\nRetryable: No\nAction: Reconcile the transaction and confirm the provider status before retrying.",
+    "actual": "The customer's account was charged, but neither the provider nor the internal payment record shows a final outcome. The customer's account was charged, but neither the provider nor the internal payment record shows a final outcome. The customer's account was charged, but neither the provider nor the internal payment record shows a final outcome. The customer's account was charged, but neither the provider nor the internal payment record shows",
+    "generated_tokens": 80,
+    "latency_ms": 4.338144878000094
+  },
+  {
+    "input": "Funds were deducted from the customer, yet the transfer remains unresolved with no final provider confirmation.",
+    "expected": "Category: Debit Without Final Status\nRetryable: No\nAction: Reconcile the transaction and confirm the provider status before retrying.",
+    "actual": "The customer has been notified that the funds have been transferred to the customer's account. The customer has been provided with a receipt and a confirmation email. The customer has been advised to contact the customer service team for further assistance.",
+    "generated_tokens": 80,
+    "latency_ms": 4.338144878000094
+  },
+  {
+    "input": "The provider API rejected the request because the configured access credentials were not recognized.",
+    "expected": "Category: Provider Authentication Failure\nRetryable: No\nAction: Verify provider credentials and configuration before retrying.",
+    "actual": "The provider API rejected the request because the configured access credentials were not recognized.\n\nThe provider API rejected the request because the configured access credentials were not recognized.\n\nThe provider API rejected the request because the configured access credentials were not recognized.\n\nThe provider API rejected the request because the configured access credentials were not recognized.\n\nThe provider API rejected the request because the configured access credentials were not recognized.\n\nThe provider API rejected the",
+    "generated_tokens": 80,
+    "latency_ms": 4.338144878000094
+  },
+  {
+    "input": "The integration received an authentication error from the upstream processor due to invalid credentials.",
+    "expected": "Category: Provider Authentication Failure\nRetryable: No\nAction: Verify provider credentials and configuration before retrying.",
+    "actual": "The integration is now configured to use the upstream processor's authentication credentials.",
+    "generated_tokens": 80,
+    "latency_ms": 4.338144878000094
+  }
+]
