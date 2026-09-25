@@ -31,7 +31,6 @@ await using var container = containerBuilder.Build();
 await using var scope = container.BeginLifetimeScope();
 
 var pathResolver = scope.Resolve<IPathResolver>();
-var dataWriter = scope.Resolve<IInferenceBenchmarkWriter>();
 
 
 var baselineConfig = new InferenceExperimentConfig
@@ -59,7 +58,8 @@ var options = new JsonSerializerOptions
 
 var json = JsonSerializer.Serialize(baselineConfig, options);
 
-await dataWriter.Write(json, path, "baseline-fp-16.json");
+Directory.CreateDirectory(path);
+await File.WriteAllTextAsync(Path.Combine(path, "baseline-fp-16.json"), json);
 
 var fp16Results = JsonSerializer.Deserialize<List<InferenceResult>>(
     File.ReadAllText(Path.Combine(path, "baseline-fp16-batch16-outputs.json"))

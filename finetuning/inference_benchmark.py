@@ -102,12 +102,14 @@ def run_benchmark(
     tokenizer,
     eval_cases: list[EvalCase],
     batch_size: int,
-    max_new_tokens: int
+    max_new_tokens: int,
+    warmup_runs: int = 0,
+    repetitions: int = 1
 ) -> dict[str, Any]:
     """
     Runs inference against the frozen evaluation set.
     Measures:
-      - wall-clock runtime
+      - averaged wall-clock runtime
       - tokens generated
       - GPU peak memory
       - token-limit hits
@@ -127,43 +129,73 @@ def run_benchmark(
 
     results = []
 
-    for batch_start in range(0, len(prompts), batch_size):
-        batch_prompts = prompts[batch_start:batch_start + batch_size]
+    if batch_size <= 0:
+        raise ValueError("batch_size must be greater than zero")
+    if max_new_tokens <= 0:
+        raise ValueError("max_new_tokens must be greater than zero")
+    if warmup_runs < 0:
+        raise ValueError("warmup_runs cannot be negative")
+    if repetitions <= 0:
+        raise ValueError("repetitions must be greater than zero")
 
-        inputs = tokenizer(
-            batch_prompts,
-            return_tensors="pt",
-            padding=True
-        ).to(model.device)
+    def run_once() -> list[dict[str, Any]]:
+        results = []
 
-        prompt_length = inputs["input_ids"].shape[1]
+        for batch_start in range(0, len(prompts), batch_size):
+            batch_prompts = prompts[batch_start:batch_start + batch_size]
 
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            do_sample=False
-        )
+            inputs = tokenizer(
+                batch_prompts,
+                return_tensors="pt",
+                padding=True
+            ).to(model.device)
 
-        for index in range(len(batch_prompts)):
-            generated_tokens = outputs[index][prompt_length:]
+            prompt_length = inputs["input_ids"].shape[1]
 
-            response = tokenizer.decode(
-                generated_tokens,
-                skip_special_tokens=True
-            ).strip()
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=False
+            )
 
-            results.append({
-                "prompt": batch_prompts[index],
-                "response": response,
-                "generated_tokens": len(generated_tokens),
-                "hit_token_limit": (
-                    len(generated_tokens) >= max_new_tokens
-                )
-            })
+            for index in range(len(batch_prompts)):
+                generated_tokens = outputs[index][prompt_length:]
 
-    total_run_time_seconds = (
-        time.perf_counter() - start_time
-    )
+                response = tokenizer.decode(
+                    generated_tokens,
+                    skip_special_tokens=True
+                ).strip()
+
+                results.append({
+                    "input": eval_cases[batch_start + index].input,
+                    "expected": eval_cases[batch_start + index].expected,
+                    "actual": response,
+                    "generated_tokens": len(generated_tokens),
+                    "hit_token_limit": (
+                        len(generated_tokens) >= max_new_tokens
+                    )
+                })
+
+        return results
+
+    for _ in range(warmup_runs):
+        run_once()
+
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()
+
+    start_time = time.perf_counter()
+    measured_results = []
+
+    for _ in range(repetitions):
+        measured_results = run_once()
+
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()
+
+    total_run_time_seconds = time.perf_counter() - start_time
+    average_run_time_seconds = total_run_time_seconds / repetitions
+    results = measured_results
 
     total_generated_tokens = sum(
         item["generated_tokens"]
@@ -183,20 +215,20 @@ def run_benchmark(
         )
 
     tokens_per_second = (
-        total_generated_tokens / total_run_time_seconds
-        if total_run_time_seconds > 0
+        total_generated_tokens / average_run_time_seconds
+        if average_run_time_seconds > 0
         else 0.0
     )
 
     amortized_time_per_case_ms = (
-        total_run_time_seconds * 1000 / len(results)
+        average_run_time_seconds * 1000 / len(results)
         if results
         else 0.0
     )
 
     return {
         "results": results,
-        "total_run_time_seconds": total_run_time_seconds,
+        "total_run_time_seconds": average_run_time_seconds,
         "total_generated_tokens": total_generated_tokens,
         "tokens_per_second": tokens_per_second,
         "amortized_time_per_case_ms": amortized_time_per_case_ms,
@@ -216,21 +248,35 @@ def compare_exact_outputs(
     with open(reference_outputs_path, "r", encoding="utf-8") as file:
         reference_items = json.load(file)
 
-    reference_responses = [
-        item["response"]
-        for item in reference_items
-    ]
+    if len(reference_items) != len(current_results):
+        raise ValueError(
+            "Reference and current results contain different numbers "
+            f"of cases: {len(reference_items)} != {len(current_results)}"
+        )
 
-    current_responses = [
-        item["response"]
-        for item in current_results
-    ]
+    exact_matches = 0
 
-    return sum(
-        1
-        for reference, current in zip(reference_responses, current_responses)
-        if reference == current
-    )
+    for index, (reference, current) in enumerate(
+        zip(reference_items, current_results)
+    ):
+        if reference.get("input") != current.get("input"):
+            raise ValueError(
+                "Reference and current results are not aligned at case "
+                f"{index}"
+            )
+
+        reference_actual = reference.get("actual", reference.get("response"))
+        current_actual = current.get("actual", current.get("response"))
+
+        if reference_actual is None or current_actual is None:
+            raise ValueError(
+                f"Missing generated response at case {index}"
+            )
+
+        if reference_actual == current_actual:
+            exact_matches += 1
+
+    return exact_matches
 
 
 def save_outputs(
