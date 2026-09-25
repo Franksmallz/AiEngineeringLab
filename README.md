@@ -43,6 +43,20 @@ Takeaway: embedding retrieval never lost a retrieval-relevance case (13 wins, 5 
 
 Takeaway: better dataset structure and a more appropriate training objective did not improve overall performance — at 50 examples on a 0.5B model, dataset quality alone wasn't enough. The honest negative result points at the next lever: supervision density (multiple examples per scenario pattern), not just curation.
 
+**Inference optimization: batching vs quantization** ([full report](docs/chapter9_inference_optimization_final_report.md))
+Qwen2.5-0.5B payment-incident model, same frozen 20-case eval set. First batching (FP16, batch 1 → 16), then INT8 and INT4 NF4 quantization at batch 16.
+
+| Metric | FP16 Batch 1 | FP16 Batch 16 | INT8 Batch 16 | INT4 NF4 Batch 16 |
+|---|---:|---:|---:|---:|
+| Throughput | 19.17 tok/s | 91.54 tok/s | 60.89 tok/s | 174.25 tok/s |
+| Total runtime | 37.97 s | 7.95 s | 26.28 s | 9.18 s |
+| Peak GPU memory | 2,369 MB | 3,315 MB | 2,024 MB | 2,545 MB |
+| Exact match vs FP16 | — | 20/20 | 7/20 | 3/20 |
+| Category correct (semantic) | 15/20 | 15/20 | 15/20 | 16/20 |
+| Action correct (semantic) | 2/20 | 2/20 | 4/20 | 4/20 |
+
+Takeaway: batching was the strongest optimization — ~4.8× throughput with 20/20 output parity. INT4 delivered the highest raw throughput at lower memory but with heavy output drift; semantic evaluation (AI judge + human review) showed drift is not the same as degradation — 3/20 exact match, yet comparable quality to FP16. Decision: FP16 Batch 16 is the safest config. The honest finding carries over from fine-tuning: inference optimization cannot fix training weaknesses — ActionCorrect stayed poor (2–4/20) across every configuration.
+
 Also in the lab: sampling-parameter experiments (temperature, top-p, max tokens, structured output, run-to-run consistency) in [`experiments/week-02`](experiments/week-02/), prompt versioning in [`experiments/week-05`](experiments/week-05/), and weekly reflection notes in [`docs`](docs/).
 
 ## Repository layout
