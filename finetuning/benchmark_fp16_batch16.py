@@ -25,6 +25,8 @@ MODEL_NAME = "Qwen/Qwen2.5-0.5B"
 BATCH_SIZE = 16
 MAX_NEW_TOKENS = 80
 SEED = 42
+WARMUP_RUNS = 2
+REPETITIONS = 3
 
 
 def parse_args():
@@ -106,7 +108,9 @@ def main():
         tokenizer=tokenizer,
         eval_cases=eval_cases,
         batch_size=BATCH_SIZE,
-        max_new_tokens=MAX_NEW_TOKENS
+        max_new_tokens=MAX_NEW_TOKENS,
+        warmup_runs=WARMUP_RUNS,
+        repetitions=REPETITIONS
     )
 
     outputs_path = (
@@ -167,7 +171,9 @@ def main():
 
         ExactMatchCount=None,
 
-        Successful=True,
+        Successful=(
+            len(benchmark["results"]) == len(eval_cases)
+        ),
         Notes=(
             "Chapter 9 FP16 Batch 16"
         )
