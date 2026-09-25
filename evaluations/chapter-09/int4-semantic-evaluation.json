@@ -1,0 +1,202 @@
+[
+  {
+    "Input": "The processor accepted the connection but never returned a transaction response before the client timeout expired.",
+    "Expected": "Category: Provider Timeout\nRetryable: Yes\nAction: Query provider before retrying.",
+    "Actual": "The client timeout expired. The connection was closed by the server.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The payment request ended because no response was received from the upstream gateway within the configured time limit.",
+    "Expected": "Category: Provider Timeout\nRetryable: Yes\nAction: Query provider before retrying.",
+    "Actual": "The payment request was successfully processed, and the payment status is \u0022Processing\u0022 or \u0022Success\u0022 depending on the payment gateway.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The debit request was declined because the available account balance was less than the transaction amount.",
+    "Expected": "Category: Insufficient Funds\nRetryable: No\nAction: Ask the customer to fund the account before retrying.",
+    "Actual": "The account balance is insufficient to cover the transaction amount. Please provide the necessary funds to complete the transaction.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The customer tried to make the transfer, but there was not enough money in the source account to complete it.",
+    "Expected": "Category: Insufficient Funds\nRetryable: No\nAction: Ask the customer to fund the account before retrying.",
+    "Actual": "The customer should try to make the transfer again, and if the transfer is not successful, they should contact the customer service team to resolve the issue.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The payment has a successful final status, but the merchant says no callback was received.",
+    "Expected": "Category: Webhook Delivery Failure\nRetryable: Yes\nAction: Retry webhook delivery without reprocessing the payment.",
+    "Actual": "The payment has a successful final status, but the merchant says no callback was received.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The transaction completed, but notification delivery to the merchant endpoint failed after processing.",
+    "Expected": "Category: Webhook Delivery Failure\nRetryable: Yes\nAction: Retry webhook delivery without reprocessing the payment.",
+    "Actual": "The transaction was successfully processed, but the notification delivery to the merchant endpoint failed. The merchant has been notified of the transaction and will be able to process the transaction in the next 24 hours.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The destination institution rejected the transfer because the beneficiary account information could not be validated.",
+    "Expected": "Category: Invalid Beneficiary Details\nRetryable: No\nAction: Ask the customer to correct the beneficiary details before retrying.",
+    "Actual": "The beneficiary account information should be validated before the transfer is processed.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The transfer failed because the recipient account details supplied by the customer were incorrect.",
+    "Expected": "Category: Invalid Beneficiary Details\nRetryable: No\nAction: Ask the customer to correct the beneficiary details before retrying.",
+    "Actual": "The customer should be asked to provide the correct account details and the transfer should be attempted again.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The upstream payment service returned a temporary outage response and is not currently accepting requests.",
+    "Expected": "Category: Provider Unavailable\nRetryable: Yes\nAction: Retry after checking provider availability.",
+    "Actual": "The service is currently unavailable. Please try again later.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The processor is under maintenance, so the transaction could not be submitted at this time.",
+    "Expected": "Category: Provider Unavailable\nRetryable: Yes\nAction: Retry after checking provider availability.",
+    "Actual": "The processor is under maintenance, so the transaction could not be submitted at this time.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The card authorization was declined because the card expired last month.",
+    "Expected": "Category: Expired Card\nRetryable: No\nAction: Ask the customer to use a valid payment method.",
+    "Actual": "The card authorization was declined because the card expired last month.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The payment could not proceed because the card\u0027s expiration date is no longer valid.",
+    "Expected": "Category: Expired Card\nRetryable: No\nAction: Ask the customer to use a valid payment method.",
+    "Actual": "The cardholder has provided the expiration date as 01/01/2020, which is not valid. The cardholder should have provided the expiration date as 01/01/2021, which is valid.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "A second request arrived with the same idempotency key as a payment that had already been completed.",
+    "Expected": "Category: Duplicate Request\nRetryable: No\nAction: Return the result of the original request instead of processing another payment.",
+    "Actual": "The payment was not completed. The payment was not completed because the idempotency key was not valid. The payment was not completed because the idempotency key was not valid. The payment was not completed because the idempotency key was not valid. The payment was not completed because the idempotency key was not valid. The payment was not completed because the idempot",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The client resubmitted an already processed payment using the original request identifier.",
+    "Expected": "Category: Duplicate Request\nRetryable: No\nAction: Return the result of the original request instead of processing another payment.",
+    "Actual": "The client was not able to process the payment due to the following reasons:\n1. The client\u0027s account was not found in the system.\n2. The client\u0027s payment was not processed due to a network error.\n3. The client\u0027s payment was not processed due to a server error.\n\nTo resolve this issue, the client should:\n1. Check if the client\u0027s account exists in the system.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The transfer was accepted for processing, but the provider has not yet returned a terminal status.",
+    "Expected": "Category: Pending Provider Confirmation\nRetryable: No\nAction: Query the provider for the final transaction status before taking further action.",
+    "Actual": "The provider has not yet returned a terminal status. Please check the status of the terminal and contact the provider if necessary.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The provider still reports the payment as processing and there is no confirmed success or failure result.",
+    "Expected": "Category: Pending Provider Confirmation\nRetryable: No\nAction: Query the provider for the final transaction status before taking further action.",
+    "Actual": "The provider has not yet received the payment and is currently processing the payment. The provider will be notified when the payment is successful or failed.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The customer\u0027s account was charged, but neither the provider nor the internal payment record shows a final outcome.",
+    "Expected": "Category: Debit Without Final Status\nRetryable: No\nAction: Reconcile the transaction and confirm the provider status before retrying.",
+    "Actual": "The customer\u0027s account was charged, but neither the provider nor the internal payment record shows a final outcome. The customer\u0027s account was charged, but neither the provider nor the internal payment record shows a final outcome. The customer\u0027s account was charged, but neither the provider nor the internal payment record shows a final outcome. The customer\u0027s account was charged, but neither the provider nor the internal payment record shows",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "Funds were deducted from the customer, yet the transfer remains unresolved with no final provider confirmation.",
+    "Expected": "Category: Debit Without Final Status\nRetryable: No\nAction: Reconcile the transaction and confirm the provider status before retrying.",
+    "Actual": "The customer has been provided with a receipt for the funds and a receipt for the transfer. The customer has been provided with a receipt for the funds and a receipt for the transfer. The customer has been provided with a receipt for the funds and a receipt for the transfer. The customer has been provided with a receipt for the funds and a receipt for the transfer. The customer has been provided with a receipt",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The provider API rejected the request because the configured access credentials were not recognized.",
+    "Expected": "Category: Provider Authentication Failure\nRetryable: No\nAction: Verify provider credentials and configuration before retrying.",
+    "Actual": "The provider API rejected the request because the configured access credentials were not recognized.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  },
+  {
+    "Input": "The integration received an authentication error from the upstream processor due to invalid credentials.",
+    "Expected": "Category: Provider Authentication Failure\nRetryable: No\nAction: Verify provider credentials and configuration before retrying.",
+    "Actual": "The integration received an authentication error from the upstream processor due to invalid credentials.",
+    "CategoryCorrect": false,
+    "RetryableCorrect": false,
+    "ActionCorrect": false,
+    "HasContradictionOrHallucination": false,
+    "Notes": ""
+  }
+]
