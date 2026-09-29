@@ -3,6 +3,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FoundationalModel.Models.Configs;
 using FoundationalModel.Services.Autofac;
+using FoundationalModel.Services;
 using OpenAI.Embeddings;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -34,6 +35,11 @@ builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
 {
     containerBuilder.RegisterModule<AutofacContainerModule>();
 });
+
+builder.Services.RegisterHttpClient(builder.Configuration);
+
+builder.Services.Configure<PaymentIncidentModelSettings>(
+    builder.Configuration.GetSection(PaymentIncidentModelSettings.SectionName));
 
 var app = builder.Build();
 

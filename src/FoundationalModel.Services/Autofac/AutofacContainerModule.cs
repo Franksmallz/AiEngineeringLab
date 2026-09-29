@@ -1,6 +1,7 @@
 ﻿
 using Autofac;
 using FoundationalModel.Core.Enums;
+using FoundationalModel.Repository.Interfaces;
 using FoundationalModel.Services.Implementations.Providers;
 using FoundationalModel.Services.Interfaces;
 
@@ -13,6 +14,12 @@ namespace FoundationalModel.Services.Autofac
             builder.RegisterAssemblyTypes(typeof(IAutoDependencyService).Assembly)
                 .AssignableTo<IAutoDependencyService>()
                 .As<IAutoDependencyService>()
+                .AsImplementedInterfaces()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterAssemblyTypes(typeof(IAutoDependencyRepository).Assembly)
+                .AssignableTo<IAutoDependencyRepository>()
+                .As<IAutoDependencyRepository>()
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
