@@ -2,8 +2,6 @@ bin/
 obj/
 .vs/
 .idea/
-.vscode/
-**/.vscode/
 *.woff
 *.woff2
 TestResults/
