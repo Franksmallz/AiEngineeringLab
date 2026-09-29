@@ -14,8 +14,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="baseline.py" />
+    <Compile Include="Runpod\handler.py" />
+    <Compile Include="Runpod\model.py" />
     <Compile Include="train.py" />
     <Compile Include="evaluate.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Runpod\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="requirements.txt" />
+    <Content Include="Runpod\Dockerfile" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

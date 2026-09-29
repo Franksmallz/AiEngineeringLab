@@ -4,5 +4,6 @@
     {
         NONE = 0,
         ANTHROPIC = 1,
+        PAYMENTINCIDENTMODEL = 2,
     }
 }
