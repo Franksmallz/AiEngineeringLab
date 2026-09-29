@@ -1,4 +1,4 @@
-﻿using Anthropic.Models.Messages;
+using Anthropic.Models.Messages;
 using FoundationalModel.Models.Dtos.Requests;
 using FoundationalModel.Models.Dtos.Responses;
 using FoundationalModel.Models.Entities;
@@ -57,9 +57,11 @@ namespace FoundationalModel.Services.Implementations
                     success: true,
                     structuredOutputValid: true);
 
+                var inferenceId = Guid.NewGuid().ToString();
+
                 var record = new InferenceRecord
                 {
-                    InferenceId = Guid.NewGuid().ToString(),
+                    InferenceId = inferenceId,
                     DeploymentId = Core.Enums.Providers.PAYMENTINCIDENTMODEL.ToString(),
                     RawOutput = JsonSerializer.Serialize(response),
                     Incident = request.Incident,
@@ -70,9 +72,11 @@ namespace FoundationalModel.Services.Implementations
                     Action = response.Action
                 };
 
+                await _inferenceRecordRepository.SaveAsync(record);
+
                 return new PaymentIncidentResponse
                 {
-                    InferenceId = Guid.NewGuid().ToString(),
+                    InferenceId = inferenceId,
                     Category = response.Category,
                     Retryable = response.Retryable,
                     Action = response.Action,
