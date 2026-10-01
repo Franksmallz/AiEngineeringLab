@@ -31,7 +31,7 @@ namespace RiskClassificationLab.Controllers
             return Ok(prediction);
         }
 
-        [HttpPost("/rules/evaluate")]
+        [HttpPost("/evaluate")]
         [Produces(typeof(TransactionRiskEvaluationResult))]
         public async Task<IActionResult> Evaluate()
         {
@@ -44,6 +44,22 @@ namespace RiskClassificationLab.Controllers
         public async Task<IActionResult> Train()
         {
             var result = _riskService.Train();
+            return Ok(result);
+        }
+
+        [HttpPost("/ml/rules")]
+        [Produces(typeof(string))]
+        public async Task<IActionResult> MLPredict(TransactionRiskInput model)
+        {
+            var result = _riskService.MLPredict(model);
+            return Ok(result);
+        }
+
+        [HttpPost("/edge-cases")]
+        [Produces(typeof(EdgeCaseEvaluationResult))]
+        public async Task<IActionResult> EvaluateEdgeCases()
+        {
+            var result = _riskService.EvaluateEdgeCases();
             return Ok(result);
         }
     }

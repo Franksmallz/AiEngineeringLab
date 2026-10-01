@@ -4,9 +4,9 @@ using RiskClassificationLab.Services.Interfaces;
 
 namespace RiskClassificationLab.Services.Implementations
 {
-    public class RuleBasedRiskClassifier : IRuleBasedRiskClassifier
+    public class RuleBasedRiskClassifier : IRiskClassifier
     {
-        public RiskLevel Predict(TransactionRiskInput transaction)
+        public string Predict(TransactionRiskInput transaction)
         {
             var score = 0;
 
@@ -30,9 +30,9 @@ namespace RiskClassificationLab.Services.Implementations
 
             return score switch
             {
-                >= 5 => RiskLevel.High,
-                >= 2 => RiskLevel.Medium,
-                _ => RiskLevel.Low
+                >= 5 => RiskLevel.High.ToString(),
+                >= 2 => RiskLevel.Medium.ToString(),
+                _ => RiskLevel.Low.ToString()
             };
         }
     }

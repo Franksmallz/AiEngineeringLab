@@ -1,7 +1,9 @@
-﻿using RiskClassificationLab.Enums;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using RiskClassificationLab.Enums;
 using RiskClassificationLab.Models;
 using RiskClassificationLab.Services.Interfaces;
 using RiskClassificationLab.Services.Interfaces.ML;
+using System.Diagnostics;
 
 namespace RiskClassificationLab.Services.Implementations
 {
@@ -10,23 +12,23 @@ namespace RiskClassificationLab.Services.Implementations
         private readonly IRiskDatasetGenerator _riskDatasetGenerator;
         private readonly IDatasetSplitter _datasetSplitter;
         private readonly IDatasetWriter _datasetWriter;
-        private readonly IRuleBasedRiskClassifier _ruleBasedClassifier;
         private readonly IDatasetReader _datasetReader;
         private readonly IModelTrainer _modelTrainer;
+        private readonly IImplementationResolverService _implementationResolverService;
 
         public RiskService(IRiskDatasetGenerator riskDatasetGenerator,
             IDatasetSplitter datasetSplitter,
             IDatasetWriter datasetWriter,
-            IRuleBasedRiskClassifier ruleBasedClassifier,
             IDatasetReader datasetReader,
-            IModelTrainer modelTrainer)
+            IModelTrainer modelTrainer,
+            IImplementationResolverService implementationResolverService)
         {
             _riskDatasetGenerator = riskDatasetGenerator;
             _datasetSplitter = datasetSplitter;
             _datasetWriter = datasetWriter;
-            _ruleBasedClassifier = ruleBasedClassifier;
             _datasetReader = datasetReader;
             _modelTrainer = modelTrainer;
+            _implementationResolverService = implementationResolverService;
         }
 
         public TransactionRiskDataResult Generate()
@@ -74,7 +76,8 @@ namespace RiskClassificationLab.Services.Implementations
 
         public string Predict(TransactionRiskInput transaction)
         {
-            var prediction = _ruleBasedClassifier.Predict(transaction);
+            var predictionImplementation = _implementationResolverService.ResolveClassifier("Rules");
+            var prediction = predictionImplementation.Predict(transaction);
 
             return prediction.ToString();
         }
@@ -85,7 +88,9 @@ namespace RiskClassificationLab.Services.Implementations
 
             var results = data.Select(transaction =>
             {
-                var prediction = Predict(new TransactionRiskInput
+                var predictionImplementation = _implementationResolverService.ResolveClassifier("Rules");
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                var rulesPrediction  = predictionImplementation.Predict(new TransactionRiskInput
                 {
                     IsHighRiskCountry = transaction.IsHighRiskCountry,
                     Amount = transaction.Amount,
@@ -95,26 +100,96 @@ namespace RiskClassificationLab.Services.Implementations
                     TransactionHour = transaction.TransactionHour
                 });
 
-                return(
+                sw.Stop();
+
+                return (
                 
                     Actual: transaction.RiskLevel,
-                    Predicted: prediction.ToString()
+                    Predicted: rulesPrediction.ToString(),
+                    Latency: sw.Elapsed.TotalMilliseconds
                 );
             }).ToList();
 
-            var classMetrics = Enum
-            .GetNames<RiskLevel>()
-            .Select(riskClass =>
-                CalculateMetrics(riskClass, results))
+            var evaluationMetrics = ComputeMetrics(results);
+            var latencies = results
+           .Select(x => x.Latency)
+           .OrderBy(x => x)
+           .ToList();
+
+            var averageLatency = latencies.Average();
+
+            var p95Index = (int)Math.Ceiling(latencies.Count * 0.95) - 1;
+            var p95Latency = latencies[p95Index];
+            evaluationMetrics.Latency = new EvaluationLatencyResult
+            {
+                AverageLatency = averageLatency,
+                P95Latency = p95Latency
+            };
+
+            var MLresults = data.Select(transaction =>
+            {
+                var predictionImplementation = _implementationResolverService.ResolveClassifier("ML");
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+
+                var rulesPrediction = predictionImplementation.Predict(new TransactionRiskInput
+                {
+                    IsHighRiskCountry = transaction.IsHighRiskCountry,
+                    Amount = transaction.Amount,
+                    BeneficiaryAgeDays = transaction.BeneficiaryAgeDays,
+                    CustomerTransactionCount24h = transaction.CustomerTransactionCount24h,
+                    RecentFailureCount = transaction.RecentFailureCount,
+                    TransactionHour = transaction.TransactionHour
+                });
+
+                sw.Stop();
+
+                return (
+
+                    Actual: transaction.RiskLevel,
+                    Predicted: rulesPrediction.ToString(),
+                    Latency: sw.Elapsed.TotalMilliseconds
+                );
+            }).ToList();
+
+            var MLlatencies = MLresults
+            .Select(x => x.Latency)
+            .OrderBy(x => x)
             .ToList();
+
+            averageLatency = MLlatencies.Average();
+
+            p95Index = (int)Math.Ceiling(latencies.Count * 0.95) - 1;
+            p95Latency = MLlatencies[p95Index];
+
+            var MLEvaluationMetrics = ComputeMetrics(MLresults);
+            MLEvaluationMetrics.Latency = new EvaluationLatencyResult
+            {
+                AverageLatency = averageLatency,
+                P95Latency = p95Latency
+            };
+
+            return new TransactionRiskEvaluationResult
+            {
+                ML = MLEvaluationMetrics,
+                Rules = evaluationMetrics
+            };
+        }
+
+        private RiskEvaluationResult ComputeMetrics(List<(string Actual, string Predicted, double Latency)> results)
+        {
+            var classMetrics = Enum
+           .GetNames<RiskLevel>()
+           .Select(riskClass =>
+               CalculateMetrics(riskClass, results))
+           .ToList();
 
             var confusionMatrix = results
             .GroupBy(x => new { x.Actual, x.Predicted })
             .Select(x => new ConfusionMatrix()
             {
-               Actual =  x.Key.Actual,
-               Predicted =  x.Key.Predicted,
-               Count = x.Count()
+                Actual = x.Key.Actual,
+                Predicted = x.Key.Predicted,
+                Count = x.Count()
             })
             .OrderBy(x => x.Actual)
             .ThenBy(x => x.Predicted)
@@ -125,7 +200,7 @@ namespace RiskClassificationLab.Services.Implementations
 
             var accuracy = (double)correct / results.Count;
 
-            return new()
+            return new RiskEvaluationResult()
             {
                 Total = results.Count,
                 Correct = correct,
@@ -143,9 +218,9 @@ namespace RiskClassificationLab.Services.Implementations
             return "Model training completed successfully";
         }
 
-        private static ClassMetrics CalculateMetrics(
+        private  ClassMetrics CalculateMetrics(
     string riskClass,
-    IEnumerable<(string Actual, string Predicted)> results)
+    IEnumerable<(string Actual, string Predicted, double Latency)> results)
         {
             var data = results.ToList();
 
@@ -183,6 +258,98 @@ namespace RiskClassificationLab.Services.Implementations
                 Recall = recall,
                 F1 = f1
             };
+        }
+
+        public string MLPredict(TransactionRiskInput transaction)
+        {
+            var predictionImplementation = _implementationResolverService.ResolveClassifier("Rules");
+            var prediction = predictionImplementation.Predict(transaction);
+            return prediction.ToString();
+        }
+
+        public EdgeCaseEvaluationResult EvaluateEdgeCases()
+        {
+            var amountBoundaryBelow = EdgeCaseDataset.AmountBoundaryBelow();
+            var amountBoundaryAbove = EdgeCaseDataset.AmountBoundaryAbove();
+            var transactionCountBoundaryBelow = EdgeCaseDataset.TransactionCountBoundaryBelow();
+            var transactionCountBoundaryAbove = EdgeCaseDataset.TransactionCountBoundaryAbove();
+            var recentFailureCountBoundaryBelow = EdgeCaseDataset.RecentFailureCountBoundaryBelow();
+            var recentFailureCountBoundaryAbove = EdgeCaseDataset.RecentFailureCountBoundaryAbove();
+            var beneficiaryAgeDaysBoundaryBelow = EdgeCaseDataset.BeneficiaryAgeDaysBoundaryBelow();
+            var beneficiaryAgeDaysBoundaryAbove = EdgeCaseDataset.BeneficiaryAgeDaysBoundaryAbove();
+            var transactionHourBoundaryBelow = EdgeCaseDataset.TransactionHourBoundaryBelow();
+            var transactionHourAbove = EdgeCaseDataset.TransactionHourBoundaryAbove();
+            var rulesImplementation = _implementationResolverService.ResolveClassifier("Rules");
+            var mlImplementation = _implementationResolverService.ResolveClassifier("ML");
+            var result = new EdgeCaseEvaluationResult
+            {
+                AmountBoundary = new EdgeCaseEvaluation
+                {
+                    Below = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(amountBoundaryBelow),
+                        ML = mlImplementation.Predict(amountBoundaryBelow)
+                    },
+                    Above = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(amountBoundaryAbove),
+                        ML = mlImplementation.Predict(amountBoundaryAbove)
+                    }
+                },
+                TransactionCountBoundary = new EdgeCaseEvaluation
+                {
+                    Below = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(transactionCountBoundaryBelow),
+                        ML = mlImplementation.Predict(transactionCountBoundaryBelow)
+                    },
+                    Above = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(transactionCountBoundaryAbove),
+                        ML = mlImplementation.Predict(transactionCountBoundaryAbove)
+                    }
+                },
+                RecentFailureCountBoundary = new EdgeCaseEvaluation
+                {
+                    Below = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(recentFailureCountBoundaryBelow),
+                        ML = mlImplementation.Predict(recentFailureCountBoundaryBelow)
+                    },
+                    Above = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(recentFailureCountBoundaryAbove),
+                        ML = mlImplementation.Predict(recentFailureCountBoundaryAbove)
+                    }
+                },
+                BeneficiaryAgeDaysBoundary = new EdgeCaseEvaluation
+                {
+                    Below = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(beneficiaryAgeDaysBoundaryBelow),
+                        ML = mlImplementation.Predict(beneficiaryAgeDaysBoundaryBelow)
+                    },
+                    Above = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(beneficiaryAgeDaysBoundaryAbove),
+                        ML = mlImplementation.Predict(beneficiaryAgeDaysBoundaryAbove)
+                    }
+                },
+                TransactionHourBoundary = new EdgeCaseEvaluation
+                {
+                    Below = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(transactionHourBoundaryBelow),
+                        ML = mlImplementation.Predict(transactionHourBoundaryBelow)
+                    },
+                    Above = new EdgeCasePrediction
+                    {
+                        Rules = rulesImplementation.Predict(transactionHourAbove),
+                        ML = mlImplementation.Predict(transactionHourAbove)
+                    }
+                }
+            };
+            return result;
         }
     }
 }
