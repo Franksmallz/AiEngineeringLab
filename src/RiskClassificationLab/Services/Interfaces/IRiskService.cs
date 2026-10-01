@@ -9,5 +9,7 @@ namespace RiskClassificationLab.Services.Interfaces
         string Predict(TransactionRiskInput transaction);
         TransactionRiskEvaluationResult Evaluate();
         string Train();
+        string MLPredict(TransactionRiskInput transaction);
+        EdgeCaseEvaluationResult EvaluateEdgeCases();
     }
 }
