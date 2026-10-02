@@ -57,7 +57,7 @@ Qwen2.5-0.5B payment-incident model, same frozen 20-case eval set. First batchin
 
 Takeaway: batching was the strongest optimization — ~4.8× throughput with 20/20 output parity. INT4 delivered the highest raw throughput at lower memory but with heavy output drift; semantic evaluation (AI judge + human review) showed drift is not the same as degradation — 3/20 exact match, yet comparable quality to FP16. Decision: FP16 Batch 16 is the safest config. The honest finding carries over from fine-tuning: inference optimization cannot fix training weaknesses — ActionCorrect stayed poor (2–4/20) across every configuration.
 
-**ML lab: rules vs ML for transaction risk classification** ([full report](evaluations/risk-classification/chapter-01-results.json))
+**ML lab: rules vs ML for transaction risk classification** ([full report](evaluations/risk-classification/risk-classification-results.json))
 Payment-risk classifier: hand-written threshold rules vs ML.NET SDCA Maximum Entropy, same frozen datasets (300 train / 100 eval), seeded training.
 
 | Metric | Rules | ML |
