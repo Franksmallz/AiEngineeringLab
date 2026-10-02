@@ -11,9 +11,11 @@
     <Project Path="src/PaymentIncidentInferenceBenchmark/PaymentIncidentInferenceBenchmark.csproj" Id="dc8f64a2-bb67-43f3-a52d-46e9a1c3edf1" />
     <Project Path="src/RAGDEMO-Embeddings/RAGDEMO-Embeddings.csproj" Id="4783f680-1e54-4729-883c-e02737008209" />
     <Project Path="src/RAGDemo/RAGDemo.csproj" Id="72e4c7f3-e493-400f-8f94-ea387de45919" />
+    <Project Path="src/RiskClassificationLab/RiskClassificationLab.csproj" Id="5ce9518e-d233-40ef-bd8e-bb7f214bcc20" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FoundationalModel.API.Tests/FoundationalModel.API.Tests.csproj" />
+    <Project Path="tests/RiskClassificationLab.Tests/RiskClassificationLab.Tests.csproj" />
   </Folder>
   <Project Path="src/PaymentIncidentDatasetEngineering/PaymentIncidentDatasetEngineering.csproj" Id="3677e491-0336-40d7-896d-2d2a2ba5a69a" />
 </Solution>
