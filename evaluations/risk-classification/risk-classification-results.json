@@ -1,5 +1,5 @@
 {
-  "experiment": "DMLS Chapter 1 - Rules vs ML",
+  "experiment": "ML Lab - Rules vs ML transaction risk classification",
   "dataset": {
     "trainingSamples": 300,
     "evaluationSamples": 100,
