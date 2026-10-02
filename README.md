@@ -57,6 +57,18 @@ Qwen2.5-0.5B payment-incident model, same frozen 20-case eval set. First batchin
 
 Takeaway: batching was the strongest optimization — ~4.8× throughput with 20/20 output parity. INT4 delivered the highest raw throughput at lower memory but with heavy output drift; semantic evaluation (AI judge + human review) showed drift is not the same as degradation — 3/20 exact match, yet comparable quality to FP16. Decision: FP16 Batch 16 is the safest config. The honest finding carries over from fine-tuning: inference optimization cannot fix training weaknesses — ActionCorrect stayed poor (2–4/20) across every configuration.
 
+**DMLS Chapter 1: rules vs ML for transaction risk** ([full report](evaluations/risk-classification/chapter-01-results.json))
+Payment-risk classifier: hand-written threshold rules vs ML.NET SDCA Maximum Entropy, same frozen datasets (300 train / 100 eval), seeded training.
+
+| Metric | Rules | ML |
+|---|---:|---:|
+| Accuracy | 0.59 | 0.77 |
+| High-risk recall | 0.29 | 0.14 |
+| High-risk F1 | 0.40 | 0.18 |
+| Avg latency | 0.05 ms | 0.47 ms |
+
+Takeaway: ML wins overall accuracy but loses high-risk recall — the eval set is 68% Medium, so a naive always-Medium baseline already scores 68%; accuracy was never the right metric. Caveat: high-risk recall rests on 14 samples (2 vs 4 correct), so the gap is noisy at this size. Edge cases carry no ground-truth labels — behavioral differences alone don't establish which classifier is correct.
+
 Also in the lab: sampling-parameter experiments (temperature, top-p, max tokens, structured output, run-to-run consistency) in [`experiments/week-02`](experiments/week-02/), prompt versioning in [`experiments/week-05`](experiments/week-05/), and weekly reflection notes in [`docs`](docs/).
 
 ## Repository layout
