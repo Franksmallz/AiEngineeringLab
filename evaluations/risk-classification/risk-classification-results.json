@@ -1,0 +1,36 @@
+{
+  "experiment": "DMLS Chapter 1 - Rules vs ML",
+  "dataset": {
+    "trainingSamples": 300,
+    "evaluationSamples": 100,
+    "evaluationDistribution": {
+      "low": 18,
+      "medium": 68,
+      "high": 14
+    }
+  },
+  "rules": {
+    "accuracy": 0.59,
+    "highRiskRecall": 0.2857,
+    "highRiskF1": 0.4,
+    "averageLatencyMs": 0.052484,
+    "p95LatencyMs": 0.0026
+  },
+  "ml": {
+    "algorithm": "SDCA Maximum Entropy",
+    "accuracy": 0.77,
+    "highRiskRecall": 0.1429,
+    "highRiskF1": 0.1818,
+    "averageLatencyMs": 0.468148,
+    "p95LatencyMs": 0.0147
+  },
+  "observations": [
+    "The ML classifier achieved higher overall accuracy than the deterministic rules.",
+    "The ML classifier performed substantially worse on High-risk recall despite its higher overall accuracy.",
+    "The majority Medium class represented 68% of the evaluation dataset.",
+    "A naive always-Medium classifier would achieve 68% accuracy.",
+    "The ML classifier introduced additional inference latency compared with deterministic rules.",
+    "Deterministic rules exhibited explicit behavior changes around manually defined thresholds.",
+    "The edge-case experiment demonstrates behavioral differences but does not establish which classifier is correct because the edge cases do not have ground-truth labels."
+  ]
+}
