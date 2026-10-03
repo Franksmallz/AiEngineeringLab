@@ -11,5 +11,8 @@ namespace RiskClassificationLab.Services.Interfaces
         string Train();
         string MLPredict(TransactionRiskInput transaction);
         EdgeCaseEvaluationResult EvaluateEdgeCases();
+        TransactionRiskPrediction PredictWithScores(TransactionRiskInput input);
+        List<MetricsThreshold> EvaluateWithScores();
+        float[] HighRiskScores();
     }
 }

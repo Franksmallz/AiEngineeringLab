@@ -141,3 +141,20 @@ python finetuning/baseline.py
 ```
 
 The model is downloaded from Hugging Face on first run.
+
+### Objective & Metric Design
+
+Extended the transaction-risk classifier from Chapter 1 to explore
+business-aligned evaluation and decision thresholds.
+
+- Defined asymmetric costs for false positives and false negatives
+- Evaluated High-risk precision, recall, F1, and estimated business cost
+- Searched thresholds using actual model scores
+- Added a 40% review-capacity constraint
+- Selected the minimum-cost feasible decision threshold
+- Reduced synthetic estimated cost from $12,300 to $8,600 while
+  increasing High-risk recall from 14.3% to 50%
+
+**Key lesson:** model metrics, business objectives, and operational
+constraints are separate concerns. Production decision policies should
+optimize the business objective subject to real system constraints.

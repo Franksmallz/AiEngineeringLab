@@ -1,6 +1,7 @@
 ﻿using Microsoft.ML;
 using RiskClassificationLab.Models;
 using RiskClassificationLab.Services.Interfaces;
+using System.Transactions;
 
 namespace RiskClassificationLab.Services.Implementations.ML
 {
@@ -40,6 +41,23 @@ namespace RiskClassificationLab.Services.Implementations.ML
 
             return prediction.RiskLevel;
         }
+
+        public TransactionRiskPrediction PredictWithScores(TransactionRiskInput input)
+        {
+            var data = new TransactionRiskData
+            {
+                Amount = input.Amount,
+                TransactionHour = input.TransactionHour,
+                CustomerTransactionCount24h =
+                input.CustomerTransactionCount24h,
+                RecentFailureCount = input.RecentFailureCount,
+                BeneficiaryAgeDays = input.BeneficiaryAgeDays,
+                IsHighRiskCountry = input.IsHighRiskCountry
+            };
+
+            return _predictionEngine.Predict(data);
+        }
+
     }
 }
         

@@ -4,6 +4,8 @@ using RiskClassificationLab.Models;
 using RiskClassificationLab.Services.Interfaces;
 using RiskClassificationLab.Services.Interfaces.ML;
 using System.Diagnostics;
+using System.Xml;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RiskClassificationLab.Services.Implementations
 {
@@ -37,9 +39,9 @@ namespace RiskClassificationLab.Services.Implementations
 
             var (train, evaluation) = _datasetSplitter.Split(transactions);
 
-             _datasetWriter.CsvDatasetWriter(
-            "train.csv",
-            train);
+            _datasetWriter.CsvDatasetWriter(
+           "train.csv",
+           train);
 
             _datasetWriter.CsvDatasetWriter(
                 "evaluation.csv",
@@ -90,7 +92,7 @@ namespace RiskClassificationLab.Services.Implementations
             {
                 var predictionImplementation = _implementationResolverService.ResolveClassifier("Rules");
                 var sw = System.Diagnostics.Stopwatch.StartNew();
-                var rulesPrediction  = predictionImplementation.Predict(new TransactionRiskInput
+                var rulesPrediction = predictionImplementation.Predict(new TransactionRiskInput
                 {
                     IsHighRiskCountry = transaction.IsHighRiskCountry,
                     Amount = transaction.Amount,
@@ -103,7 +105,7 @@ namespace RiskClassificationLab.Services.Implementations
                 sw.Stop();
 
                 return (
-                
+
                     Actual: transaction.RiskLevel,
                     Predicted: rulesPrediction.ToString(),
                     Latency: sw.Elapsed.TotalMilliseconds
@@ -218,7 +220,7 @@ namespace RiskClassificationLab.Services.Implementations
             return "Model training completed successfully";
         }
 
-        private  ClassMetrics CalculateMetrics(
+        private ClassMetrics CalculateMetrics(
     string riskClass,
     IEnumerable<(string Actual, string Predicted, double Latency)> results)
         {
@@ -350,6 +352,135 @@ namespace RiskClassificationLab.Services.Implementations
                 }
             };
             return result;
+        }
+
+        public TransactionRiskPrediction PredictWithScores(TransactionRiskInput input)
+        {
+            var data = new TransactionRiskData
+            {
+                Amount = input.Amount,
+                TransactionHour = input.TransactionHour,
+                CustomerTransactionCount24h = input.CustomerTransactionCount24h,
+                RecentFailureCount = input.RecentFailureCount,
+                BeneficiaryAgeDays = input.BeneficiaryAgeDays,
+                IsHighRiskCountry = input.IsHighRiskCountry
+            };
+
+            var mlImplementation = _implementationResolverService.ResolveClassifier("ML");
+            return mlImplementation.PredictWithScores(input);
+        }
+
+        public List<MetricsThreshold> EvaluateWithScores()
+        {
+            var data = _datasetReader.Read("evaluation.csv").ToList();
+
+            var thresholds = HighRiskScores();
+            var metricsPerThreshold = new List<MetricsThreshold>();
+            foreach (var threshold in thresholds)
+            {
+                var metrics = CalculateMetricsForThreshold(data, threshold);
+                var totalFlagged = metrics.TP + metrics.FP;
+
+                var flagRate =
+                    (double)totalFlagged / data.Count;
+
+                var meetsConstraint = flagRate <= 0.40;
+                if(meetsConstraint)
+                {
+                    metricsPerThreshold.Add(new MetricsThreshold
+                    {
+                        Threshold = threshold,
+                        TP = metrics.TP,
+                        FP = metrics.FP,
+                        FN = metrics.FN,
+                        TN = metrics.TN,
+                        Precision = metrics.Precision,
+                        Recall = metrics.Recall,
+                        F1 = metrics.F1,
+                        BusinessCost = metrics.BusinessCost,
+                        flagRate = flagRate,
+                        meetsConstraints = meetsConstraint
+                    });
+                }
+            }
+
+            return metricsPerThreshold;
+
+        }
+
+        public (int TP, int FP, int FN, int TN, double Precision, double Recall, double F1, float BusinessCost) CalculateMetricsForThreshold(List<TransactionRiskData> data, float threshold)
+        {
+            var truePositive = 0;
+            var falsePositive = 0;
+            var falseNegative = 0;
+            var trueNegative = 0;
+            const float falseNegativeAmount = 1_000;
+            const float falsePositiveAmount = 50;
+            var mlPrediction = _implementationResolverService.ResolveClassifier("ML");
+            foreach (var transaction in data)
+            {
+                var rulesPrediction = mlPrediction.PredictWithScores(new TransactionRiskInput
+                {
+                    IsHighRiskCountry = transaction.IsHighRiskCountry,
+                    Amount = transaction.Amount,
+                    BeneficiaryAgeDays = transaction.BeneficiaryAgeDays,
+                    CustomerTransactionCount24h = transaction.CustomerTransactionCount24h,
+                    RecentFailureCount = transaction.RecentFailureCount,
+                    TransactionHour = transaction.TransactionHour
+                });
+
+                var highRiskScore = rulesPrediction.Score[1];
+                var predictedHighRisk = highRiskScore >= threshold;
+                var actuallyHighRisk = transaction.RiskLevel == "High";
+
+                if (actuallyHighRisk && predictedHighRisk) truePositive++;
+                else if (!actuallyHighRisk && predictedHighRisk) falsePositive++;
+                else if (actuallyHighRisk && !predictedHighRisk) falseNegative++;
+                else trueNegative++;
+            }
+
+            var precision = truePositive + falsePositive == 0
+                ? 0
+                : (double)truePositive / (truePositive + falsePositive);
+
+            var recall = truePositive + falseNegative == 0
+                ? 0
+                : (double)truePositive / (truePositive + falseNegative);
+
+            var f1 = precision + recall == 0
+                ? 0
+                : 2 * precision * recall / (precision + recall);
+
+            var businessCost = falseNegative * falseNegativeAmount + falsePositive * falsePositiveAmount;
+            return (truePositive, falsePositive, falseNegative, trueNegative, precision, recall, f1, businessCost);
+        }
+
+        public float[] HighRiskScores()
+        {
+            var data = _datasetReader.Read("evaluation.csv").ToList();
+
+            var mlPrediction = _implementationResolverService.ResolveClassifier("ML");
+            return  data.Select(transaction =>
+            {
+                var rulesPrediction = mlPrediction.PredictWithScores(new TransactionRiskInput
+                {
+                    IsHighRiskCountry = transaction.IsHighRiskCountry,
+                    Amount = transaction.Amount,
+                    BeneficiaryAgeDays = transaction.BeneficiaryAgeDays,
+                    CustomerTransactionCount24h = transaction.CustomerTransactionCount24h,
+                    RecentFailureCount = transaction.RecentFailureCount,
+                    TransactionHour = transaction.TransactionHour
+                });
+
+                return rulesPrediction.Score[1];
+
+            })
+            .Distinct()
+            .OrderBy(x => x)
+            .ToArray();
+
+
+
         }
     }
 }
