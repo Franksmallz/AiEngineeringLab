@@ -20,3 +20,5 @@ finetuning/outputs/*
 !finetuning/outputs/.gitkeep
 
 .venv/
+config.bat
+node_modules

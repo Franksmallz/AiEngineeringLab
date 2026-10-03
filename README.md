@@ -144,7 +144,7 @@ The model is downloaded from Hugging Face on first run.
 
 ### Objective & Metric Design
 
-Extended the transaction-risk classifier from Chapter 1 to explore
+Extended the transaction-risk classifier lab to explore
 business-aligned evaluation and decision thresholds.
 
 - Defined asymmetric costs for false positives and false negatives
