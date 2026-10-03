@@ -35,5 +35,10 @@ namespace RiskClassificationLab.Services.Implementations
                 _ => RiskLevel.Low.ToString()
             };
         }
+
+        public TransactionRiskPrediction PredictWithScores(TransactionRiskInput input)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

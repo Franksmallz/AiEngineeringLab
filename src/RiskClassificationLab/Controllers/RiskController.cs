@@ -62,6 +62,28 @@ namespace RiskClassificationLab.Controllers
             var result = _riskService.EvaluateEdgeCases();
             return Ok(result);
         }
+
+        [HttpPost("/risk/ml/scores")]
+        [Produces(typeof(TransactionRiskPrediction))]
+        public async Task<IActionResult> PredictWithScores(TransactionRiskInput input)
+        {
+            var result = _riskService.PredictWithScores(input);
+            return Ok(result);
+        }
+
+        [HttpPost("/evaluate/scores")]
+        public async Task<IActionResult> EvaluateWithScore()
+        {
+            var result = _riskService.EvaluateWithScores();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/scores")]
+        public async Task<IActionResult> HighRiskScores()
+        {
+            var result = _riskService.HighRiskScores();
+            return Ok(result);
+        }
     }
 
 }

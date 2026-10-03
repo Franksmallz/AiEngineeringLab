@@ -1,0 +1,49 @@
+{
+  "chapter": 2,
+  "experiment": "Objective, Metric and Threshold Design",
+  "businessObjective": "Reduce losses by detecting high-risk transactions while preventing flagging of legitimate transactions by the system",
+  "mlObjective": "Increase High-risk detection while controlling false-positive predictions for high-risk transactions.",
+  "assumptions": {
+    "falseNegativeCost": 1000,
+    "falsePositiveCost": 50,
+    "maxFlagRate": 0.40,
+    "note": "Costs and operational capacity are synthetic assumptions used for the experiment."
+  },
+  "baseline": {
+    "model": "Default multiclass decision",
+    "tp": 2,
+    "fp": 6,
+    "fn": 12,
+    "precision": 0.25,
+    "recall": 0.142857,
+    "f1": 0.181818,
+    "businessCost": 12300
+  },
+  "unconstrainedMinimumCost": {
+    "threshold": 0.002,
+    "tp": 13,
+    "fp": 80,
+    "fn": 1,
+    "tn": 6,
+    "precision": 0.139785,
+    "recall": 0.928571,
+    "f1": 0.242991,
+    "businessCost": 5000,
+    "flagRate": 0.93,
+    "meetsOperationalConstraint": false
+  },
+  "selectedPolicy": {
+    "threshold": 0.07525592,
+    "tp": 7,
+    "fp": 32,
+    "fn": 7,
+    "tn": 54,
+    "precision": 0.179487,
+    "recall": 0.5,
+    "f1": 0.264151,
+    "businessCost": 8600,
+    "flagRate": 0.39,
+    "meetsOperationalConstraint": true
+  },
+  "selectionRule": "Minimize estimated business cost subject to flagRate <= 0.40."
+}

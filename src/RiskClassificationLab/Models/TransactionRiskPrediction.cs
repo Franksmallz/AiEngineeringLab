@@ -6,5 +6,7 @@ namespace RiskClassificationLab.Models
     {
         [ColumnName("PredictedRiskLevel")]
         public string RiskLevel { get; set; } = string.Empty;
+        [ColumnName("Score")]
+        public float[] Score { get; set; } = [];
     }
 }

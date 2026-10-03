@@ -102,6 +102,74 @@ public sealed class RiskServiceTests
         Assert.Equal("ML", result.TransactionHourBoundary.Above.ML);
     }
 
+    [Fact]
+    public void PredictWithScores_uses_the_ml_classifier()
+    {
+        var expected = new TransactionRiskPrediction { RiskLevel = "High", Score = [0.2f, 0.8f] };
+        var resolver = new MappingResolver(new StubClassifier(), new StubClassifier(expected));
+        var service = CreateService(resolver: resolver);
+
+        var result = service.PredictWithScores(new TransactionRiskInput());
+
+        Assert.Same(expected, result);
+    }
+
+    [Fact]
+    public void Score_metrics_use_the_high_risk_score_and_business_costs()
+    {
+        var data = new List<TransactionRiskData>
+        {
+            new() { Amount = 1, RiskLevel = "High" },
+            new() { Amount = 2, RiskLevel = "Low" },
+            new() { Amount = 3, RiskLevel = "High" }
+        };
+        var resolver = new MappingResolver(
+            new StubClassifier(),
+            new AmountScoredClassifier(new Dictionary<float, float>
+            {
+                [1] = 0.9f,
+                [2] = 0.8f,
+                [3] = 0.2f
+            }));
+        var service = CreateService(new StubReader(data), resolver: resolver);
+
+        var metrics = service.CalculateMetricsForThreshold(data, 0.5f);
+
+        Assert.Equal((1, 1, 1, 0), (metrics.TP, metrics.FP, metrics.FN, metrics.TN));
+        Assert.Equal(0.5, metrics.Precision);
+        Assert.Equal(0.5, metrics.Recall);
+        Assert.Equal(0.5, metrics.F1);
+        Assert.Equal(1050, metrics.BusinessCost);
+        Assert.Equal([0.2f, 0.8f, 0.9f], service.HighRiskScores());
+    }
+
+    [Fact]
+    public void EvaluateWithScores_keeps_only_thresholds_within_review_capacity()
+    {
+        var data = new List<TransactionRiskData>
+        {
+            new() { Amount = 1, RiskLevel = "High" },
+            new() { Amount = 2, RiskLevel = "Low" },
+            new() { Amount = 3, RiskLevel = "High" }
+        };
+        var resolver = new MappingResolver(
+            new StubClassifier(),
+            new AmountScoredClassifier(new Dictionary<float, float>
+            {
+                [1] = 0.9f,
+                [2] = 0.8f,
+                [3] = 0.2f
+            }));
+        var service = CreateService(new StubReader(data), resolver: resolver);
+
+        var result = service.EvaluateWithScores();
+
+        var threshold = Assert.Single(result);
+        Assert.Equal(0.9f, threshold.Threshold);
+        Assert.True(threshold.meetsConstraints);
+        Assert.Equal(1d / 3, threshold.flagRate);
+    }
+
     private static RiskService CreateService(
         IDatasetReader? reader = null,
         IRiskDatasetGenerator? generator = null,
@@ -151,10 +219,33 @@ public sealed class RiskServiceTests
     private sealed class StubClassifier : IRiskClassifier
     {
         private readonly string _result;
+        private readonly TransactionRiskPrediction _prediction;
 
-        public StubClassifier(string result = "rules-result") => _result = result;
+        public StubClassifier(string result = "rules-result")
+        {
+            _result = result;
+            _prediction = new TransactionRiskPrediction { RiskLevel = result };
+        }
+
+        public StubClassifier(TransactionRiskPrediction prediction)
+        {
+            _result = prediction.RiskLevel;
+            _prediction = prediction;
+        }
 
         public string Predict(TransactionRiskInput input) => _result;
+        public TransactionRiskPrediction PredictWithScores(TransactionRiskInput input) => _prediction;
+    }
+
+    private sealed class AmountScoredClassifier(Dictionary<float, float> scores) : IRiskClassifier
+    {
+        public string Predict(TransactionRiskInput input) => "High";
+
+        public TransactionRiskPrediction PredictWithScores(TransactionRiskInput input) => new()
+        {
+            RiskLevel = scores[input.Amount] >= 0.5f ? "High" : "Low",
+            Score = [1 - scores[input.Amount], scores[input.Amount]]
+        };
     }
 
     private sealed class MappingResolver(IRiskClassifier rules, IRiskClassifier ml) : IImplementationResolverService
