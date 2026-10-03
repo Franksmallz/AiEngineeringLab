@@ -71,7 +71,7 @@ An unconstrained threshold search found that a threshold of `0.002` reduced esti
 
 However, it flagged 93% of evaluation set as High-risk.
 
-This would make the Objective impractical as a lot of transactions will be sent for additional additional review.
+This would make the Objective impractical as a lot of transactions will be sent for additional review.
 
 ## Operational Constraint
 
