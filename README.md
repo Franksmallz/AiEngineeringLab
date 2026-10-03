@@ -30,7 +30,7 @@ Takeaway: Sonnet scored higher, but Haiku delivered ~96% of the quality at rough
 
 Takeaway: embedding retrieval never lost a retrieval-relevance case (13 wins, 5 ties), with the biggest gains on semantically paraphrased questions. Keyword retrieval still held its own on direct lexical matches, and generation cost differed by only ~2%.
 
-**Fine-tuning: dataset quality, V1 vs V2** ([full report](docs/dataset_engineering_summary.md))
+**Dataset engineering: V1 vs V2** ([full report](docs/dataset_engineering_summary.md))
 50 payment-incident examples across 10 categories each, trained on Qwen2.5-0.5B. V1 used full-sequence loss; V2 added scenario/action diversity, context-sensitive retryability, and response-only loss (prompt tokens masked). Both evaluated on the same frozen 20-case set with manual per-case scoring.
 
 | Metric | V1 | V2 |
@@ -56,6 +56,11 @@ Qwen2.5-0.5B payment-incident model, same frozen 20-case eval set. First batchin
 | Action correct (semantic) | 2/20 | 2/20 | 4/20 | 4/20 |
 
 Takeaway: batching was the strongest optimization — ~4.8× throughput with 20/20 output parity. INT4 delivered the highest raw throughput at lower memory but with heavy output drift; semantic evaluation (AI judge + human review) showed drift is not the same as degradation — 3/20 exact match, yet comparable quality to FP16. Decision: FP16 Batch 16 is the safest config. The honest finding carries over from fine-tuning: inference optimization cannot fix training weaknesses — ActionCorrect stayed poor (2–4/20) across every configuration.
+
+**Feedback system: closing the loop** ([design record](docs/ADR-001-production-inference-and-feedback-architecture.md))
+Production feedback pipeline on the payment-incident system: incorrect model outputs are captured, pass through human review, and only approved corrections become versioned training examples — user feedback is never treated as training data automatically. Every future dataset traces back to the production events that generated it, with full lineage from inference record to dataset version.
+
+Takeaway: the loop is what makes the system improvable over time, not just measurable once. Built into the main system, deployed to RunPod, and tested end to end.
 
 **ML lab: rules vs ML for transaction risk classification** ([full report](evaluations/risk-classification/risk-classification-results.json))
 Payment-risk classifier: hand-written threshold rules vs ML.NET SDCA Maximum Entropy, same frozen datasets (300 train / 100 eval), seeded training.
