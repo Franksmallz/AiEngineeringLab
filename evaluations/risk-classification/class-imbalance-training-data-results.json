@@ -1,0 +1,128 @@
+{
+  "chapter": 4,
+  "title": "Training Data",
+  "experiment": "Data-Centric Improvement of Payment Risk Classification",
+  "question": "Can High-risk classification performance be improved by changing only the training data while keeping the model, features, training configuration, and evaluation set unchanged?",
+  "controls": {
+    "model": "ML.NET SDCA Maximum Entropy",
+    "featuresChanged": false,
+    "trainingConfigurationChanged": false,
+    "evaluationSetChanged": false,
+    "evaluationSetSize": 100,
+    "evaluationDistribution": {
+      "Low": 18,
+      "Medium": 68,
+      "High": 14
+    }
+  },
+  "baselineTrainingData": {
+    "total": 300,
+    "distribution": {
+      "Low": 54,
+      "Medium": 204,
+      "High": 42
+    }
+  },
+  "baseline": {
+    "accuracy": 0.77,
+    "highRisk": {
+      "truePositive": 2,
+      "falsePositive": 6,
+      "falseNegative": 12,
+      "precision": 0.25,
+      "recall": 0.142857,
+      "f1": 0.181818
+    }
+  },
+  "experiments": [
+    {
+      "name": "Random High-Risk Oversampling",
+      "description": "Randomly duplicated existing High-risk training examples until the High class matched the Medium class.",
+      "randomSeed": 42,
+      "trainingSetSize": 462,
+      "distribution": {
+        "Low": 54,
+        "Medium": 204,
+        "High": 204
+      },
+      "uniqueHighRiskExamples": 42,
+      "results": {
+        "accuracy": 0.52,
+        "highRisk": {
+          "truePositive": 9,
+          "falsePositive": 38,
+          "falseNegative": 5,
+          "precision": 0.191489,
+          "recall": 0.642857,
+          "f1": 0.295082
+        }
+      }
+    },
+    {
+      "name": "Additional Unique High-Risk Data",
+      "description": "Generated new transactions using the original synthetic labeling process and retained newly generated High-risk transactions until 162 additional High-risk examples had been collected. These were added to the original 42 High-risk examples.",
+      "trainingSetSize": 462,
+      "distribution": {
+        "Low": 54,
+        "Medium": 204,
+        "High": 204
+      },
+      "uniqueHighRiskExamples": 204,
+      "results": {
+        "accuracy": 0.43,
+        "predictedHighCount": 70,
+        "highRisk": {
+          "truePositive": 10,
+          "falsePositive": 60,
+          "falseNegative": 4,
+          "precision": 0.142857,
+          "recall": 0.714286,
+          "f1": 0.238095
+        },
+        "confusionMatrix": {
+          "actualMedium": {
+            "predictedLow": 0,
+            "predictedMedium": 27,
+            "predictedHigh": 41
+          },
+          "actualHigh": {
+            "predictedLow": 0,
+            "predictedMedium": 4,
+            "predictedHigh": 10
+          },
+          "actualLow": {
+            "predictedLow": 4,
+            "predictedMedium": 5,
+            "predictedHigh": 9
+          }
+        }
+      }
+    }
+  ],
+  "trainingErrorAnalysis": {
+    "totalHighRiskTrainingExamples": 42,
+    "misclassifiedHighRiskExamples": 39,
+    "correctlyClassifiedHighRiskExamples": 3,
+    "highRiskTrainingRecall": 0.071429,
+    "misclassificationDistribution": {
+      "predictedMedium": 38,
+      "predictedLow": 1
+    }
+  },
+  "findings": [
+    "High-risk examples are underrepresented in the original training data.",
+    "Increasing High-risk representation substantially increased High-risk recall but reduced overall accuracy because the model produced many more High-risk false positives.",
+    "Random oversampling increased High-risk recall from 14.3% to 64.3%.",
+    "Adding unique High-risk examples increased High-risk recall further to 71.4%, but the model predicted High for 70% of the evaluation set and accuracy fell to 43%.",
+    "Additional unique minority-class data improved coverage of High-risk cases, but heavily changing the training class distribution also shifted the model toward over-predicting High.",
+    "The baseline model misclassified 39 of its 42 High-risk training examples, indicating that data quantity is unlikely to be the only bottleneck.",
+    "The High-risk class is produced by multiple combinations of features, including an explicit feature interaction in the synthetic data-generating process.",
+    "Further improvement may require model or feature-representation changes rather than additional training-data balancing alone."
+  ],
+  "limitations": [
+    "The evaluation set contains only 14 High-risk examples, so each High-risk prediction changes recall by approximately 7.1 percentage points.",
+    "The dataset is synthetic and results should not be interpreted as real-world fraud or payment-risk performance.",
+    "The unique-data experiment intentionally changes the composition of the training set by adding only High-risk examples. Its results therefore demonstrate the effect of targeted minority-class data collection, not the effect of increasing the overall dataset uniformly."
+  ],
+  "conclusion": "Training-data interventions substantially increased High-risk recall, demonstrating that class representation and data coverage affect model behavior. Random oversampling raised High-risk recall to 64.3%, while adding unique High-risk examples raised it to 71.4%. However, both interventions increased false positives and reduced aggregate accuracy, with the unique-data model predicting High for 70% of the evaluation set. The results show that improving minority-class coverage can improve sensitivity while simultaneously distorting the model's decision behavior when the training distribution is heavily altered. Error analysis also showed that the baseline model failed on diverse High-risk patterns already present in its own training data, suggesting that further gains may require model or feature-representation changes."
+}

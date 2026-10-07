@@ -16,7 +16,7 @@ namespace RiskClassificationLab.Services.Implementations.ML
             var mlContext = new MLContext();
             var directory = resolver.ResolveConfiguredPath("models");
             var model = mlContext.Model.Load(
-                Path.Combine(directory, "risk-classifier.zip"),
+                Path.Combine(directory, "oversampled_model_improvedV2.zip"),
                 out _);
 
             _predictionEngine =

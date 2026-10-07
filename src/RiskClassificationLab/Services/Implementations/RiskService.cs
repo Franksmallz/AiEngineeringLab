@@ -17,13 +17,15 @@ namespace RiskClassificationLab.Services.Implementations
         private readonly IDatasetReader _datasetReader;
         private readonly IModelTrainer _modelTrainer;
         private readonly IImplementationResolverService _implementationResolverService;
+        private readonly IDatasetProfiler _datasetProfiler;
 
         public RiskService(IRiskDatasetGenerator riskDatasetGenerator,
             IDatasetSplitter datasetSplitter,
             IDatasetWriter datasetWriter,
             IDatasetReader datasetReader,
             IModelTrainer modelTrainer,
-            IImplementationResolverService implementationResolverService)
+            IImplementationResolverService implementationResolverService,
+            IDatasetProfiler datasetProfiler)
         {
             _riskDatasetGenerator = riskDatasetGenerator;
             _datasetSplitter = datasetSplitter;
@@ -31,6 +33,7 @@ namespace RiskClassificationLab.Services.Implementations
             _datasetReader = datasetReader;
             _modelTrainer = modelTrainer;
             _implementationResolverService = implementationResolverService;
+            _datasetProfiler = datasetProfiler;
         }
 
         public TransactionRiskDataResult Generate()
@@ -481,6 +484,156 @@ namespace RiskClassificationLab.Services.Implementations
 
 
 
+        }
+
+        public List<ClassProfile> ProfileDataset()
+        {
+            var data = _datasetReader.Read("train.csv").ToList();
+            var profile = _datasetProfiler.ProfileDataset(data);
+            return profile;
+        }
+
+        public List<TransactionRiskPredictionEvaluation> EvaluateHighRiskOversampling()
+        {
+            var data = _datasetReader.Read("train.csv").ToList();
+            var oversampledData = _riskDatasetGenerator.OversampleHighRisk(data);
+
+            _datasetWriter.CsvDatasetWriter(
+                "train_oversampled.csv",
+                oversampledData);
+            _modelTrainer.Train("train_oversampled.csv", "oversampled_model.zip");
+
+            var evalData = _datasetReader.Read("evaluation.csv").ToList();
+
+
+            var mlPrediction = _implementationResolverService.ResolveClassifier("ML");
+            return evalData.Select(transaction =>
+            {
+                var rulesPrediction = mlPrediction.Predict(new TransactionRiskInput
+                {
+                    IsHighRiskCountry = transaction.IsHighRiskCountry,
+                    Amount = transaction.Amount,
+                    BeneficiaryAgeDays = transaction.BeneficiaryAgeDays,
+                    CustomerTransactionCount24h = transaction.CustomerTransactionCount24h,
+                    RecentFailureCount = transaction.RecentFailureCount,
+                    TransactionHour = transaction.TransactionHour
+                });
+
+                return new TransactionRiskPredictionEvaluation
+                {
+                    Actual = transaction.RiskLevel,
+                    Predicted = rulesPrediction
+                };
+
+            }).ToList();
+
+        }
+
+
+        public SuspiciousTransactions FindSuspiciousTransactions()
+        {
+            var data = _datasetReader.Read("train.csv").ToList();
+
+            var suspiciousMedium = data.Where(x => x.RiskLevel == "Medium"
+            && x.RecentFailureCount >= 2 && x.IsHighRiskCountry).ToList();
+
+            var suspiciousHigh = data.Where(x => x.RiskLevel == "High"
+            && x.RecentFailureCount <= 1 && !x.IsHighRiskCountry).ToList();
+
+            return new SuspiciousTransactions
+            {
+                SuspiciousMedium = new() { Records = suspiciousMedium, TotalCount = suspiciousMedium.Count },
+                SuspiciousHigh = new() { Records = suspiciousHigh, TotalCount = suspiciousHigh.Count }
+            };
+        }
+
+        public List<TransactionRiskPredictionEvaluation> EvaluateRandomHighRiskAugmentation()
+        {
+            var data = _datasetReader.Read("train.csv").ToList();
+            var additionalHigh = new List<TransactionRiskData>();
+
+            while (additionalHigh.Count < 162)
+            {
+                var transaction = _riskDatasetGenerator.GenerateRandomTransaction();
+
+                if (transaction.RiskLevel == "High")
+                {
+                    additionalHigh.Add(transaction);
+                }
+            }
+
+            var improvedTrainingData = data
+                .Concat(additionalHigh)
+                .ToList();
+
+            _datasetWriter.CsvDatasetWriter(
+                "train_oversampled_improvedv2.csv",
+                improvedTrainingData);
+            _modelTrainer.Train("train_oversampled_improvedv2.csv", "oversampled_model_improvedV2.zip");
+
+            var evalData = _datasetReader.Read("evaluation.csv").ToList();
+
+
+            var mlPrediction = _implementationResolverService.ResolveClassifier("ML");
+            return evalData.Select(transaction =>
+            {
+                var rulesPrediction = mlPrediction.Predict(new TransactionRiskInput
+                {
+                    IsHighRiskCountry = transaction.IsHighRiskCountry,
+                    Amount = transaction.Amount,
+                    BeneficiaryAgeDays = transaction.BeneficiaryAgeDays,
+                    CustomerTransactionCount24h = transaction.CustomerTransactionCount24h,
+                    RecentFailureCount = transaction.RecentFailureCount,
+                    TransactionHour = transaction.TransactionHour
+                });
+
+                return new TransactionRiskPredictionEvaluation
+                {
+                    Actual = transaction.RiskLevel,
+                    Predicted = rulesPrediction
+                };
+
+            }).ToList();
+
+        }
+
+        public List<TransactionRiskPredictionEvaluationWithRecord> FindHighRiskFalseNegatives()
+        {
+            var data = _datasetReader.Read("train.csv").ToList();
+
+            var result = new List<TransactionRiskPredictionEvaluationWithRecord>();
+
+            var mlPrediction = _implementationResolverService.ResolveClassifier("ML");
+            var selectedData = data.Select(transaction =>
+            {
+                var rulesPrediction = mlPrediction.Predict(new TransactionRiskInput
+                {
+                    IsHighRiskCountry = transaction.IsHighRiskCountry,
+                    Amount = transaction.Amount,
+                    BeneficiaryAgeDays = transaction.BeneficiaryAgeDays,
+                    CustomerTransactionCount24h = transaction.CustomerTransactionCount24h,
+                    RecentFailureCount = transaction.RecentFailureCount,
+                    TransactionHour = transaction.TransactionHour
+                });
+
+                if(transaction.RiskLevel == "High" && rulesPrediction != "High")
+                {
+                    result.Add(new TransactionRiskPredictionEvaluationWithRecord
+                    {
+                        Actual = transaction.RiskLevel,
+                        Predicted = rulesPrediction,
+                        Data = transaction
+                    });
+                }
+                return new TransactionRiskPredictionEvaluation
+                {
+                    Actual = transaction.RiskLevel,
+                    Predicted = rulesPrediction
+                };
+
+            }).ToList();
+
+            return result;
         }
     }
 }
