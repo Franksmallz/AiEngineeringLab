@@ -14,5 +14,10 @@ namespace RiskClassificationLab.Services.Interfaces
         TransactionRiskPrediction PredictWithScores(TransactionRiskInput input);
         List<MetricsThreshold> EvaluateWithScores();
         float[] HighRiskScores();
+        List<ClassProfile> ProfileDataset();
+        List<TransactionRiskPredictionEvaluation> EvaluateHighRiskOversampling();
+        SuspiciousTransactions FindSuspiciousTransactions();
+        List<TransactionRiskPredictionEvaluation> EvaluateRandomHighRiskAugmentation();
+        List<TransactionRiskPredictionEvaluationWithRecord> FindHighRiskFalseNegatives();
     }
 }
