@@ -1,4 +1,4 @@
-﻿namespace RiskClassificationLab.Models
+namespace RiskClassificationLab.Models
 {
     public record FeatureStats(
      double Mean,
