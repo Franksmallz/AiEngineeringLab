@@ -84,6 +84,41 @@ namespace RiskClassificationLab.Controllers
             var result = _riskService.HighRiskScores();
             return Ok(result);
         }
+
+        [HttpPost("/risk/profile-dataset")]
+        public async Task<IActionResult> ProfileRiskDataset()
+        {
+            var result = _riskService.ProfileDataset();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/evaluate-high-risk-oversampling")]
+        public async Task<IActionResult> EvaluateHighRiskOversampling()
+        {
+            var result = _riskService.EvaluateHighRiskOversampling();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/suspicious-transactions")]
+        public async Task<IActionResult> FindSuspiciousTransactions()
+        {
+            var result = _riskService.FindSuspiciousTransactions();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/evaluate-random-high-risk-augmentation")]
+        public async Task<IActionResult> EvaluateRandomHighRiskAugmentation()
+        {
+            var result = _riskService.EvaluateRandomHighRiskAugmentation();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/high-risk-false-negatives")]
+        public async Task<IActionResult> FindHighRiskFalseNegatives()
+        {
+            var result = _riskService.FindHighRiskFalseNegatives();
+            return Ok(result);
+        }
     }
 
 }

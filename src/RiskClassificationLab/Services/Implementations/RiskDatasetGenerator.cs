@@ -22,6 +22,34 @@ namespace RiskClassificationLab.Services.Implementations
             return transactions;
         }
 
+        public TransactionRiskData GenerateRandomTransaction()
+        {
+
+            var transaction = GenerateTransaction();
+
+            transaction.RiskLevel = DetermineRiskLevel(transaction);
+
+            return transaction;
+        }
+
+        public List<TransactionRiskData> OversampleHighRisk(List<TransactionRiskData> trainingData)
+        {
+            var highRiskRows = trainingData.
+                Where(x => x.RiskLevel == "High").ToList();
+
+            var targetHighCount = trainingData.Count(x => x.RiskLevel == "Medium");
+
+            var additionalNeeded = Math.Max(0, targetHighCount - highRiskRows.Count);
+
+            var oversampledHighRows = Enumerable
+                .Range(0, additionalNeeded)
+                .Select(_ => highRiskRows[_random.Next(highRiskRows.Count)])
+                .ToList();
+
+            var improvedTrainingData = trainingData.Concat(oversampledHighRows).ToList();
+            return improvedTrainingData;
+        }
+
         private string DetermineRiskLevel(TransactionRiskData transaction)
         {
             var score = 0.0;

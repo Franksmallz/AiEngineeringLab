@@ -170,23 +170,107 @@ public sealed class RiskServiceTests
         Assert.Equal(1d / 3, threshold.flagRate);
     }
 
+    [Fact]
+    public void ProfileRiskDataset_delegates_to_the_dataset_profiler()
+    {
+        var expected = new List<ClassProfile>
+        {
+            new("High", 1, new(10, 10, 10), new(1, 1, 1), new(2, 2, 2), new(0, 0, 0), new(30, 30, 30), 1)
+        };
+        var profiler = new CapturingProfiler(expected);
+        var service = CreateService(new StubReader([new() { RiskLevel = "High" }]), profiler: profiler);
+
+        var result = service.ProfileDataset();
+
+        Assert.Same(expected, result);
+        Assert.Single(profiler.ReceivedData);
+    }
+
+    [Fact]
+    public void EvaluateHighRiskOversampling_writes_data_trains_model_and_evaluates_it()
+    {
+        var writer = new CapturingWriter();
+        var trainer = new CapturingTrainer();
+        var reader = new FileAwareReader(
+            [new() { RiskLevel = "Medium" }],
+            [new() { RiskLevel = "High" }]);
+        var resolver = new MappingResolver(new StubClassifier(), new StubClassifier("High"));
+        var service = CreateService(reader, new StubGenerator([]), writer, trainer, resolver);
+
+        var result = service.EvaluateHighRiskOversampling();
+
+        var evaluation = Assert.Single(result);
+        Assert.Equal("High", evaluation.Actual);
+        Assert.Equal("High", evaluation.Predicted);
+        Assert.Equal(["train_oversampled.csv"], writer.Filenames);
+        Assert.Equal(("train_oversampled.csv", "oversampled_model.zip"), trainer.Request);
+    }
+
+    [Fact]
+    public void FindSuspiciousTransactions_separates_medium_and_high_rule_exceptions()
+    {
+        var reader = new StubReader([
+            new() { RiskLevel = "Medium", RecentFailureCount = 2, IsHighRiskCountry = true },
+            new() { RiskLevel = "High", RecentFailureCount = 1, IsHighRiskCountry = false },
+            new() { RiskLevel = "High", RecentFailureCount = 2, IsHighRiskCountry = false }
+        ]);
+        var service = CreateService(reader);
+
+        var result = service.FindSuspiciousTransactions();
+
+        Assert.Equal(1, result.SuspiciousMedium.TotalCount);
+        Assert.Equal(1, result.SuspiciousHigh.TotalCount);
+    }
+
+    [Fact]
+    public void FindHighRiskFalseNegatives_returns_only_actual_high_rows_not_predicted_high()
+    {
+        var reader = new StubReader([
+            new() { Amount = 1, RiskLevel = "High" },
+            new() { Amount = 2, RiskLevel = "High" },
+            new() { Amount = 3, RiskLevel = "Medium" }
+        ]);
+        var resolver = new MappingResolver(
+            new StubClassifier(),
+            new AmountPredictionClassifier(new Dictionary<float, string>
+            {
+                [1] = "Low",
+                [2] = "High",
+                [3] = "Low"
+            }));
+        var service = CreateService(reader, resolver: resolver);
+
+        var result = service.FindHighRiskFalseNegatives();
+
+        var falseNegative = Assert.Single(result);
+        Assert.Equal("High", falseNegative.Actual);
+        Assert.Equal("Low", falseNegative.Predicted);
+        Assert.Equal(1, falseNegative.Data.Amount);
+    }
+
     private static RiskService CreateService(
         IDatasetReader? reader = null,
         IRiskDatasetGenerator? generator = null,
         IDatasetWriter? writer = null,
         IModelTrainer? trainer = null,
-        IImplementationResolverService? resolver = null) =>
+        IImplementationResolverService? resolver = null,
+        IDatasetProfiler? profiler = null) =>
         new(
             generator ?? new StubGenerator([]),
             new DatasetSplitter(),
             writer ?? new CapturingWriter(),
             reader ?? new StubReader([]),
             trainer ?? new CapturingTrainer(),
-            resolver ?? new CapturingResolver());
+            resolver ?? new CapturingResolver(),
+            profiler ?? new DatasetProfiler());
 
     private sealed class StubGenerator(List<TransactionRiskData> transactions) : IRiskDatasetGenerator
     {
         public List<TransactionRiskData> Generate(int count) => transactions;
+        public List<TransactionRiskData> OversampleHighRisk(List<TransactionRiskData> trainingData) =>
+            trainingData.Concat(trainingData.Where(x => x.RiskLevel == "High")).ToList();
+        public TransactionRiskData GenerateRandomTransaction() =>
+            transactions.FirstOrDefault() ?? new TransactionRiskData { RiskLevel = "High" };
     }
 
     private sealed class CapturingWriter : IDatasetWriter
@@ -204,6 +288,24 @@ public sealed class RiskServiceTests
     private sealed class StubReader(List<TransactionRiskData> data) : IDatasetReader
     {
         public IEnumerable<TransactionRiskData> Read(string filename) => data;
+    }
+
+    private sealed class FileAwareReader(
+        List<TransactionRiskData> training,
+        List<TransactionRiskData> evaluation) : IDatasetReader
+    {
+        public IEnumerable<TransactionRiskData> Read(string filename) =>
+            filename == "evaluation.csv" ? evaluation : training;
+    }
+
+    private sealed class CapturingProfiler(List<ClassProfile> profile) : IDatasetProfiler
+    {
+        public List<TransactionRiskData> ReceivedData { get; private set; } = [];
+        public List<ClassProfile> ProfileDataset(List<TransactionRiskData> data)
+        {
+            ReceivedData = data;
+            return profile;
+        }
     }
 
     private sealed class CapturingResolver : IImplementationResolverService
@@ -245,6 +347,16 @@ public sealed class RiskServiceTests
         {
             RiskLevel = scores[input.Amount] >= 0.5f ? "High" : "Low",
             Score = [1 - scores[input.Amount], scores[input.Amount]]
+        };
+    }
+
+    private sealed class AmountPredictionClassifier(Dictionary<float, string> predictions) : IRiskClassifier
+    {
+        public string Predict(TransactionRiskInput input) => predictions[input.Amount];
+        public TransactionRiskPrediction PredictWithScores(TransactionRiskInput input) => new()
+        {
+            RiskLevel = predictions[input.Amount],
+            Score = [0, 0]
         };
     }
 
