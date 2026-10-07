@@ -1,4 +1,4 @@
-﻿using Microsoft.ML;
+using Microsoft.ML;
 using RiskClassificationLab.Models;
 using RiskClassificationLab.Services.Interfaces;
 using System.Transactions;
@@ -16,7 +16,7 @@ namespace RiskClassificationLab.Services.Implementations.ML
             var mlContext = new MLContext();
             var directory = resolver.ResolveConfiguredPath("models");
             var model = mlContext.Model.Load(
-                Path.Combine(directory, "oversampled_model_improvedV2.zip"),
+                Path.Combine(directory, "risk-classifier.zip"),
                 out _);
 
             _predictionEngine =
