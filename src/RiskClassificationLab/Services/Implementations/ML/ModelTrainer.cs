@@ -1,4 +1,4 @@
-﻿using Microsoft.ML;
+using Microsoft.ML;
 using Microsoft.ML.Data;
 using RiskClassificationLab.Models;
 using RiskClassificationLab.Services.Interfaces;
@@ -24,6 +24,8 @@ namespace RiskClassificationLab.Services.Implementations.ML
 
             if (File.Exists(modelPath))
             {
+                // Model already trained for this dataset — skip retraining.
+                // Delete the model file to force a fresh training run.
                 return;
             }
 
