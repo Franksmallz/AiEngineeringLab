@@ -1,4 +1,4 @@
-﻿using Microsoft.ML;
+using Microsoft.ML;
 using RiskClassificationLab.Models;
 using RiskClassificationLab.Services.Interfaces;
 using System.Transactions;

@@ -1,4 +1,4 @@
-﻿using Microsoft.ML;
+using Microsoft.ML;
 using Microsoft.ML.Data;
 using RiskClassificationLab.Models;
 using RiskClassificationLab.Services.Interfaces;
@@ -19,6 +19,15 @@ namespace RiskClassificationLab.Services.Implementations.ML
         public void Train(string filename, string Modelfilename)
         {
             var directory = _pathResolver.ResolveConfiguredPath("data/risk-classification");
+            var modelDirectory = _pathResolver.ResolveConfiguredPath("models");
+            var modelPath = Path.Combine(modelDirectory, Modelfilename);
+
+            if (File.Exists(modelPath))
+            {
+                // Model already trained for this dataset — skip retraining.
+                // Delete the model file to force a fresh training run.
+                return;
+            }
 
             var data = _mlContext.Data.LoadFromTextFile<TransactionRiskData>(
            Path.Combine(directory, filename),
@@ -50,10 +59,8 @@ namespace RiskClassificationLab.Services.Implementations.ML
             .MapKeyToValue(
                 outputColumnName: "PredictedRiskLevel",
                 inputColumnName: "PredictedLabel"));
-
-            var model = pipeline.Fit(data);
-            var modelDirectory = _pathResolver.ResolveConfiguredPath("models");
-            var modelPath = Path.Combine(modelDirectory, Modelfilename);
+            var shuffledData = _mlContext.Data.ShuffleRows(data, seed: 42);
+            var model = pipeline.Fit(shuffledData);
 
             _mlContext.Model.Save(
             model,
