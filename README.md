@@ -74,6 +74,18 @@ Payment-risk classifier: hand-written threshold rules vs ML.NET SDCA Maximum Ent
 
 Takeaway: ML wins overall accuracy but loses high-risk recall — the eval set is 68% Medium, so a naive always-Medium baseline already scores 68%; accuracy was never the right metric. Caveat: high-risk recall rests on 14 samples (2 vs 4 correct), so the gap is noisy at this size. Edge cases carry no ground-truth labels — behavioral differences alone don't establish which classifier is correct.
 
+**ML lab: model optimization for transaction risk (DMLS Chapter 6)** ([write-up](docs/dmls/chapter-06.md), [results](evaluations/risk-classification/chapter-06-results.json))
+5,000 training / 1,000 held-out records, stratified 5-fold cross-validation, business cost = FN × $1,000 + FP × $50. Compared SDCA and LightGBM, engineered features, normalization, learning curves, and nested threshold selection.
+
+| Stage | High recall | High precision | Business cost |
+|---|---:|---:|---:|
+| SDCA, raw features (CV) | 2.2% | 2.6% | $228,550 |
+| SDCA, 10 features, normalized (CV) | 74.6% | 89.8% | $57,950 |
+| + nested threshold (CV) | 100% | 57.9% | $8,150 |
+| Frozen model + threshold, test set (1,000) | 100% (44/44) | 61.1% | $1,400 |
+
+Takeaway: normalization, not the model family, was SDCA's limit, and a cost-based threshold beat F1-based choices. The held-out test result matched the nested estimate. Caveat: the data is synthetic, and the engineered features copy the label rules.
+
 Also in the lab: sampling-parameter experiments (temperature, top-p, max tokens, structured output, run-to-run consistency) in [`experiments/week-02`](experiments/week-02/), prompt versioning in [`experiments/week-05`](experiments/week-05/), and weekly reflection notes in [`docs`](docs/).
 
 ## Repository layout
