@@ -99,5 +99,16 @@ public sealed class RiskControllerTests
         public SuspiciousTransactions FindSuspiciousTransactions() => suspicious;
         public List<TransactionRiskPredictionEvaluation> EvaluateRandomHighRiskAugmentation() => augmentation;
         public List<TransactionRiskPredictionEvaluationWithRecord> FindHighRiskFalseNegatives() => falseNegatives;
+        public LargeDatasetResult GenerateLargeDataset() => new();
+        public CrossValidationFoldsResult ValidateCrossValidationFolds() => new();
+        public CrossValidationEvaluationResult EvaluateSdcaCrossValidation() => new();
+        public CrossValidationEvaluationResult EvaluateLightGbmCrossValidation() => new();
+        public CrossValidationEvaluationResult EvaluateSdcaEngineeredCrossValidation() => new();
+        public CrossValidationEvaluationResult EvaluateSdcaEngineeredNormalizedCrossValidation() => new();
+        public CrossValidationEvaluationResult EvaluateSdcaNormalizedCrossValidation() => new();
+        public LearningCurveResult EvaluateLearningCurves() => new();
+        public ThresholdEvaluationResult EvaluateSdcaNestedThreshold() => new();
+        public ModelSelectionResult SelectFinalModel() => new();
+        public FinalTestResult EvaluateFinalModelOnTestSet() => new();
     }
 }
