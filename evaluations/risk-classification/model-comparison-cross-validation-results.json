@@ -1,0 +1,547 @@
+{
+  "chapter": 6,
+  "title": "Model Optimization",
+  "step": "3-6 - SDCA baseline, LightGBM, and the 2x2 SDCA comparison (6 or 10 features, with or without normalization), 5-fold cross-validation",
+  "question": "Can a tree-based model learn the underlying risk relationships better than SDCA without sacrificing precision?",
+  "controls": {
+    "dataset": "data/risk-classification/chapter-06/train-5000.csv",
+    "testSetUsed": false,
+    "folds": "DatasetSplitter.StratifiedKFold, 5 folds, seed 42",
+    "features": [
+      "Amount",
+      "TransactionHour",
+      "CustomerTransactionCount24h",
+      "RecentFailureCount",
+      "BeneficiaryAgeDays",
+      "IsHighRiskCountry"
+    ],
+    "featureScaling": "none, except sdcaNormalized and sdcaEngineeredNormalized",
+    "predictionRule": "default class prediction (highest score); no threshold tuning",
+    "aggregation": "metrics from all 5,000 out-of-fold predictions together, not averaged per fold",
+    "businessCost": "FN x $1,000 + FP x $50",
+    "scoreOrdering": [
+      "Low",
+      "Medium",
+      "High"
+    ]
+  },
+  "environment": {
+    "targetFramework": "net10.0",
+    "dotnetSdk": "10.0.401",
+    "packages": {
+      "Microsoft.ML": "5.0.0",
+      "Microsoft.ML.LightGbm": "5.0.0",
+      "LightGBM (native)": "4.6.0"
+    }
+  },
+  "models": {
+    "sdca": {
+      "trainer": "SdcaMaximumEntropy",
+      "options": {
+        "NumberOfThreads": 1,
+        "other": "ML.NET defaults"
+      },
+      "reproducibility": "single-threaded; two full runs gave byte-identical predictions. The earlier multi-threaded baseline (59.46%, TP 3 / FP 129 / FN 221) varied on every run and is discarded.",
+      "predictionsFile": "evaluations/risk-classification/sdca-cross-validation-predictions.csv",
+      "aggregate": {
+        "accuracy": 0.5938,
+        "highPrecision": 0.0255,
+        "highRecall": 0.0223,
+        "highF1": 0.0238,
+        "truePositives": 5,
+        "falsePositives": 191,
+        "falseNegatives": 219,
+        "businessCost": 228550,
+        "highFlagRate": 0.0392,
+        "confusionMatrix": {
+          "Low": {
+            "Low": 1738,
+            "Medium": 717,
+            "High": 112
+          },
+          "Medium": {
+            "Low": 904,
+            "Medium": 1226,
+            "High": 79
+          },
+          "High": {
+            "Low": 42,
+            "Medium": 177,
+            "High": 5
+          }
+        }
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "accuracy": 0.623,
+          "tp": 1,
+          "fn": 44,
+          "fp": 47,
+          "businessCost": 46350,
+          "highFlagRate": 0.048
+        },
+        {
+          "fold": 2,
+          "accuracy": 0.617,
+          "tp": 1,
+          "fn": 44,
+          "fp": 51,
+          "businessCost": 46550,
+          "highFlagRate": 0.052
+        },
+        {
+          "fold": 3,
+          "accuracy": 0.579,
+          "tp": 1,
+          "fn": 44,
+          "fp": 13,
+          "businessCost": 44650,
+          "highFlagRate": 0.014
+        },
+        {
+          "fold": 4,
+          "accuracy": 0.565,
+          "tp": 2,
+          "fn": 43,
+          "fp": 50,
+          "businessCost": 45500,
+          "highFlagRate": 0.052
+        },
+        {
+          "fold": 5,
+          "accuracy": 0.585,
+          "tp": 0,
+          "fn": 44,
+          "fp": 30,
+          "businessCost": 45500,
+          "highFlagRate": 0.03
+        }
+      ]
+    },
+    "lightgbm": {
+      "trainer": "LightGbm (LightGbmMulticlassTrainer)",
+      "options": {
+        "Seed": 42,
+        "NumberOfThreads": 1,
+        "NumberOfIterations": 100,
+        "Booster": "gradient boosting (default)",
+        "MaximumBinCountPerFeature": 255,
+        "EarlyStoppingRound": 0,
+        "UnbalancedSets": false,
+        "EvaluationMetric": "Error",
+        "HandleMissingValue": true,
+        "Deterministic": false,
+        "LearningRate": 0.2,
+        "NumberOfLeaves": 20,
+        "MinimumExampleCountPerLeaf": 6,
+        "UseSoftmax": false,
+        "UseCategoricalSplit": false
+      },
+      "autoTunedByMlNet": {
+        "note": "null in the options; ML.NET sets them from the training data size (4,000 rows in every fold)",
+        "LearningRate": 0.2,
+        "NumberOfLeaves": 20,
+        "MinimumExampleCountPerLeaf": 6,
+        "UseSoftmax": false,
+        "UseCategoricalSplit": false,
+        "objective": "multiclassova"
+      },
+      "reproducibilityGate": {
+        "runs": 2,
+        "labelDifferences": 0,
+        "scoreFieldsCompared": 15000,
+        "scoreFieldDifferences": 0,
+        "maxAbsoluteScoreDifference": 0.0,
+        "metricsIdentical": true,
+        "passed": true
+      },
+      "predictionsFile": "evaluations/risk-classification/lightgbm-cross-validation-predictions.csv",
+      "aggregate": {
+        "accuracy": 0.8916,
+        "highPrecision": 0.8713,
+        "highRecall": 0.6652,
+        "highF1": 0.7544,
+        "truePositives": 149,
+        "falsePositives": 22,
+        "falseNegatives": 75,
+        "businessCost": 76100,
+        "highFlagRate": 0.0342,
+        "confusionMatrix": {
+          "Low": {
+            "Low": 2335,
+            "Medium": 232,
+            "High": 0
+          },
+          "Medium": {
+            "Low": 213,
+            "Medium": 1974,
+            "High": 22
+          },
+          "High": {
+            "Low": 0,
+            "Medium": 75,
+            "High": 149
+          }
+        }
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "accuracy": 0.901,
+          "tp": 31,
+          "fn": 14,
+          "fp": 5,
+          "businessCost": 14250,
+          "highFlagRate": 0.036
+        },
+        {
+          "fold": 2,
+          "accuracy": 0.891,
+          "tp": 32,
+          "fn": 13,
+          "fp": 5,
+          "businessCost": 13250,
+          "highFlagRate": 0.037
+        },
+        {
+          "fold": 3,
+          "accuracy": 0.922,
+          "tp": 33,
+          "fn": 12,
+          "fp": 5,
+          "businessCost": 12250,
+          "highFlagRate": 0.038
+        },
+        {
+          "fold": 4,
+          "accuracy": 0.863,
+          "tp": 25,
+          "fn": 20,
+          "fp": 3,
+          "businessCost": 20150,
+          "highFlagRate": 0.028
+        },
+        {
+          "fold": 5,
+          "accuracy": 0.881,
+          "tp": 28,
+          "fn": 16,
+          "fp": 4,
+          "businessCost": 16200,
+          "highFlagRate": 0.032
+        }
+      ],
+      "frozen": "The five auto-tuned values are now set in code. The frozen configuration gave byte-identical predictions to the gate run."
+    },
+    "sdcaEngineered": {
+      "trainer": "SdcaMaximumEntropy (same CreateSdcaTrainer as the baseline)",
+      "options": {
+        "NumberOfThreads": 1,
+        "other": "ML.NET defaults"
+      },
+      "featureSet": "Engineered",
+      "addedFeatures": {
+        "IsNewBeneficiary": "BeneficiaryAgeDays < 7",
+        "IsLargeTransaction": "Amount > 3000",
+        "NewBeneficiaryLargeAmount": "both conditions true",
+        "IsLateNight": "TransactionHour <= 4"
+      },
+      "oracleInformed": "The thresholds copy the synthetic generator's rules. This shows the effect of feature representation; it does not show these features could be found in real data.",
+      "featureScaling": "none",
+      "reproducibility": {
+        "runs": 2,
+        "labelDifferences": 0,
+        "scoreFieldDifferences": 0,
+        "scoreFieldsCompared": 15000,
+        "metricsIdentical": true,
+        "passed": true
+      },
+      "predictionsFile": "evaluations/risk-classification/sdca-engineered-cross-validation-predictions.csv",
+      "aggregate": {
+        "accuracy": 0.5946,
+        "highPrecision": 0.0254,
+        "highRecall": 0.0223,
+        "highF1": 0.0238,
+        "truePositives": 5,
+        "falsePositives": 192,
+        "falseNegatives": 219,
+        "businessCost": 228600,
+        "highFlagRate": 0.0394,
+        "confusionMatrix": {
+          "Low": {
+            "Low": 1741,
+            "Medium": 713,
+            "High": 113
+          },
+          "Medium": {
+            "Low": 903,
+            "Medium": 1227,
+            "High": 79
+          },
+          "High": {
+            "Low": 42,
+            "Medium": 177,
+            "High": 5
+          }
+        }
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "accuracy": 0.623,
+          "tp": 1,
+          "fn": 44,
+          "fp": 47,
+          "businessCost": 46350,
+          "highFlagRate": 0.048
+        },
+        {
+          "fold": 2,
+          "accuracy": 0.617,
+          "tp": 1,
+          "fn": 44,
+          "fp": 51,
+          "businessCost": 46550,
+          "highFlagRate": 0.052
+        },
+        {
+          "fold": 3,
+          "accuracy": 0.58,
+          "tp": 1,
+          "fn": 44,
+          "fp": 13,
+          "businessCost": 44650,
+          "highFlagRate": 0.014
+        },
+        {
+          "fold": 4,
+          "accuracy": 0.566,
+          "tp": 2,
+          "fn": 43,
+          "fp": 51,
+          "businessCost": 45550,
+          "highFlagRate": 0.053
+        },
+        {
+          "fold": 5,
+          "accuracy": 0.587,
+          "tp": 0,
+          "fn": 44,
+          "fp": 30,
+          "businessCost": 45500,
+          "highFlagRate": 0.03
+        }
+      ]
+    },
+    "sdcaEngineeredNormalized": {
+      "trainer": "SdcaMaximumEntropy (same CreateSdcaTrainer as the baseline)",
+      "options": {
+        "NumberOfThreads": 1,
+        "other": "ML.NET defaults"
+      },
+      "featureSet": "Engineered",
+      "featureScaling": "NormalizeMeanVariance on the Features vector, immediately before the trainer, inside the pipeline: each fold fits the scaling on its 4,000 training records only",
+      "reproducibility": {
+        "runs": 2,
+        "labelDifferences": 0,
+        "scoreFieldDifferences": 0,
+        "scoreFieldsCompared": 15000,
+        "metricsIdentical": true,
+        "passed": true
+      },
+      "predictionsFile": "evaluations/risk-classification/sdca-engineered-normalized-cross-validation-predictions.csv",
+      "aggregate": {
+        "accuracy": 0.9082,
+        "highPrecision": 0.8978,
+        "highRecall": 0.7455,
+        "highF1": 0.8146,
+        "truePositives": 167,
+        "falsePositives": 19,
+        "falseNegatives": 57,
+        "businessCost": 57950,
+        "highFlagRate": 0.0372,
+        "confusionMatrix": {
+          "Low": {
+            "Low": 2379,
+            "Medium": 188,
+            "High": 0
+          },
+          "Medium": {
+            "Low": 195,
+            "Medium": 1995,
+            "High": 19
+          },
+          "High": {
+            "Low": 0,
+            "Medium": 57,
+            "High": 167
+          }
+        }
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "accuracy": 0.918,
+          "tp": 37,
+          "fn": 8,
+          "fp": 4,
+          "businessCost": 8200,
+          "highFlagRate": 0.041
+        },
+        {
+          "fold": 2,
+          "accuracy": 0.906,
+          "tp": 32,
+          "fn": 13,
+          "fp": 4,
+          "businessCost": 13200,
+          "highFlagRate": 0.036
+        },
+        {
+          "fold": 3,
+          "accuracy": 0.921,
+          "tp": 34,
+          "fn": 11,
+          "fp": 6,
+          "businessCost": 11300,
+          "highFlagRate": 0.04
+        },
+        {
+          "fold": 4,
+          "accuracy": 0.895,
+          "tp": 29,
+          "fn": 16,
+          "fp": 1,
+          "businessCost": 16050,
+          "highFlagRate": 0.03
+        },
+        {
+          "fold": 5,
+          "accuracy": 0.901,
+          "tp": 35,
+          "fn": 9,
+          "fp": 4,
+          "businessCost": 9200,
+          "highFlagRate": 0.039
+        }
+      ]
+    },
+    "sdcaNormalized": {
+      "trainer": "SdcaMaximumEntropy (same CreateSdcaTrainer as the baseline)",
+      "options": {
+        "NumberOfThreads": 1,
+        "other": "ML.NET defaults"
+      },
+      "featureSet": "Original",
+      "featureScaling": "NormalizeMeanVariance on the Features vector, immediately before the trainer, inside the pipeline: each fold fits the scaling on its 4,000 training records only",
+      "reproducibility": {
+        "runs": 2,
+        "labelDifferences": 0,
+        "scoreFieldDifferences": 0,
+        "scoreFieldsCompared": 15000,
+        "metricsIdentical": true,
+        "passed": true
+      },
+      "predictionsFile": "evaluations/risk-classification/sdca-normalized-cross-validation-predictions.csv",
+      "aggregate": {
+        "accuracy": 0.8978,
+        "highPrecision": 0.8939,
+        "highRecall": 0.7143,
+        "highF1": 0.794,
+        "truePositives": 160,
+        "falsePositives": 19,
+        "falseNegatives": 64,
+        "businessCost": 64950,
+        "highFlagRate": 0.0358,
+        "confusionMatrix": {
+          "Low": {
+            "Low": 2354,
+            "Medium": 213,
+            "High": 0
+          },
+          "Medium": {
+            "Low": 215,
+            "Medium": 1975,
+            "High": 19
+          },
+          "High": {
+            "Low": 0,
+            "Medium": 64,
+            "High": 160
+          }
+        }
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "accuracy": 0.904,
+          "tp": 29,
+          "fn": 16,
+          "fp": 1,
+          "businessCost": 16050,
+          "highFlagRate": 0.03
+        },
+        {
+          "fold": 2,
+          "accuracy": 0.896,
+          "tp": 31,
+          "fn": 14,
+          "fp": 5,
+          "businessCost": 14250,
+          "highFlagRate": 0.036
+        },
+        {
+          "fold": 3,
+          "accuracy": 0.911,
+          "tp": 36,
+          "fn": 9,
+          "fp": 8,
+          "businessCost": 9400,
+          "highFlagRate": 0.044
+        },
+        {
+          "fold": 4,
+          "accuracy": 0.879,
+          "tp": 31,
+          "fn": 14,
+          "fp": 1,
+          "businessCost": 14050,
+          "highFlagRate": 0.032
+        },
+        {
+          "fold": 5,
+          "accuracy": 0.899,
+          "tp": 33,
+          "fn": 11,
+          "fp": 4,
+          "businessCost": 11200,
+          "highFlagRate": 0.037
+        }
+      ]
+    }
+  },
+  "conclusion": "LightGBM catches 149 of 224 High-risk records against unscaled SDCA's 5 and cuts the estimated business cost by 66.7% ($228,550 to $76,100). Normalization alone lifts SDCA with the six original features to TP 160, FP 19, High F1 0.794 and cost $64,950, which beats LightGBM on the same features. The four oracle-informed features add nothing without scaling and a smaller gain with it (TP 167, F1 0.815, cost $57,950). Feature scaling explains most of the improvement. These are cross-validation estimates; test-1000.csv is untouched.",
+  "sdcaFactorialComparison": {
+    "highF1": {
+      "6 features": {
+        "noNormalization": 0.0238,
+        "normalization": 0.794
+      },
+      "10 features": {
+        "noNormalization": 0.0238,
+        "normalization": 0.8146
+      }
+    },
+    "businessCost": {
+      "6 features": {
+        "noNormalization": 228550,
+        "normalization": 64950
+      },
+      "10 features": {
+        "noNormalization": 228600,
+        "normalization": 57950
+      }
+    }
+  }
+}

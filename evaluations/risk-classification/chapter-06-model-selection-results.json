@@ -1,0 +1,108 @@
+{
+  "chapter": 6,
+  "title": "Model Optimization",
+  "step": "9 - Final model selection",
+  "protocol": "both candidates: same 5 outer folds (seed 42), inner 4-fold threshold selection, FN x $1,000 + FP x $50, flag rate <= 40%",
+  "selectionRule": "lowest nested outer-fold business cost; ties: higher High recall, then lower flag rate",
+  "candidates": [
+    {
+      "model": "ML.NET SDCA Maximum Entropy",
+      "featureSet": "Engineered",
+      "featureScaling": "NormalizeMeanVariance, fitted on each fold's training partition",
+      "nested": {
+        "threshold": null,
+        "records": 5000,
+        "truePositives": 224,
+        "falsePositives": 163,
+        "falseNegatives": 0,
+        "trueNegatives": 4613,
+        "highPrecision": 0.5788,
+        "highRecall": 1,
+        "highF1": 0.7332,
+        "businessCost": 8150,
+        "highFlagRate": 0.0774
+      },
+      "foldThresholds": [
+        0.1631,
+        0.1044,
+        0.114,
+        0.0867,
+        0.0964
+      ],
+      "foldCosts": [
+        1300,
+        1450,
+        1850,
+        1650,
+        1900
+      ],
+      "defaultRule": {
+        "threshold": null,
+        "records": 5000,
+        "truePositives": 167,
+        "falsePositives": 19,
+        "falseNegatives": 57,
+        "trueNegatives": 4757,
+        "highPrecision": 0.8978,
+        "highRecall": 0.7455,
+        "highF1": 0.8146,
+        "businessCost": 57950,
+        "highFlagRate": 0.0372
+      }
+    },
+    {
+      "model": "ML.NET LightGBM Multiclass",
+      "featureSet": "Original",
+      "featureScaling": "none",
+      "nested": {
+        "threshold": null,
+        "records": 5000,
+        "truePositives": 219,
+        "falsePositives": 316,
+        "falseNegatives": 5,
+        "trueNegatives": 4460,
+        "highPrecision": 0.4093,
+        "highRecall": 0.9777,
+        "highF1": 0.5771,
+        "businessCost": 20800,
+        "highFlagRate": 0.107
+      },
+      "foldThresholds": [
+        0.0019,
+        0.0033,
+        0.0009,
+        0.0017,
+        0.0011
+      ],
+      "foldCosts": [
+        3750,
+        4550,
+        5600,
+        3300,
+        3600
+      ],
+      "defaultRule": {
+        "threshold": null,
+        "records": 5000,
+        "truePositives": 149,
+        "falsePositives": 22,
+        "falseNegatives": 75,
+        "trueNegatives": 4754,
+        "highPrecision": 0.8713,
+        "highRecall": 0.6652,
+        "highF1": 0.7544,
+        "businessCost": 76100,
+        "highFlagRate": 0.0342
+      }
+    }
+  ],
+  "winner": "ML.NET SDCA Maximum Entropy",
+  "reproducibility": {
+    "runs": 3,
+    "candidatesIdentical": true,
+    "modelContentSha256Identical": true,
+    "deploymentThresholdIdentical": true
+  },
+  "frozenSpecFile": "evaluations/risk-classification/chapter-06-frozen-model.json",
+  "finalTestFile": "evaluations/risk-classification/chapter-06-final-test-results.json"
+}

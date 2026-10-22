@@ -1,0 +1,35 @@
+{
+  "chapter": 6,
+  "title": "Model Optimization",
+  "step": "2 - Stratified cross-validation",
+  "question": "Can the 5,000 training records be split into five folds that keep the class distribution, put each record in exactly one fold, and repeat exactly with the same seed?",
+  "setup": {
+    "dataset": "data/risk-classification/chapter-06/train-5000.csv",
+    "splitter": "DatasetSplitter.StratifiedKFold",
+    "foldCount": 5,
+    "seed": 42,
+    "method": "group by RiskLevel (ordinal order), Fisher-Yates shuffle of each group with one seeded Random, round-robin assignment with the fold counter carried across groups",
+    "testSetUse": "test-1000.csv is read only for the train/test overlap check; it takes no part in the split or in model selection",
+    "endpoint": "POST /risk/cross-validation-folds"
+  },
+  "results": {
+    "folds": [
+      { "fold": 1, "total": 1000, "Low": 514, "Medium": 441, "High": 45 },
+      { "fold": 2, "total": 1000, "Low": 513, "Medium": 442, "High": 45 },
+      { "fold": 3, "total": 1000, "Low": 513, "Medium": 442, "High": 45 },
+      { "fold": 4, "total": 1000, "Low": 513, "Medium": 442, "High": 45 },
+      { "fold": 5, "total": 1000, "Low": 514, "Medium": 442, "High": 44 }
+    ],
+    "totalRecords": 5000,
+    "combinedFoldRecords": 5000,
+    "everyRecordInExactlyOneFold": true,
+    "sameSeedGivesSameAssignments": true,
+    "originalDatasetUnchanged": true,
+    "trainTestDuplicates": 0
+  },
+  "notes": [
+    "Each class differs by at most one record between folds, and every fold holds exactly 1,000 records.",
+    "Each validation fold holds 44-45 High-risk records, against 8-9 per fold with the original 300-row dataset.",
+    "GetFoldSplit(folds, k) returns the four training folds and validation fold k for each cross-validation run."
+  ]
+}

@@ -119,6 +119,94 @@ namespace RiskClassificationLab.Controllers
             var result = _riskService.FindHighRiskFalseNegatives();
             return Ok(result);
         }
+
+        [HttpPost("/risk/generate-large-dataset")]
+        [Produces(typeof(LargeDatasetResult))]
+        public async Task<IActionResult> GenerateLargeDataset()
+        {
+            var result = _riskService.GenerateLargeDataset();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/cross-validation-folds")]
+        [Produces(typeof(CrossValidationFoldsResult))]
+        public async Task<IActionResult> ValidateCrossValidationFolds()
+        {
+            var result = _riskService.ValidateCrossValidationFolds();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/cross-validation/sdca")]
+        [Produces(typeof(CrossValidationEvaluationResult))]
+        public async Task<IActionResult> EvaluateSdcaCrossValidation()
+        {
+            var result = _riskService.EvaluateSdcaCrossValidation();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/cross-validation/lightgbm")]
+        [Produces(typeof(CrossValidationEvaluationResult))]
+        public async Task<IActionResult> EvaluateLightGbmCrossValidation()
+        {
+            var result = _riskService.EvaluateLightGbmCrossValidation();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/cross-validation/sdca-engineered")]
+        [Produces(typeof(CrossValidationEvaluationResult))]
+        public async Task<IActionResult> EvaluateSdcaEngineeredCrossValidation()
+        {
+            var result = _riskService.EvaluateSdcaEngineeredCrossValidation();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/cross-validation/sdca-engineered-normalized")]
+        [Produces(typeof(CrossValidationEvaluationResult))]
+        public async Task<IActionResult> EvaluateSdcaEngineeredNormalizedCrossValidation()
+        {
+            var result = _riskService.EvaluateSdcaEngineeredNormalizedCrossValidation();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/cross-validation/sdca-normalized")]
+        [Produces(typeof(CrossValidationEvaluationResult))]
+        public async Task<IActionResult> EvaluateSdcaNormalizedCrossValidation()
+        {
+            var result = _riskService.EvaluateSdcaNormalizedCrossValidation();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/learning-curves")]
+        [Produces(typeof(LearningCurveResult))]
+        public async Task<IActionResult> EvaluateLearningCurves()
+        {
+            var result = _riskService.EvaluateLearningCurves();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/threshold/sdca-nested")]
+        [Produces(typeof(ThresholdEvaluationResult))]
+        public async Task<IActionResult> EvaluateSdcaNestedThreshold()
+        {
+            var result = _riskService.EvaluateSdcaNestedThreshold();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/model-selection")]
+        [Produces(typeof(ModelSelectionResult))]
+        public async Task<IActionResult> SelectFinalModel()
+        {
+            var result = _riskService.SelectFinalModel();
+            return Ok(result);
+        }
+
+        [HttpPost("/risk/final-test")]
+        [Produces(typeof(FinalTestResult))]
+        public async Task<IActionResult> EvaluateFinalModelOnTestSet()
+        {
+            var result = _riskService.EvaluateFinalModelOnTestSet();
+            return Ok(result);
+        }
     }
 
 }

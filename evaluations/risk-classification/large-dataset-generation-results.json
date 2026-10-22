@@ -1,0 +1,40 @@
+{
+  "chapter": 6,
+  "title": "Model Optimization",
+  "step": "1 - Build the larger dataset",
+  "question": "Can we build one consistent, reproducible dataset for cross-validation and learning curves, with a held-out test set that never overlaps the training data?",
+  "setup": {
+    "generator": "RiskDatasetGenerator",
+    "seed": 42,
+    "labeling": "score += noise (corrected; the earlier generator added a constant 1.0)",
+    "generatedCount": 6000,
+    "split": "first 5000 -> training, next 1000 -> test",
+    "oversampling": false,
+    "duplicateDefinition": "all six features equal, as written to CSV; the label is not compared",
+    "endpoint": "POST /risk/generate-large-dataset"
+  },
+  "files": {
+    "training": "data/risk-classification/chapter-06/train-5000.csv",
+    "test": "data/risk-classification/chapter-06/test-1000.csv"
+  },
+  "results": {
+    "training": {
+      "total": 5000,
+      "distribution": { "Low": 2567, "Medium": 2209, "High": 224 },
+      "duplicateRecords": 0
+    },
+    "test": {
+      "total": 1000,
+      "distribution": { "Low": 525, "Medium": 431, "High": 44 },
+      "duplicateRecords": 0
+    },
+    "crossDatasetDuplicates": 0,
+    "overlapWithOriginal400": 0
+  },
+  "notes": [
+    "The 1,000-row test set stays untouched until final evaluation.",
+    "Cross-validation and learning curves use train-5000.csv only; subsets of 300, 600, 1,200, 2,400 and 5,000 come from it.",
+    "High is about 4.5% of both sets, so learning-curve subsets must be stratified.",
+    "The original train.csv and evaluation.csv are unchanged."
+  ]
+}

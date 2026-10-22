@@ -1,0 +1,52 @@
+{
+  "model": "ML.NET SDCA Maximum Entropy",
+  "featureSet": "Engineered",
+  "features": [
+    "Amount",
+    "TransactionHour",
+    "CustomerTransactionCount24h",
+    "RecentFailureCount",
+    "BeneficiaryAgeDays",
+    "IsHighRiskCountryFloat",
+    "IsNewBeneficiary",
+    "IsLargeTransaction",
+    "NewBeneficiaryLargeAmount",
+    "IsLateNight"
+  ],
+  "featureScaling": "NormalizeMeanVariance, fitted on the 5,000 training records",
+  "trainingFile": "chapter-06/train-5000.csv",
+  "trainingRecords": 5000,
+  "seed": 42,
+  "deploymentThreshold": 0.1121373102068901,
+  "thresholdSelection": "lowest business cost on the winner's 5,000 out-of-fold training scores, flag rate <= 40%; ties keep the higher threshold",
+  "thresholdOnTrainingOutOfFold": {
+    "threshold": 0.1121373102068901,
+    "records": 5000,
+    "truePositives": 224,
+    "falsePositives": 159,
+    "falseNegatives": 0,
+    "trueNegatives": 4617,
+    "highPrecision": 0.5848563968668408,
+    "highRecall": 1,
+    "highF1": 0.7380560131795717,
+    "businessCost": 7950,
+    "highFlagRate": 0.0766
+  },
+  "maximumFlagRate": 0.4,
+  "nestedEstimate": {
+    "threshold": null,
+    "records": 5000,
+    "truePositives": 224,
+    "falsePositives": 163,
+    "falseNegatives": 0,
+    "trueNegatives": 4613,
+    "highPrecision": 0.5788113695090439,
+    "highRecall": 1,
+    "highF1": 0.7332242225859247,
+    "businessCost": 8150,
+    "highFlagRate": 0.0774
+  },
+  "modelFile": "Models/chapter-06-risk-classifier.zip",
+  "modelContentSha256": "0fd45f32162ab491340192b4023e1990a3d13935cd050f7b133745e8e309b571",
+  "testSetUsed": false
+}

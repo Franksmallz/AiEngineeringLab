@@ -1,0 +1,735 @@
+{
+  "chapter": 6,
+  "title": "Model Optimization",
+  "branch": "feature/model-optimization",
+  "researchQuestion": "Which model, preprocessing and decision threshold give the lowest business cost for High-risk transactions, and does that choice hold on untouched data?",
+  "businessCost": "FN x $1,000 + FP x $50 (High is the positive class); High flag rate <= 40%",
+  "environment": {
+    "targetFramework": "net10.0",
+    "dotnetSdk": "10.0.401",
+    "packages": {
+      "Microsoft.ML": "5.0.0",
+      "Microsoft.ML.LightGbm": "5.0.0",
+      "LightGBM (native)": "4.6.0"
+    }
+  },
+  "data": {
+    "generation": {
+      "chapter": 6,
+      "title": "Model Optimization",
+      "step": "1 - Build the larger dataset",
+      "question": "Can we build one consistent, reproducible dataset for cross-validation and learning curves, with a held-out test set that never overlaps the training data?",
+      "setup": {
+        "generator": "RiskDatasetGenerator",
+        "seed": 42,
+        "labeling": "score += noise (corrected; the earlier generator added a constant 1.0)",
+        "generatedCount": 6000,
+        "split": "first 5000 -> training, next 1000 -> test",
+        "oversampling": false,
+        "duplicateDefinition": "all six features equal, as written to CSV; the label is not compared",
+        "endpoint": "POST /risk/generate-large-dataset"
+      },
+      "files": {
+        "training": "data/risk-classification/chapter-06/train-5000.csv",
+        "test": "data/risk-classification/chapter-06/test-1000.csv"
+      },
+      "results": {
+        "training": {
+          "total": 5000,
+          "distribution": {
+            "Low": 2567,
+            "Medium": 2209,
+            "High": 224
+          },
+          "duplicateRecords": 0
+        },
+        "test": {
+          "total": 1000,
+          "distribution": {
+            "Low": 525,
+            "Medium": 431,
+            "High": 44
+          },
+          "duplicateRecords": 0
+        },
+        "crossDatasetDuplicates": 0,
+        "overlapWithOriginal400": 0
+      },
+      "notes": [
+        "The 1,000-row test set stays untouched until final evaluation.",
+        "Cross-validation and learning curves use train-5000.csv only; subsets of 300, 600, 1,200, 2,400 and 5,000 come from it.",
+        "High is about 4.5% of both sets, so learning-curve subsets must be stratified.",
+        "The original train.csv and evaluation.csv are unchanged."
+      ]
+    },
+    "crossValidationFolds": {
+      "chapter": 6,
+      "title": "Model Optimization",
+      "step": "2 - Stratified cross-validation",
+      "question": "Can the 5,000 training records be split into five folds that keep the class distribution, put each record in exactly one fold, and repeat exactly with the same seed?",
+      "setup": {
+        "dataset": "data/risk-classification/chapter-06/train-5000.csv",
+        "splitter": "DatasetSplitter.StratifiedKFold",
+        "foldCount": 5,
+        "seed": 42,
+        "method": "group by RiskLevel (ordinal order), Fisher-Yates shuffle of each group with one seeded Random, round-robin assignment with the fold counter carried across groups",
+        "testSetUse": "test-1000.csv is read only for the train/test overlap check; it takes no part in the split or in model selection",
+        "endpoint": "POST /risk/cross-validation-folds"
+      },
+      "results": {
+        "folds": [
+          {
+            "fold": 1,
+            "total": 1000,
+            "Low": 514,
+            "Medium": 441,
+            "High": 45
+          },
+          {
+            "fold": 2,
+            "total": 1000,
+            "Low": 513,
+            "Medium": 442,
+            "High": 45
+          },
+          {
+            "fold": 3,
+            "total": 1000,
+            "Low": 513,
+            "Medium": 442,
+            "High": 45
+          },
+          {
+            "fold": 4,
+            "total": 1000,
+            "Low": 513,
+            "Medium": 442,
+            "High": 45
+          },
+          {
+            "fold": 5,
+            "total": 1000,
+            "Low": 514,
+            "Medium": 442,
+            "High": 44
+          }
+        ],
+        "totalRecords": 5000,
+        "combinedFoldRecords": 5000,
+        "everyRecordInExactlyOneFold": true,
+        "sameSeedGivesSameAssignments": true,
+        "originalDatasetUnchanged": true,
+        "trainTestDuplicates": 0
+      },
+      "notes": [
+        "Each class differs by at most one record between folds, and every fold holds exactly 1,000 records.",
+        "Each validation fold holds 44-45 High-risk records, against 8-9 per fold with the original 300-row dataset.",
+        "GetFoldSplit(folds, k) returns the four training folds and validation fold k for each cross-validation run."
+      ]
+    }
+  },
+  "crossValidation": {
+    "controls": {
+      "dataset": "data/risk-classification/chapter-06/train-5000.csv",
+      "testSetUsed": false,
+      "folds": "DatasetSplitter.StratifiedKFold, 5 folds, seed 42",
+      "features": [
+        "Amount",
+        "TransactionHour",
+        "CustomerTransactionCount24h",
+        "RecentFailureCount",
+        "BeneficiaryAgeDays",
+        "IsHighRiskCountry"
+      ],
+      "featureScaling": "none, except sdcaNormalized and sdcaEngineeredNormalized",
+      "predictionRule": "default class prediction (highest score); no threshold tuning",
+      "aggregation": "metrics from all 5,000 out-of-fold predictions together, not averaged per fold",
+      "businessCost": "FN x $1,000 + FP x $50",
+      "scoreOrdering": [
+        "Low",
+        "Medium",
+        "High"
+      ]
+    },
+    "models": {
+      "sdca": {
+        "featureSet": "Original",
+        "featureScaling": "none",
+        "aggregate": {
+          "accuracy": 0.5938,
+          "highPrecision": 0.0255,
+          "highRecall": 0.0223,
+          "highF1": 0.0238,
+          "truePositives": 5,
+          "falsePositives": 191,
+          "falseNegatives": 219,
+          "businessCost": 228550,
+          "highFlagRate": 0.0392,
+          "confusionMatrix": {
+            "Low": {
+              "Low": 1738,
+              "Medium": 717,
+              "High": 112
+            },
+            "Medium": {
+              "Low": 904,
+              "Medium": 1226,
+              "High": 79
+            },
+            "High": {
+              "Low": 42,
+              "Medium": 177,
+              "High": 5
+            }
+          }
+        },
+        "reproducibility": "single-threaded; two full runs gave byte-identical predictions. The earlier multi-threaded baseline (59.46%, TP 3 / FP 129 / FN 221) varied on every run and is discarded."
+      },
+      "lightgbm": {
+        "featureSet": "Original",
+        "featureScaling": "none",
+        "aggregate": {
+          "accuracy": 0.8916,
+          "highPrecision": 0.8713,
+          "highRecall": 0.6652,
+          "highF1": 0.7544,
+          "truePositives": 149,
+          "falsePositives": 22,
+          "falseNegatives": 75,
+          "businessCost": 76100,
+          "highFlagRate": 0.0342,
+          "confusionMatrix": {
+            "Low": {
+              "Low": 2335,
+              "Medium": 232,
+              "High": 0
+            },
+            "Medium": {
+              "Low": 213,
+              "Medium": 1974,
+              "High": 22
+            },
+            "High": {
+              "Low": 0,
+              "Medium": 75,
+              "High": 149
+            }
+          }
+        },
+        "reproducibility": {
+          "runs": 2,
+          "labelDifferences": 0,
+          "scoreFieldsCompared": 15000,
+          "scoreFieldDifferences": 0,
+          "maxAbsoluteScoreDifference": 0.0,
+          "metricsIdentical": true,
+          "passed": true
+        }
+      },
+      "sdcaEngineered": {
+        "featureSet": "Engineered",
+        "featureScaling": "none",
+        "aggregate": {
+          "accuracy": 0.5946,
+          "highPrecision": 0.0254,
+          "highRecall": 0.0223,
+          "highF1": 0.0238,
+          "truePositives": 5,
+          "falsePositives": 192,
+          "falseNegatives": 219,
+          "businessCost": 228600,
+          "highFlagRate": 0.0394,
+          "confusionMatrix": {
+            "Low": {
+              "Low": 1741,
+              "Medium": 713,
+              "High": 113
+            },
+            "Medium": {
+              "Low": 903,
+              "Medium": 1227,
+              "High": 79
+            },
+            "High": {
+              "Low": 42,
+              "Medium": 177,
+              "High": 5
+            }
+          }
+        },
+        "reproducibility": {
+          "runs": 2,
+          "labelDifferences": 0,
+          "scoreFieldDifferences": 0,
+          "scoreFieldsCompared": 15000,
+          "metricsIdentical": true,
+          "passed": true
+        }
+      },
+      "sdcaEngineeredNormalized": {
+        "featureSet": "Engineered",
+        "featureScaling": "NormalizeMeanVariance on the Features vector, immediately before the trainer, inside the pipeline: each fold fits the scaling on its 4,000 training records only",
+        "aggregate": {
+          "accuracy": 0.9082,
+          "highPrecision": 0.8978,
+          "highRecall": 0.7455,
+          "highF1": 0.8146,
+          "truePositives": 167,
+          "falsePositives": 19,
+          "falseNegatives": 57,
+          "businessCost": 57950,
+          "highFlagRate": 0.0372,
+          "confusionMatrix": {
+            "Low": {
+              "Low": 2379,
+              "Medium": 188,
+              "High": 0
+            },
+            "Medium": {
+              "Low": 195,
+              "Medium": 1995,
+              "High": 19
+            },
+            "High": {
+              "Low": 0,
+              "Medium": 57,
+              "High": 167
+            }
+          }
+        },
+        "reproducibility": {
+          "runs": 2,
+          "labelDifferences": 0,
+          "scoreFieldDifferences": 0,
+          "scoreFieldsCompared": 15000,
+          "metricsIdentical": true,
+          "passed": true
+        }
+      },
+      "sdcaNormalized": {
+        "featureSet": "Original",
+        "featureScaling": "NormalizeMeanVariance on the Features vector, immediately before the trainer, inside the pipeline: each fold fits the scaling on its 4,000 training records only",
+        "aggregate": {
+          "accuracy": 0.8978,
+          "highPrecision": 0.8939,
+          "highRecall": 0.7143,
+          "highF1": 0.794,
+          "truePositives": 160,
+          "falsePositives": 19,
+          "falseNegatives": 64,
+          "businessCost": 64950,
+          "highFlagRate": 0.0358,
+          "confusionMatrix": {
+            "Low": {
+              "Low": 2354,
+              "Medium": 213,
+              "High": 0
+            },
+            "Medium": {
+              "Low": 215,
+              "Medium": 1975,
+              "High": 19
+            },
+            "High": {
+              "Low": 0,
+              "Medium": 64,
+              "High": 160
+            }
+          }
+        },
+        "reproducibility": {
+          "runs": 2,
+          "labelDifferences": 0,
+          "scoreFieldDifferences": 0,
+          "scoreFieldsCompared": 15000,
+          "metricsIdentical": true,
+          "passed": true
+        }
+      }
+    },
+    "sdcaFactorialComparison": {
+      "highF1": {
+        "6 features": {
+          "noNormalization": 0.0238,
+          "normalization": 0.794
+        },
+        "10 features": {
+          "noNormalization": 0.0238,
+          "normalization": 0.8146
+        }
+      },
+      "businessCost": {
+        "6 features": {
+          "noNormalization": 228550,
+          "normalization": 64950
+        },
+        "10 features": {
+          "noNormalization": 228600,
+          "normalization": 57950
+        }
+      }
+    },
+    "lightgbmFrozenOptions": {
+      "Seed": 42,
+      "NumberOfThreads": 1,
+      "NumberOfIterations": 100,
+      "Booster": "gradient boosting (default)",
+      "MaximumBinCountPerFeature": 255,
+      "EarlyStoppingRound": 0,
+      "UnbalancedSets": false,
+      "EvaluationMetric": "Error",
+      "HandleMissingValue": true,
+      "Deterministic": false,
+      "LearningRate": 0.2,
+      "NumberOfLeaves": 20,
+      "MinimumExampleCountPerLeaf": 6,
+      "UseSoftmax": false,
+      "UseCategoricalSplit": false
+    }
+  },
+  "learningCurves": {
+    "controls": {
+      "dataset": "chapter-06/train-5000.csv",
+      "testSetUsed": false,
+      "folds": "DatasetSplitter.StratifiedKFold, 5 folds, seed 42 (same as steps 2-6)",
+      "subsetRule": "DatasetSplitter.NestedStratifiedSubset per fold, seed 42: nested and stratified; 4,000 is the full fold training set",
+      "validation": "each fold's same 1,000 records at every training size",
+      "predictionRule": "default class prediction (highest score); no threshold tuning",
+      "aggregation": "metrics from all 5,000 out-of-fold predictions together",
+      "businessCost": "FN x $1,000 + FP x $50",
+      "trainingSizes": [
+        300,
+        600,
+        1200,
+        2400,
+        4000
+      ],
+      "scoreOrdering": "read from slot names per fold; at 600 records folds 1 and 5 order Medium, Low, High. Scores are stored by class name, so the metrics do not depend on it."
+    },
+    "curves": {
+      "sdcaEngineeredNormalized": [
+        {
+          "trainingSize": 300,
+          "accuracy": 0.8938,
+          "highPrecision": 0.7784,
+          "highRecall": 0.6741,
+          "highF1": 0.7225,
+          "businessCost": 75150,
+          "highFlagRate": 0.0388
+        },
+        {
+          "trainingSize": 600,
+          "accuracy": 0.9022,
+          "highPrecision": 0.8384,
+          "highRecall": 0.7411,
+          "highF1": 0.7867,
+          "businessCost": 59600,
+          "highFlagRate": 0.0396
+        },
+        {
+          "trainingSize": 1200,
+          "accuracy": 0.9058,
+          "highPrecision": 0.8673,
+          "highRecall": 0.7589,
+          "highF1": 0.8095,
+          "businessCost": 55300,
+          "highFlagRate": 0.0392
+        },
+        {
+          "trainingSize": 2400,
+          "accuracy": 0.9078,
+          "highPrecision": 0.8906,
+          "highRecall": 0.7634,
+          "highF1": 0.8221,
+          "businessCost": 54050,
+          "highFlagRate": 0.0384
+        },
+        {
+          "trainingSize": 4000,
+          "accuracy": 0.9082,
+          "highPrecision": 0.8978,
+          "highRecall": 0.7455,
+          "highF1": 0.8146,
+          "businessCost": 57950,
+          "highFlagRate": 0.0372
+        }
+      ],
+      "lightgbm": [
+        {
+          "trainingSize": 300,
+          "accuracy": 0.8382,
+          "highPrecision": 0.7,
+          "highRecall": 0.3125,
+          "highF1": 0.4321,
+          "businessCost": 155500,
+          "highFlagRate": 0.02
+        },
+        {
+          "trainingSize": 600,
+          "accuracy": 0.8598,
+          "highPrecision": 0.8468,
+          "highRecall": 0.4196,
+          "highF1": 0.5612,
+          "businessCost": 130850,
+          "highFlagRate": 0.0222
+        },
+        {
+          "trainingSize": 1200,
+          "accuracy": 0.8694,
+          "highPrecision": 0.8487,
+          "highRecall": 0.5759,
+          "highF1": 0.6862,
+          "businessCost": 96150,
+          "highFlagRate": 0.0304
+        },
+        {
+          "trainingSize": 2400,
+          "accuracy": 0.8912,
+          "highPrecision": 0.8305,
+          "highRecall": 0.6562,
+          "highF1": 0.7332,
+          "businessCost": 78500,
+          "highFlagRate": 0.0354
+        },
+        {
+          "trainingSize": 4000,
+          "accuracy": 0.8916,
+          "highPrecision": 0.8713,
+          "highRecall": 0.6652,
+          "highF1": 0.7544,
+          "businessCost": 76100,
+          "highFlagRate": 0.0342
+        }
+      ]
+    },
+    "conclusion": "SDCA with engineered features and normalization learns fast: High F1 0.723 at 300 records, 0.810 at 1,200 and about 0.81-0.82 from 1,200 to 4,000, so it has plateaued. LightGBM improves at every size (0.432, 0.561, 0.686, 0.733, 0.754) and is still rising slowly at 4,000. SDCA is ahead at every training size. These are cross-validation estimates; test-1000.csv is untouched."
+  },
+  "nestedThresholdSelection": {
+    "controls": {
+      "model": "SDCA Maximum Entropy, engineered features, NormalizeMeanVariance (step 5)",
+      "dataset": "chapter-06/train-5000.csv",
+      "testSetUsed": false,
+      "outerFolds": "DatasetSplitter.StratifiedKFold, 5 folds, seed 42 (same as steps 2-7); the outer scores are the step 5 run",
+      "innerFolds": "for each locked fold, 4-fold cross-validation on the other 4 folds; each inner model trains on 3,000 records",
+      "modelsTrained": 25,
+      "decisionRule": "flag High when ScoreHigh >= threshold; ScoreHigh is read by class name",
+      "selectionRule": "lowest business cost on the inner out-of-fold scores, flag rate <= 40%; ties keep the higher threshold",
+      "maximumFlagRate": 0.4,
+      "calibration": "not applied; the threshold is chosen by search, and a monotone calibration does not change which records a threshold can flag",
+      "businessCost": "FN x $1,000 + FP x $50"
+    },
+    "candidates": [
+      {
+        "model": "ML.NET SDCA Maximum Entropy",
+        "featureSet": "Engineered",
+        "featureScaling": "NormalizeMeanVariance, fitted on each fold's training partition",
+        "nested": {
+          "threshold": null,
+          "records": 5000,
+          "truePositives": 224,
+          "falsePositives": 163,
+          "falseNegatives": 0,
+          "trueNegatives": 4613,
+          "highPrecision": 0.5788,
+          "highRecall": 1,
+          "highF1": 0.7332,
+          "businessCost": 8150,
+          "highFlagRate": 0.0774
+        },
+        "foldThresholds": [
+          0.1631,
+          0.1044,
+          0.114,
+          0.0867,
+          0.0964
+        ],
+        "foldCosts": [
+          1300,
+          1450,
+          1850,
+          1650,
+          1900
+        ],
+        "defaultRule": {
+          "threshold": null,
+          "records": 5000,
+          "truePositives": 167,
+          "falsePositives": 19,
+          "falseNegatives": 57,
+          "trueNegatives": 4757,
+          "highPrecision": 0.8978,
+          "highRecall": 0.7455,
+          "highF1": 0.8146,
+          "businessCost": 57950,
+          "highFlagRate": 0.0372
+        }
+      },
+      {
+        "model": "ML.NET LightGBM Multiclass",
+        "featureSet": "Original",
+        "featureScaling": "none",
+        "nested": {
+          "threshold": null,
+          "records": 5000,
+          "truePositives": 219,
+          "falsePositives": 316,
+          "falseNegatives": 5,
+          "trueNegatives": 4460,
+          "highPrecision": 0.4093,
+          "highRecall": 0.9777,
+          "highF1": 0.5771,
+          "businessCost": 20800,
+          "highFlagRate": 0.107
+        },
+        "foldThresholds": [
+          0.0019,
+          0.0033,
+          0.0009,
+          0.0017,
+          0.0011
+        ],
+        "foldCosts": [
+          3750,
+          4550,
+          5600,
+          3300,
+          3600
+        ],
+        "defaultRule": {
+          "threshold": null,
+          "records": 5000,
+          "truePositives": 149,
+          "falsePositives": 22,
+          "falseNegatives": 75,
+          "trueNegatives": 4754,
+          "highPrecision": 0.8713,
+          "highRecall": 0.6652,
+          "highF1": 0.7544,
+          "businessCost": 76100,
+          "highFlagRate": 0.0342
+        }
+      }
+    ],
+    "selectionRule": "lowest nested outer-fold business cost; ties: higher High recall, then lower flag rate",
+    "winner": "ML.NET SDCA Maximum Entropy"
+  },
+  "frozenModel": {
+    "model": "ML.NET SDCA Maximum Entropy",
+    "featureSet": "Engineered",
+    "features": [
+      "Amount",
+      "TransactionHour",
+      "CustomerTransactionCount24h",
+      "RecentFailureCount",
+      "BeneficiaryAgeDays",
+      "IsHighRiskCountryFloat",
+      "IsNewBeneficiary",
+      "IsLargeTransaction",
+      "NewBeneficiaryLargeAmount",
+      "IsLateNight"
+    ],
+    "featureScaling": "NormalizeMeanVariance, fitted on the 5,000 training records",
+    "trainingFile": "chapter-06/train-5000.csv",
+    "trainingRecords": 5000,
+    "seed": 42,
+    "deploymentThreshold": 0.1121373102068901,
+    "thresholdSelection": "lowest business cost on the winner's 5,000 out-of-fold training scores, flag rate <= 40%; ties keep the higher threshold",
+    "maximumFlagRate": 0.4,
+    "modelFile": "Models/chapter-06-risk-classifier.zip",
+    "modelContentSha256": "0fd45f32162ab491340192b4023e1990a3d13935cd050f7b133745e8e309b571",
+    "testSetUsed": false,
+    "thresholdOnTrainingOutOfFold": {
+      "threshold": 0.1121,
+      "records": 5000,
+      "truePositives": 224,
+      "falsePositives": 159,
+      "falseNegatives": 0,
+      "trueNegatives": 4617,
+      "highPrecision": 0.5849,
+      "highRecall": 1,
+      "highF1": 0.7381,
+      "businessCost": 7950,
+      "highFlagRate": 0.0766
+    },
+    "nestedEstimate": {
+      "threshold": null,
+      "records": 5000,
+      "truePositives": 224,
+      "falsePositives": 163,
+      "falseNegatives": 0,
+      "trueNegatives": 4613,
+      "highPrecision": 0.5788,
+      "highRecall": 1,
+      "highF1": 0.7332,
+      "businessCost": 8150,
+      "highFlagRate": 0.0774
+    },
+    "policyFile": "Models/chapter-06-risk-classifier.policy.json",
+    "renamed": "saved as Models/chapter-06-final-model.zip and renamed to Models/chapter-06-risk-classifier.zip after the test; content hash unchanged"
+  },
+  "finalTest": {
+    "testFile": "chapter-06/test-1000.csv",
+    "testRecords": 1000,
+    "evaluatedOnce": true,
+    "scoreOrdering": [
+      "Low",
+      "Medium",
+      "High"
+    ],
+    "threshold": {
+      "threshold": 0.1121,
+      "records": 1000,
+      "truePositives": 44,
+      "falsePositives": 28,
+      "falseNegatives": 0,
+      "trueNegatives": 928,
+      "highPrecision": 0.6111,
+      "highRecall": 1,
+      "highF1": 0.7586,
+      "businessCost": 1400,
+      "highFlagRate": 0.072
+    },
+    "defaultRule": {
+      "threshold": null,
+      "records": 1000,
+      "truePositives": 33,
+      "falsePositives": 8,
+      "falseNegatives": 11,
+      "trueNegatives": 948,
+      "highPrecision": 0.8049,
+      "highRecall": 0.75,
+      "highF1": 0.7765,
+      "businessCost": 11400,
+      "highFlagRate": 0.041
+    },
+    "threeClassDefaultRule": {
+      "accuracy": 0.896,
+      "confusionMatrix": {
+        "Low": {
+          "Low": 477,
+          "Medium": 48,
+          "High": 0
+        },
+        "Medium": {
+          "Low": 37,
+          "Medium": 386,
+          "High": 8
+        },
+        "High": {
+          "Low": 0,
+          "Medium": 11,
+          "High": 33
+        }
+      }
+    },
+    "flagRateWithinLimit": true
+  },
+  "limitations": [
+    "The data is synthetic. The four engineered features copy the generator's label rules (oracle-informed), so class separation is easier than in real data.",
+    "100% High recall (224/224 in cross-validation, 44/44 on test) is an observed result, not a guarantee; one missed High record changes the test cost by $1,000.",
+    "The deployment threshold was chosen on pooled out-of-fold training scores; the nested outer-fold result is the less biased estimate of the selection procedure.",
+    "SDCA scores are not separately calibrated; the threshold is valid only for this model's score semantics.",
+    "Several configurations were compared on the same folds; small differences (e.g. F1 0.815 vs 0.822) are within fold noise.",
+    "The older CalculateMetricsForThreshold reads Score[1] (Medium in this harness); the Chapter 6 code does not use it."
+  ]
+}
