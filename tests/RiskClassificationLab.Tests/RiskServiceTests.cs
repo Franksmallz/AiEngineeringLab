@@ -1,5 +1,6 @@
 using RiskClassificationLab.Models;
 using RiskClassificationLab.Services.Implementations;
+using RiskClassificationLab.Services.Implementations.ML;
 using RiskClassificationLab.Services.Interfaces;
 using RiskClassificationLab.Services.Interfaces.ML;
 
@@ -29,6 +30,182 @@ public sealed class RiskServiceTests
         Assert.Equal(4, result.Train.Count);
         Assert.Equal(0, result.Evaluation.Count);
         Assert.Equal(["train.csv", "evaluation.csv"], writer.Filenames);
+    }
+
+    [Fact]
+    public void GenerateLargeDataset_writes_5000_train_and_1000_test_rows_without_duplicates()
+    {
+        var writer = new CapturingWriter();
+        var service = CreateService(writer: writer);
+
+        var result = service.GenerateLargeDataset();
+
+        Assert.Equal(["chapter-06/train-5000.csv", "chapter-06/test-1000.csv"], writer.Filenames);
+        Assert.Equal(5000, result.Train.Total);
+        Assert.Equal(1000, result.Test.Total);
+        Assert.Equal(result.Train.Total, result.Train.Low + result.Train.Medium + result.Train.High);
+        Assert.Equal(result.Test.Total, result.Test.Low + result.Test.Medium + result.Test.High);
+        Assert.Equal(0, result.Train.DuplicateRecords);
+        Assert.Equal(0, result.Test.DuplicateRecords);
+        Assert.Equal(0, result.CrossDatasetDuplicates);
+    }
+
+    [Fact]
+    public void GenerateLargeDataset_is_reproducible()
+    {
+        var first = CreateService().GenerateLargeDataset();
+        var second = CreateService().GenerateLargeDataset();
+
+        Assert.Equal(
+            (first.Train.Low, first.Train.Medium, first.Train.High, first.Test.Low, first.Test.Medium, first.Test.High),
+            (second.Train.Low, second.Train.Medium, second.Train.High, second.Test.Low, second.Test.Medium, second.Test.High));
+    }
+
+    [Fact]
+    public void EvaluateSdcaCrossValidation_predicts_every_record_once_and_writes_the_predictions()
+    {
+        var data = new RiskDatasetGenerator(seed: 42).Generate(300);
+        var writer = new CapturingWriter();
+        var service = CreateService(new StubReader(data), writer: writer);
+
+        var result = service.EvaluateSdcaCrossValidation();
+
+        Assert.Equal(5, result.FoldCount);
+        Assert.Equal(300, result.OutOfFoldPredictionCount);
+        Assert.Equal(300, result.Aggregate.Records);
+        Assert.All(result.Folds, f => Assert.Equal(240, f.TrainingRecords));
+        Assert.All(result.Folds, f => Assert.Equal(60, f.ValidationRecords));
+        Assert.Equal(["High", "Low", "Medium"], result.ScoreOrdering.Order());
+        Assert.True(result.ScoreOrderingSameInEveryFold);
+        Assert.All(result.Predictions, p => Assert.InRange(p.Scores.Values.Sum(), 0.99f, 1.01f));
+        Assert.All(result.Predictions, p => Assert.Equal(p.Scores.MaxBy(s => s.Value).Key, p.Predicted));
+        var written = Assert.Single(writer.Predictions);
+        Assert.Equal("evaluations/risk-classification/sdca-cross-validation-predictions.csv", written.Path);
+        Assert.Equal(300, written.Count);
+    }
+
+    [Fact]
+    public void EvaluateSdcaCrossValidation_repeats_every_label_and_score_exactly()
+    {
+        var data = new RiskDatasetGenerator(seed: 42).Generate(300);
+
+        var first = CreateService(new StubReader(data)).EvaluateSdcaCrossValidation();
+        var second = CreateService(new StubReader(data)).EvaluateSdcaCrossValidation();
+
+        Assert.Equal(first.Predictions.Select(p => p.Predicted), second.Predictions.Select(p => p.Predicted));
+        Assert.Equal(first.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)),
+            second.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)));
+    }
+
+    [Fact]
+    public void EvaluateSdcaEngineeredCrossValidation_adds_four_features_and_repeats_exactly()
+    {
+        var data = new RiskDatasetGenerator(seed: 42).Generate(300);
+        var writer = new CapturingWriter();
+
+        var first = CreateService(new StubReader(data), writer: writer).EvaluateSdcaEngineeredCrossValidation();
+        var second = CreateService(new StubReader(data)).EvaluateSdcaEngineeredCrossValidation();
+        var original = CreateService(new StubReader(data)).EvaluateSdcaCrossValidation();
+
+        Assert.Equal("Engineered", first.FeatureSet);
+        Assert.Equal(10, first.Features.Count);
+        Assert.Equal(original.Features, first.Features.Take(6));
+        Assert.Equal(original.Predictions.Select(p => (p.Fold, p.Actual)), first.Predictions.Select(p => (p.Fold, p.Actual)));
+        Assert.Equal(first.Predictions.Select(p => p.Predicted), second.Predictions.Select(p => p.Predicted));
+        Assert.Equal(first.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)),
+            second.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)));
+        Assert.Equal("evaluations/risk-classification/sdca-engineered-cross-validation-predictions.csv", Assert.Single(writer.Predictions).Path);
+    }
+
+    [Fact]
+    public void EvaluateSdcaEngineeredNormalizedCrossValidation_only_adds_scaling_and_repeats_exactly()
+    {
+        var data = new RiskDatasetGenerator(seed: 42).Generate(300);
+        var writer = new CapturingWriter();
+
+        var first = CreateService(new StubReader(data), writer: writer).EvaluateSdcaEngineeredNormalizedCrossValidation();
+        var second = CreateService(new StubReader(data)).EvaluateSdcaEngineeredNormalizedCrossValidation();
+        var unscaled = CreateService(new StubReader(data)).EvaluateSdcaEngineeredCrossValidation();
+
+        Assert.Equal("none", unscaled.FeatureScaling);
+        Assert.StartsWith("NormalizeMeanVariance", first.FeatureScaling);
+        Assert.Equal(unscaled.Features, first.Features);
+        Assert.Equal(unscaled.Predictions.Select(p => (p.Fold, p.Actual)), first.Predictions.Select(p => (p.Fold, p.Actual)));
+        Assert.Equal(first.Predictions.Select(p => p.Predicted), second.Predictions.Select(p => p.Predicted));
+        Assert.Equal(first.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)),
+            second.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)));
+        Assert.Equal("evaluations/risk-classification/sdca-engineered-normalized-cross-validation-predictions.csv", Assert.Single(writer.Predictions).Path);
+    }
+
+    [Fact]
+    public void Final_test_and_model_selection_refuse_to_run_after_the_test_set_was_used()
+    {
+        var store = new StubModelStore(["evaluations/risk-classification/chapter-06-final-test-results.json"]);
+        var service = CreateService(store: store);
+
+        Assert.Throws<InvalidOperationException>(() => service.EvaluateFinalModelOnTestSet());
+        Assert.Throws<InvalidOperationException>(() => service.SelectFinalModel());
+    }
+
+    [Fact]
+    public void EvaluateSdcaNestedThreshold_chooses_each_threshold_without_the_locked_fold()
+    {
+        var data = new RiskDatasetGenerator(seed: 42).Generate(300);
+        var writer = new CapturingWriter();
+
+        var result = CreateService(new StubReader(data), writer: writer).EvaluateSdcaNestedThreshold();
+        var step5 = CreateService(new StubReader(data)).EvaluateSdcaEngineeredNormalizedCrossValidation();
+
+        Assert.Equal(5, result.Folds.Count);
+        Assert.All(result.Folds, f => Assert.Equal(240, f.InnerRecords));
+        Assert.All(result.Folds, f => Assert.Equal([180, 180, 180, 180], f.InnerTrainingRecords));
+        Assert.All(result.Folds, f => Assert.Equal(240, f.OuterTrainingRecords));
+        Assert.All(result.Folds, f => Assert.True(f.Inner.HighFlagRate <= 0.40));
+        Assert.All(result.Folds, f => Assert.Equal(60, f.Outer.Records));
+        Assert.Equal(300, result.NestedAggregate.Records);
+        Assert.Equal(result.Folds.Sum(f => f.Outer.BusinessCost), result.NestedAggregate.BusinessCost);
+        Assert.Equal((step5.Aggregate.TruePositives, step5.Aggregate.FalsePositives, step5.Aggregate.FalseNegatives),
+            (result.DefaultRule.TruePositives, result.DefaultRule.FalsePositives, result.DefaultRule.FalseNegatives));
+        Assert.Equal("evaluations/risk-classification/sdca-engineered-normalized-threshold-sweep.csv", Assert.Single(writer.Sweeps).Path);
+    }
+
+    [Fact]
+    public void EvaluateSdcaNormalizedCrossValidation_keeps_six_features_and_repeats_exactly()
+    {
+        var data = new RiskDatasetGenerator(seed: 42).Generate(300);
+        var writer = new CapturingWriter();
+
+        var first = CreateService(new StubReader(data), writer: writer).EvaluateSdcaNormalizedCrossValidation();
+        var second = CreateService(new StubReader(data)).EvaluateSdcaNormalizedCrossValidation();
+        var baseline = CreateService(new StubReader(data)).EvaluateSdcaCrossValidation();
+
+        Assert.Equal("Original", first.FeatureSet);
+        Assert.StartsWith("NormalizeMeanVariance", first.FeatureScaling);
+        Assert.Equal(baseline.Features, first.Features);
+        Assert.Equal(baseline.Predictions.Select(p => (p.Fold, p.Actual)), first.Predictions.Select(p => (p.Fold, p.Actual)));
+        Assert.Equal(first.Predictions.Select(p => p.Predicted), second.Predictions.Select(p => p.Predicted));
+        Assert.Equal(first.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)),
+            second.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)));
+        Assert.Equal("evaluations/risk-classification/sdca-normalized-cross-validation-predictions.csv", Assert.Single(writer.Predictions).Path);
+    }
+
+    [Fact]
+    public void EvaluateLightGbmCrossValidation_uses_the_same_folds_and_repeats_exactly()
+    {
+        var data = new RiskDatasetGenerator(seed: 42).Generate(300);
+        var writer = new CapturingWriter();
+
+        var first = CreateService(new StubReader(data), writer: writer).EvaluateLightGbmCrossValidation();
+        var second = CreateService(new StubReader(data)).EvaluateLightGbmCrossValidation();
+        var sdca = CreateService(new StubReader(data)).EvaluateSdcaCrossValidation();
+
+        Assert.Equal(300, first.OutOfFoldPredictionCount);
+        Assert.Equal(sdca.Predictions.Select(p => (p.Fold, p.Actual)), first.Predictions.Select(p => (p.Fold, p.Actual)));
+        Assert.Equal(first.Predictions.Select(p => p.Predicted), second.Predictions.Select(p => p.Predicted));
+        Assert.Equal(first.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)),
+            second.Predictions.SelectMany(p => p.Scores.OrderBy(s => s.Key)));
+        Assert.All(first.Predictions, p => Assert.Equal(p.Scores.MaxBy(s => s.Value).Key, p.Predicted));
+        Assert.Equal("evaluations/risk-classification/lightgbm-cross-validation-predictions.csv", Assert.Single(writer.Predictions).Path);
     }
 
     [Fact]
@@ -254,7 +431,9 @@ public sealed class RiskServiceTests
         IDatasetWriter? writer = null,
         IModelTrainer? trainer = null,
         IImplementationResolverService? resolver = null,
-        IDatasetProfiler? profiler = null) =>
+        IDatasetProfiler? profiler = null,
+        ICrossValidationEvaluator? evaluator = null,
+        IFinalModelStore? store = null) =>
         new(
             generator ?? new StubGenerator([]),
             new DatasetSplitter(),
@@ -262,7 +441,9 @@ public sealed class RiskServiceTests
             reader ?? new StubReader([]),
             trainer ?? new CapturingTrainer(),
             resolver ?? new CapturingResolver(),
-            profiler ?? new DatasetProfiler());
+            profiler ?? new DatasetProfiler(),
+            evaluator ?? new CrossValidationEvaluator(new DatasetSplitter()),
+            store ?? new StubModelStore(existingFiles: []));
 
     private sealed class StubGenerator(List<TransactionRiskData> transactions) : IRiskDatasetGenerator
     {
@@ -273,10 +454,27 @@ public sealed class RiskServiceTests
             transactions.FirstOrDefault() ?? new TransactionRiskData { RiskLevel = "High" };
     }
 
+    private sealed class StubModelStore(HashSet<string> existingFiles) : IFinalModelStore
+    {
+        public string SaveModel(Microsoft.ML.MLContext mlContext, Microsoft.ML.ITransformer model, Microsoft.ML.DataViewSchema inputSchema, string configuredPath) =>
+            throw new NotSupportedException();
+        public Microsoft.ML.ITransformer LoadModel(Microsoft.ML.MLContext mlContext, string configuredPath, string expectedContentSha256) =>
+            throw new NotSupportedException();
+        public bool Exists(string configuredPath) => existingFiles.Contains(configuredPath);
+        public void WriteJson<T>(string configuredPath, T value, bool overwrite) => throw new NotSupportedException();
+        public T ReadJson<T>(string configuredPath) => throw new NotSupportedException();
+    }
+
     private sealed class CapturingWriter : IDatasetWriter
     {
         public List<string> Filenames { get; } = [];
         public void CsvDatasetWriter(string filename, List<TransactionRiskData> data) => Filenames.Add(filename);
+        public List<(string Path, int Count, List<string> ScoreOrdering)> Predictions { get; } = [];
+        public void CsvPredictionWriter(string configuredPath, List<OutOfFoldPrediction> predictions, List<string> scoreOrdering) =>
+            Predictions.Add((configuredPath, predictions.Count, scoreOrdering));
+        public List<(string Path, int Count)> Sweeps { get; } = [];
+        public void CsvThresholdSweepWriter(string configuredPath, List<BinaryThresholdMetrics> sweep) =>
+            Sweeps.Add((configuredPath, sweep.Count));
     }
 
     private sealed class CapturingTrainer : IModelTrainer
