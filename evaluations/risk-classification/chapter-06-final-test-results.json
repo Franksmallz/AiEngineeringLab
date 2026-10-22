@@ -1,0 +1,117 @@
+{
+  "frozen": {
+    "model": "ML.NET SDCA Maximum Entropy",
+    "featureSet": "Engineered",
+    "features": [
+      "Amount",
+      "TransactionHour",
+      "CustomerTransactionCount24h",
+      "RecentFailureCount",
+      "BeneficiaryAgeDays",
+      "IsHighRiskCountryFloat",
+      "IsNewBeneficiary",
+      "IsLargeTransaction",
+      "NewBeneficiaryLargeAmount",
+      "IsLateNight"
+    ],
+    "featureScaling": "NormalizeMeanVariance, fitted on the 5,000 training records",
+    "trainingFile": "chapter-06/train-5000.csv",
+    "trainingRecords": 5000,
+    "seed": 42,
+    "deploymentThreshold": 0.1121373102068901,
+    "thresholdSelection": "lowest business cost on the winner's 5,000 out-of-fold training scores, flag rate <= 40%; ties keep the higher threshold",
+    "thresholdOnTrainingOutOfFold": {
+      "threshold": 0.1121373102068901,
+      "records": 5000,
+      "truePositives": 224,
+      "falsePositives": 159,
+      "falseNegatives": 0,
+      "trueNegatives": 4617,
+      "highPrecision": 0.5848563968668408,
+      "highRecall": 1,
+      "highF1": 0.7380560131795717,
+      "businessCost": 7950,
+      "highFlagRate": 0.0766
+    },
+    "maximumFlagRate": 0.4,
+    "nestedEstimate": {
+      "threshold": null,
+      "records": 5000,
+      "truePositives": 224,
+      "falsePositives": 163,
+      "falseNegatives": 0,
+      "trueNegatives": 4613,
+      "highPrecision": 0.5788113695090439,
+      "highRecall": 1,
+      "highF1": 0.7332242225859247,
+      "businessCost": 8150,
+      "highFlagRate": 0.0774
+    },
+    "modelFile": "Models/chapter-06-risk-classifier.zip",
+    "modelContentSha256": "0fd45f32162ab491340192b4023e1990a3d13935cd050f7b133745e8e309b571",
+    "testSetUsed": true
+  },
+  "testFile": "chapter-06/test-1000.csv",
+  "testRecords": 1000,
+  "scoreOrdering": [
+    "Low",
+    "Medium",
+    "High"
+  ],
+  "threshold": {
+    "threshold": 0.1121373102068901,
+    "records": 1000,
+    "truePositives": 44,
+    "falsePositives": 28,
+    "falseNegatives": 0,
+    "trueNegatives": 928,
+    "highPrecision": 0.6111111111111112,
+    "highRecall": 1,
+    "highF1": 0.7586206896551725,
+    "businessCost": 1400,
+    "highFlagRate": 0.072
+  },
+  "defaultRule": {
+    "threshold": null,
+    "records": 1000,
+    "truePositives": 33,
+    "falsePositives": 8,
+    "falseNegatives": 11,
+    "trueNegatives": 948,
+    "highPrecision": 0.8048780487804879,
+    "highRecall": 0.75,
+    "highF1": 0.7764705882352942,
+    "businessCost": 11400,
+    "highFlagRate": 0.041
+  },
+  "threeClassDefaultRule": {
+    "records": 1000,
+    "accuracy": 0.896,
+    "truePositives": 33,
+    "falsePositives": 8,
+    "falseNegatives": 11,
+    "highPrecision": 0.8048780487804879,
+    "highRecall": 0.75,
+    "highF1": 0.7764705882352942,
+    "businessCost": 11400,
+    "highFlagRate": 0.041,
+    "confusionMatrix": {
+      "Low": {
+        "Low": 477,
+        "Medium": 48,
+        "High": 0
+      },
+      "Medium": {
+        "Low": 37,
+        "Medium": 386,
+        "High": 8
+      },
+      "High": {
+        "Low": 0,
+        "Medium": 11,
+        "High": 33
+      }
+    }
+  },
+  "flagRateWithinLimit": true
+}
