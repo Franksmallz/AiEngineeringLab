@@ -1,0 +1,236 @@
+{
+  "chapter": 6,
+  "title": "Model Optimization",
+  "step": "7 - Learning curves",
+  "question": "How much training data do the two strongest candidates need, and is performance still improving at 4,000 records?",
+  "controls": {
+    "dataset": "chapter-06/train-5000.csv",
+    "testSetUsed": false,
+    "folds": "DatasetSplitter.StratifiedKFold, 5 folds, seed 42 (same as steps 2-6)",
+    "subsetRule": "DatasetSplitter.NestedStratifiedSubset per fold, seed 42: nested and stratified; 4,000 is the full fold training set",
+    "validation": "each fold's same 1,000 records at every training size",
+    "predictionRule": "default class prediction (highest score); no threshold tuning",
+    "aggregation": "metrics from all 5,000 out-of-fold predictions together",
+    "businessCost": "FN x $1,000 + FP x $50",
+    "trainingSizes": [
+      300,
+      600,
+      1200,
+      2400,
+      4000
+    ],
+    "scoreOrdering": "read from slot names per fold; at 600 records folds 1 and 5 order Medium, Low, High. Scores are stored by class name, so the metrics do not depend on it."
+  },
+  "reproducibility": {
+    "runs": 2,
+    "responseIdentical": true,
+    "fullSizeMatchesEarlierRuns": "the 4,000 points equal the step 5 SDCA and the frozen LightGBM aggregates exactly"
+  },
+  "curves": {
+    "sdcaEngineeredNormalized": {
+      "model": "ML.NET SDCA Maximum Entropy",
+      "featureSet": "Engineered",
+      "featureScaling": "NormalizeMeanVariance, fitted on each fold's training partition",
+      "points": [
+        {
+          "trainingSize": 300,
+          "accuracy": 0.8938,
+          "highPrecision": 0.7784,
+          "highRecall": 0.6741,
+          "highF1": 0.7225,
+          "truePositives": 151,
+          "falsePositives": 43,
+          "falseNegatives": 73,
+          "businessCost": 75150,
+          "highFlagRate": 0.0388,
+          "foldHighF1": [
+            0.8,
+            0.7742,
+            0.6977,
+            0.5797,
+            0.7294
+          ]
+        },
+        {
+          "trainingSize": 600,
+          "accuracy": 0.9022,
+          "highPrecision": 0.8384,
+          "highRecall": 0.7411,
+          "highF1": 0.7867,
+          "truePositives": 166,
+          "falsePositives": 32,
+          "falseNegatives": 58,
+          "businessCost": 59600,
+          "highFlagRate": 0.0396,
+          "foldHighF1": [
+            0.7901,
+            0.7952,
+            0.7835,
+            0.8148,
+            0.75
+          ]
+        },
+        {
+          "trainingSize": 1200,
+          "accuracy": 0.9058,
+          "highPrecision": 0.8673,
+          "highRecall": 0.7589,
+          "highF1": 0.8095,
+          "truePositives": 170,
+          "falsePositives": 26,
+          "falseNegatives": 54,
+          "businessCost": 55300,
+          "highFlagRate": 0.0392,
+          "foldHighF1": [
+            0.8506,
+            0.7955,
+            0.7907,
+            0.7895,
+            0.8193
+          ]
+        },
+        {
+          "trainingSize": 2400,
+          "accuracy": 0.9078,
+          "highPrecision": 0.8906,
+          "highRecall": 0.7634,
+          "highF1": 0.8221,
+          "truePositives": 171,
+          "falsePositives": 21,
+          "falseNegatives": 53,
+          "businessCost": 54050,
+          "highFlagRate": 0.0384,
+          "foldHighF1": [
+            0.8235,
+            0.8,
+            0.8276,
+            0.7895,
+            0.8675
+          ]
+        },
+        {
+          "trainingSize": 4000,
+          "accuracy": 0.9082,
+          "highPrecision": 0.8978,
+          "highRecall": 0.7455,
+          "highF1": 0.8146,
+          "truePositives": 167,
+          "falsePositives": 19,
+          "falseNegatives": 57,
+          "businessCost": 57950,
+          "highFlagRate": 0.0372,
+          "foldHighF1": [
+            0.8605,
+            0.7901,
+            0.8,
+            0.7733,
+            0.8434
+          ]
+        }
+      ]
+    },
+    "lightgbm": {
+      "model": "ML.NET LightGBM Multiclass",
+      "featureSet": "Original",
+      "featureScaling": "none",
+      "points": [
+        {
+          "trainingSize": 300,
+          "accuracy": 0.8382,
+          "highPrecision": 0.7,
+          "highRecall": 0.3125,
+          "highF1": 0.4321,
+          "truePositives": 70,
+          "falsePositives": 30,
+          "falseNegatives": 154,
+          "businessCost": 155500,
+          "highFlagRate": 0.02,
+          "foldHighF1": [
+            0.5231,
+            0.5385,
+            0.3871,
+            0.2712,
+            0.4
+          ]
+        },
+        {
+          "trainingSize": 600,
+          "accuracy": 0.8598,
+          "highPrecision": 0.8468,
+          "highRecall": 0.4196,
+          "highF1": 0.5612,
+          "truePositives": 94,
+          "falsePositives": 17,
+          "falseNegatives": 130,
+          "businessCost": 130850,
+          "highFlagRate": 0.0222,
+          "foldHighF1": [
+            0.5397,
+            0.6087,
+            0.5915,
+            0.5,
+            0.5588
+          ]
+        },
+        {
+          "trainingSize": 1200,
+          "accuracy": 0.8694,
+          "highPrecision": 0.8487,
+          "highRecall": 0.5759,
+          "highF1": 0.6862,
+          "truePositives": 129,
+          "falsePositives": 23,
+          "falseNegatives": 95,
+          "businessCost": 96150,
+          "highFlagRate": 0.0304,
+          "foldHighF1": [
+            0.7397,
+            0.7089,
+            0.7294,
+            0.6176,
+            0.6197
+          ]
+        },
+        {
+          "trainingSize": 2400,
+          "accuracy": 0.8912,
+          "highPrecision": 0.8305,
+          "highRecall": 0.6562,
+          "highF1": 0.7332,
+          "truePositives": 147,
+          "falsePositives": 30,
+          "falseNegatives": 77,
+          "businessCost": 78500,
+          "highFlagRate": 0.0354,
+          "foldHighF1": [
+            0.7654,
+            0.7317,
+            0.7529,
+            0.6579,
+            0.7532
+          ]
+        },
+        {
+          "trainingSize": 4000,
+          "accuracy": 0.8916,
+          "highPrecision": 0.8713,
+          "highRecall": 0.6652,
+          "highF1": 0.7544,
+          "truePositives": 149,
+          "falsePositives": 22,
+          "falseNegatives": 75,
+          "businessCost": 76100,
+          "highFlagRate": 0.0342,
+          "foldHighF1": [
+            0.7654,
+            0.7805,
+            0.7952,
+            0.6849,
+            0.7368
+          ]
+        }
+      ]
+    }
+  },
+  "conclusion": "SDCA with engineered features and normalization learns fast: High F1 0.723 at 300 records, 0.810 at 1,200 and about 0.81-0.82 from 1,200 to 4,000, so it has plateaued. LightGBM improves at every size (0.432, 0.561, 0.686, 0.733, 0.754) and is still rising slowly at 4,000. SDCA is ahead at every training size. These are cross-validation estimates; test-1000.csv is untouched."
+}
