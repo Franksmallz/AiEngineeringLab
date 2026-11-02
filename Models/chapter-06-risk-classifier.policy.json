@@ -1,0 +1,42 @@
+{
+  "policyVersion": "chapter-06-v1",
+  "model": {
+    "file": "Models/chapter-06-risk-classifier.zip",
+    "contentSha256": "0fd45f32162ab491340192b4023e1990a3d13935cd050f7b133745e8e309b571",
+    "contentHashRule": "SHA-256 over the zip entries sorted by ordinal name: UTF-8 entry name (as stored, with backslashes) then entry bytes",
+    "trainer": "ML.NET SDCA Maximum Entropy (NumberOfThreads 1)",
+    "features": [
+      "Amount",
+      "TransactionHour",
+      "CustomerTransactionCount24h",
+      "RecentFailureCount",
+      "BeneficiaryAgeDays",
+      "IsHighRiskCountryFloat",
+      "IsNewBeneficiary",
+      "IsLargeTransaction",
+      "NewBeneficiaryLargeAmount",
+      "IsLateNight"
+    ],
+    "featureScaling": "NormalizeMeanVariance, fitted on the 5,000 training records",
+    "pipelineIncludesPreprocessing": true,
+    "customMapping": "EngineeredFeatures; register the RiskClassificationLab assembly with mlContext.ComponentCatalog before loading"
+  },
+  "decision": {
+    "positiveClass": "High",
+    "score": "the Score slot whose slot name is High, read from the loaded model's Score column slot names; never a fixed index",
+    "scoreSemantics": "SDCA softmax class score in [0, 1]; the three scores sum to 1; not separately calibrated",
+    "rule": "flag High when score(High) >= threshold",
+    "threshold": 0.1121373102068901,
+    "thresholdSelection": "lowest business cost on the winner's 5,000 out-of-fold training scores, flag rate <= 40%; ties keep the higher threshold",
+    "maximumFlagRate": 0.4,
+    "otherwise": "keep the model's Low or Medium prediction (the default rule) for the three-class label"
+  },
+  "businessCost": {
+    "falseNegative": 1000,
+    "falsePositive": 50
+  },
+  "evidence": {
+    "frozenSpec": "evaluations/risk-classification/chapter-06-frozen-model.json",
+    "finalTest": "evaluations/risk-classification/chapter-06-final-test-results.json"
+  }
+}

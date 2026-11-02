@@ -5,7 +5,17 @@ namespace RiskClassificationLab.Services.Implementations
 {
     public class RiskDatasetGenerator : IRiskDatasetGenerator
     {
-        private readonly Random _random = new(42);
+        private readonly Random _random;
+
+        public RiskDatasetGenerator() : this(seed: 42)
+        {
+        }
+
+        public RiskDatasetGenerator(int seed)
+        {
+            _random = new Random(seed);
+        }
+
         public List<TransactionRiskData> Generate(int count)
         {
             var transactions = new List<TransactionRiskData>();
@@ -71,7 +81,7 @@ namespace RiskClassificationLab.Services.Implementations
                 score += 1.0;
 
             var noise = (_random.NextDouble() - 0.5) * 1.0;
-            score += 1.0;
+            score += noise;
 
             return score switch
             {
