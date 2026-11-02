@@ -19,5 +19,16 @@ namespace RiskClassificationLab.Services.Interfaces
         SuspiciousTransactions FindSuspiciousTransactions();
         List<TransactionRiskPredictionEvaluation> EvaluateRandomHighRiskAugmentation();
         List<TransactionRiskPredictionEvaluationWithRecord> FindHighRiskFalseNegatives();
+        LargeDatasetResult GenerateLargeDataset();
+        CrossValidationFoldsResult ValidateCrossValidationFolds();
+        CrossValidationEvaluationResult EvaluateSdcaCrossValidation();
+        CrossValidationEvaluationResult EvaluateLightGbmCrossValidation();
+        CrossValidationEvaluationResult EvaluateSdcaEngineeredCrossValidation();
+        CrossValidationEvaluationResult EvaluateSdcaEngineeredNormalizedCrossValidation();
+        CrossValidationEvaluationResult EvaluateSdcaNormalizedCrossValidation();
+        LearningCurveResult EvaluateLearningCurves();
+        ThresholdEvaluationResult EvaluateSdcaNestedThreshold();
+        ModelSelectionResult SelectFinalModel();
+        FinalTestResult EvaluateFinalModelOnTestSet();
     }
 }
