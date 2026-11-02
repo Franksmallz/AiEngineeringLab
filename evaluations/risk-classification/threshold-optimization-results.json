@@ -1,0 +1,433 @@
+{
+  "chapter": 6,
+  "title": "Model Optimization",
+  "step": "8 - Decision-threshold optimization, nested cross-validation",
+  "question": "Can a threshold on the High score lower the business cost below the default class prediction?",
+  "controls": {
+    "model": "SDCA Maximum Entropy, engineered features, NormalizeMeanVariance (step 5)",
+    "dataset": "chapter-06/train-5000.csv",
+    "testSetUsed": false,
+    "outerFolds": "DatasetSplitter.StratifiedKFold, 5 folds, seed 42 (same as steps 2-7); the outer scores are the step 5 run",
+    "innerFolds": "for each locked fold, 4-fold cross-validation on the other 4 folds; each inner model trains on 3,000 records",
+    "modelsTrained": 25,
+    "decisionRule": "flag High when ScoreHigh >= threshold; ScoreHigh is read by class name",
+    "selectionRule": "lowest business cost on the inner out-of-fold scores, flag rate <= 40%; ties keep the higher threshold",
+    "maximumFlagRate": 0.4,
+    "calibration": "not applied; the threshold is chosen by search, and a monotone calibration does not change which records a threshold can flag",
+    "businessCost": "FN x $1,000 + FP x $50"
+  },
+  "reproducibility": {
+    "runs": 2,
+    "responseIdentical": true,
+    "sweepFileIdentical": true,
+    "earlierPredictionFilesUnchanged": true
+  },
+  "nestedEstimate": {
+    "threshold": null,
+    "truePositives": 224,
+    "falsePositives": 163,
+    "falseNegatives": 0,
+    "highPrecision": 0.5788,
+    "highRecall": 1,
+    "highF1": 0.7332,
+    "businessCost": 8150,
+    "highFlagRate": 0.0774
+  },
+  "folds": [
+    {
+      "fold": 1,
+      "selectedThreshold": 0.1631,
+      "inner": {
+        "threshold": 0.1631,
+        "truePositives": 177,
+        "falsePositives": 93,
+        "falseNegatives": 2,
+        "highPrecision": 0.6556,
+        "highRecall": 0.9888,
+        "highF1": 0.7884,
+        "businessCost": 6650,
+        "highFlagRate": 0.0675
+      },
+      "outer": {
+        "threshold": 0.1631,
+        "truePositives": 45,
+        "falsePositives": 26,
+        "falseNegatives": 0,
+        "highPrecision": 0.6338,
+        "highRecall": 1,
+        "highF1": 0.7759,
+        "businessCost": 1300,
+        "highFlagRate": 0.071
+      },
+      "outerDefaultRule": {
+        "threshold": null,
+        "truePositives": 37,
+        "falsePositives": 4,
+        "falseNegatives": 8,
+        "highPrecision": 0.9024,
+        "highRecall": 0.8222,
+        "highF1": 0.8605,
+        "businessCost": 8200,
+        "highFlagRate": 0.041
+      }
+    },
+    {
+      "fold": 2,
+      "selectedThreshold": 0.1044,
+      "inner": {
+        "threshold": 0.1044,
+        "truePositives": 179,
+        "falsePositives": 134,
+        "falseNegatives": 0,
+        "highPrecision": 0.5719,
+        "highRecall": 1,
+        "highF1": 0.7276,
+        "businessCost": 6700,
+        "highFlagRate": 0.0783
+      },
+      "outer": {
+        "threshold": 0.1044,
+        "truePositives": 45,
+        "falsePositives": 29,
+        "falseNegatives": 0,
+        "highPrecision": 0.6081,
+        "highRecall": 1,
+        "highF1": 0.7563,
+        "businessCost": 1450,
+        "highFlagRate": 0.074
+      },
+      "outerDefaultRule": {
+        "threshold": null,
+        "truePositives": 32,
+        "falsePositives": 4,
+        "falseNegatives": 13,
+        "highPrecision": 0.8889,
+        "highRecall": 0.7111,
+        "highF1": 0.7901,
+        "businessCost": 13200,
+        "highFlagRate": 0.036
+      }
+    },
+    {
+      "fold": 3,
+      "selectedThreshold": 0.114,
+      "inner": {
+        "threshold": 0.114,
+        "truePositives": 179,
+        "falsePositives": 132,
+        "falseNegatives": 0,
+        "highPrecision": 0.5756,
+        "highRecall": 1,
+        "highF1": 0.7306,
+        "businessCost": 6600,
+        "highFlagRate": 0.0777
+      },
+      "outer": {
+        "threshold": 0.114,
+        "truePositives": 45,
+        "falsePositives": 37,
+        "falseNegatives": 0,
+        "highPrecision": 0.5488,
+        "highRecall": 1,
+        "highF1": 0.7087,
+        "businessCost": 1850,
+        "highFlagRate": 0.082
+      },
+      "outerDefaultRule": {
+        "threshold": null,
+        "truePositives": 34,
+        "falsePositives": 6,
+        "falseNegatives": 11,
+        "highPrecision": 0.85,
+        "highRecall": 0.7556,
+        "highF1": 0.8,
+        "businessCost": 11300,
+        "highFlagRate": 0.04
+      }
+    },
+    {
+      "fold": 4,
+      "selectedThreshold": 0.0867,
+      "inner": {
+        "threshold": 0.0867,
+        "truePositives": 179,
+        "falsePositives": 144,
+        "falseNegatives": 0,
+        "highPrecision": 0.5542,
+        "highRecall": 1,
+        "highF1": 0.7131,
+        "businessCost": 7200,
+        "highFlagRate": 0.0808
+      },
+      "outer": {
+        "threshold": 0.0867,
+        "truePositives": 45,
+        "falsePositives": 33,
+        "falseNegatives": 0,
+        "highPrecision": 0.5769,
+        "highRecall": 1,
+        "highF1": 0.7317,
+        "businessCost": 1650,
+        "highFlagRate": 0.078
+      },
+      "outerDefaultRule": {
+        "threshold": null,
+        "truePositives": 29,
+        "falsePositives": 1,
+        "falseNegatives": 16,
+        "highPrecision": 0.9667,
+        "highRecall": 0.6444,
+        "highF1": 0.7733,
+        "businessCost": 16050,
+        "highFlagRate": 0.03
+      }
+    },
+    {
+      "fold": 5,
+      "selectedThreshold": 0.0964,
+      "inner": {
+        "threshold": 0.0964,
+        "truePositives": 180,
+        "falsePositives": 144,
+        "falseNegatives": 0,
+        "highPrecision": 0.5556,
+        "highRecall": 1,
+        "highF1": 0.7143,
+        "businessCost": 7200,
+        "highFlagRate": 0.081
+      },
+      "outer": {
+        "threshold": 0.0964,
+        "truePositives": 44,
+        "falsePositives": 38,
+        "falseNegatives": 0,
+        "highPrecision": 0.5366,
+        "highRecall": 1,
+        "highF1": 0.6984,
+        "businessCost": 1900,
+        "highFlagRate": 0.082
+      },
+      "outerDefaultRule": {
+        "threshold": null,
+        "truePositives": 35,
+        "falsePositives": 4,
+        "falseNegatives": 9,
+        "highPrecision": 0.8974,
+        "highRecall": 0.7955,
+        "highF1": 0.8434,
+        "businessCost": 9200,
+        "highFlagRate": 0.039
+      }
+    }
+  ],
+  "comparisons": {
+    "defaultRule": {
+      "threshold": null,
+      "truePositives": 167,
+      "falsePositives": 19,
+      "falseNegatives": 57,
+      "highPrecision": 0.8978,
+      "highRecall": 0.7455,
+      "highF1": 0.8146,
+      "businessCost": 57950,
+      "highFlagRate": 0.0372
+    },
+    "costRatioRule": {
+      "note": "fixed threshold 50 / 1,050; not chosen from the data",
+      "metrics": {
+        "threshold": 0.0476,
+        "truePositives": 224,
+        "falsePositives": 261,
+        "falseNegatives": 0,
+        "highPrecision": 0.4619,
+        "highRecall": 1,
+        "highF1": 0.6319,
+        "businessCost": 13050,
+        "highFlagRate": 0.097
+      }
+    },
+    "inSampleBest": {
+      "note": "chosen and graded on the same 5,000 predictions; optimistic, exploration only",
+      "metrics": {
+        "threshold": 0.1121,
+        "truePositives": 224,
+        "falsePositives": 159,
+        "falseNegatives": 0,
+        "highPrecision": 0.5849,
+        "highRecall": 1,
+        "highF1": 0.7381,
+        "businessCost": 7950,
+        "highFlagRate": 0.0766
+      }
+    }
+  },
+  "inSampleGrid": [
+    {
+      "threshold": 0.01,
+      "truePositives": 224,
+      "falsePositives": 515,
+      "falseNegatives": 0,
+      "highPrecision": 0.3031,
+      "highRecall": 1,
+      "highF1": 0.4652,
+      "businessCost": 25750,
+      "highFlagRate": 0.1478
+    },
+    {
+      "threshold": 0.02,
+      "truePositives": 224,
+      "falsePositives": 385,
+      "falseNegatives": 0,
+      "highPrecision": 0.3678,
+      "highRecall": 1,
+      "highF1": 0.5378,
+      "businessCost": 19250,
+      "highFlagRate": 0.1218
+    },
+    {
+      "threshold": 0.03,
+      "truePositives": 224,
+      "falsePositives": 333,
+      "falseNegatives": 0,
+      "highPrecision": 0.4022,
+      "highRecall": 1,
+      "highF1": 0.5736,
+      "businessCost": 16650,
+      "highFlagRate": 0.1114
+    },
+    {
+      "threshold": 0.05,
+      "truePositives": 224,
+      "falsePositives": 257,
+      "falseNegatives": 0,
+      "highPrecision": 0.4657,
+      "highRecall": 1,
+      "highF1": 0.6355,
+      "businessCost": 12850,
+      "highFlagRate": 0.0962
+    },
+    {
+      "threshold": 0.075,
+      "truePositives": 224,
+      "falsePositives": 198,
+      "falseNegatives": 0,
+      "highPrecision": 0.5308,
+      "highRecall": 1,
+      "highF1": 0.6935,
+      "businessCost": 9900,
+      "highFlagRate": 0.0844
+    },
+    {
+      "threshold": 0.1,
+      "truePositives": 224,
+      "falsePositives": 170,
+      "falseNegatives": 0,
+      "highPrecision": 0.5685,
+      "highRecall": 1,
+      "highF1": 0.7249,
+      "businessCost": 8500,
+      "highFlagRate": 0.0788
+    },
+    {
+      "threshold": 0.15,
+      "truePositives": 219,
+      "falsePositives": 128,
+      "falseNegatives": 5,
+      "highPrecision": 0.6311,
+      "highRecall": 0.9777,
+      "highF1": 0.7671,
+      "businessCost": 11400,
+      "highFlagRate": 0.0694
+    },
+    {
+      "threshold": 0.2,
+      "truePositives": 211,
+      "falsePositives": 91,
+      "falseNegatives": 13,
+      "highPrecision": 0.6987,
+      "highRecall": 0.942,
+      "highF1": 0.8023,
+      "businessCost": 17550,
+      "highFlagRate": 0.0604
+    },
+    {
+      "threshold": 0.3,
+      "truePositives": 196,
+      "falsePositives": 55,
+      "falseNegatives": 28,
+      "highPrecision": 0.7809,
+      "highRecall": 0.875,
+      "highF1": 0.8253,
+      "businessCost": 30750,
+      "highFlagRate": 0.0502
+    },
+    {
+      "threshold": 0.4,
+      "truePositives": 183,
+      "falsePositives": 37,
+      "falseNegatives": 41,
+      "highPrecision": 0.8318,
+      "highRecall": 0.817,
+      "highF1": 0.8243,
+      "businessCost": 42850,
+      "highFlagRate": 0.044
+    },
+    {
+      "threshold": 0.5,
+      "truePositives": 167,
+      "falsePositives": 19,
+      "falseNegatives": 57,
+      "highPrecision": 0.8978,
+      "highRecall": 0.7455,
+      "highF1": 0.8146,
+      "businessCost": 57950,
+      "highFlagRate": 0.0372
+    },
+    {
+      "threshold": 0.6,
+      "truePositives": 153,
+      "falsePositives": 11,
+      "falseNegatives": 71,
+      "highPrecision": 0.9329,
+      "highRecall": 0.683,
+      "highF1": 0.7887,
+      "businessCost": 71550,
+      "highFlagRate": 0.0328
+    },
+    {
+      "threshold": 0.7,
+      "truePositives": 141,
+      "falsePositives": 5,
+      "falseNegatives": 83,
+      "highPrecision": 0.9658,
+      "highRecall": 0.6295,
+      "highF1": 0.7622,
+      "businessCost": 83250,
+      "highFlagRate": 0.0292
+    },
+    {
+      "threshold": 0.8,
+      "truePositives": 120,
+      "falsePositives": 1,
+      "falseNegatives": 104,
+      "highPrecision": 0.9917,
+      "highRecall": 0.5357,
+      "highF1": 0.6957,
+      "businessCost": 104050,
+      "highFlagRate": 0.0242
+    },
+    {
+      "threshold": 0.9,
+      "truePositives": 91,
+      "falsePositives": 0,
+      "falseNegatives": 133,
+      "highPrecision": 1,
+      "highRecall": 0.4062,
+      "highF1": 0.5778,
+      "businessCost": 133000,
+      "highFlagRate": 0.0182
+    }
+  ],
+  "sweepFile": "evaluations/risk-classification/sdca-engineered-normalized-threshold-sweep.csv",
+  "conclusion": "Nested cross-validation chose thresholds from 0.087 to 0.163. On the locked folds they caught all 224 High records with 163 false alarms: cost $8,150 against $57,950 for the default rule (-85.9%), flag rate 7.74%. The in-sample best ($7,950 at 0.112) is only $200 lower, so the selection optimism is small here. High F1 falls from 0.815 to 0.733, because the cost rule accepts false alarms to remove misses. Perfect recall reflects clean synthetic data with oracle-informed features. These are cross-validation estimates; test-1000.csv is untouched."
+}
