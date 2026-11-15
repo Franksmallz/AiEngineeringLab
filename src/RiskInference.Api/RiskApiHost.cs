@@ -2,6 +2,7 @@ using RiskClassificationLab.Services.Implementations;
 using RiskClassificationLab.Services.Interfaces;
 using RiskInference.Api.Endpoints;
 using RiskInference.Api.Model;
+using RiskInference.Api.Operations;
 
 namespace RiskInference.Api;
 
@@ -27,10 +28,22 @@ public static class RiskApiHost
             ?? new RiskModelOptions().ShutdownTimeoutSeconds;
         builder.Services.Configure<HostOptions>(o => o.ShutdownTimeout = TimeSpan.FromSeconds(shutdownSeconds));
 
+        // An unreadable request body must reach our exception handler in every environment.
+        // By default only the Development environment throws. In Production the framework
+        // would answer with an empty 400 and skip the request ID, the log outcome and the metric.
+        builder.Services.Configure<Microsoft.AspNetCore.Routing.RouteHandlerOptions>(o => o.ThrowOnBadRequest = true);
+
         builder.Services.AddProblemDetails();
+        // The handlers run in this order. The last one takes every other error.
         builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+        builder.Services.AddExceptionHandler<UnexpectedErrorHandler>();
+
         builder.Services.AddSingleton<IPathResolver, PathResolver>();
         builder.Services.AddSingleton<IRiskModelService, RiskModelService>();
+        builder.Services.AddSingleton<RiskMetrics>();
+        builder.Services.AddSingleton<ModelHealthMonitor>();
+        builder.Services.AddSingleton<IModelHealth>(sp => sp.GetRequiredService<ModelHealthMonitor>());
+        builder.Services.AddHostedService(sp => sp.GetRequiredService<ModelHealthMonitor>());
 
         configure?.Invoke(builder);
 
@@ -46,10 +59,13 @@ public static class RiskApiHost
             model.Active.ModelVersion, model.Active.DecisionPolicyVersion, model.Active.FeatureSchemaVersion,
             model.Active.Threshold, model.Active.ModelSha256);
 
-        // An unexpected error returns a generic 500 body. It never shows a stack trace.
+        // Order matters. The observability middleware is first, so it sees the final
+        // status of a request that the exception handler turned into a 500.
+        app.UseMiddleware<RequestObservabilityMiddleware>();
         app.UseExceptionHandler();
 
         app.MapRiskEndpoints();
+        app.MapOperationsEndpoints();
         return app;
     }
 }

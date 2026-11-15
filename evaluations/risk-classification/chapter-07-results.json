@@ -1,0 +1,512 @@
+{
+  "chapter": 7,
+  "title": "Deployment: serving the frozen Chapter 6 risk classifier",
+  "branch": "feature/risk-inference-service",
+  "environment": {
+    "machine": "Windows 11, 12 logical processors",
+    "dotnetSdkLocal": "10.0.401",
+    "dotnetRuntimeInContainer": "10.0.15 (SDK in the build stage 10.0.404)",
+    "dockerEngine": "29.8.0 (Docker Desktop, linux/amd64)",
+    "containerOs": "Ubuntu 24.04",
+    "note": "One machine. The load generator ran on the same machine as the server."
+  },
+  "modelContract": {
+    "modelFile": "Models/chapter-06-risk-classifier.zip",
+    "manifestFile": "Models/chapter-06-risk-classifier.manifest.json",
+    "modelContentSha256": "0fd45f32162ab491340192b4023e1990a3d13935cd050f7b133745e8e309b571",
+    "modelVersion": "chapter-06-v1",
+    "decisionPolicyVersion": "risk-policy-v1",
+    "featureSchemaVersion": "risk-features-v1",
+    "highRiskThreshold": 0.1121373102068901,
+    "positiveClass": "High",
+    "decisionRule": "FlaggedHighRisk = score(High) >= threshold. PredictedRisk is the model's own Low, Medium or High and the threshold does not change it."
+  },
+  "endpoints": {
+    "POST /risk/predict": "200 prediction, 400 invalid request, 503 integrity check failed, 500 unexpected error",
+    "GET /health/live": "200 while the process runs. Never fails because of the model.",
+    "GET /health/ready": "200 when the model and the manifest pass the integrity check. 503 with a reason code if not, and while the host stops.",
+    "GET /metrics": "Counts, rates and latency percentiles. No transaction data."
+  },
+  "benchmark": {
+    "method": "Release build, 1,000 Chapter 6 records, each client keeps one request in flight, 5 s warm-up before each level, 60 s per level.",
+    "firstRun": {
+      "newEnginePerRequest": {
+        "1": {
+          "requestsPerSecond": 670,
+          "p50Ms": 1.4,
+          "p95Ms": 2.0,
+          "p99Ms": 4.39,
+          "errors": 0,
+          "serverCpuPercentOfMachine": 8.4,
+          "serverPeakWorkingSetMb": 116.8
+        },
+        "10": {
+          "requestsPerSecond": 927,
+          "p50Ms": 10.13,
+          "p95Ms": 17.77,
+          "p99Ms": 23.28,
+          "errors": 0,
+          "serverCpuPercentOfMachine": 63.8,
+          "serverPeakWorkingSetMb": 150.3
+        },
+        "50": {
+          "requestsPerSecond": 691,
+          "p50Ms": 68.47,
+          "p95Ms": 111.07,
+          "p99Ms": 130.66,
+          "errors": 0,
+          "serverCpuPercentOfMachine": 59.6,
+          "serverPeakWorkingSetMb": 212.1
+        },
+        "100": {
+          "requestsPerSecond": 650,
+          "p50Ms": 149.32,
+          "p95Ms": 206.9,
+          "p99Ms": 263.03,
+          "errors": 0,
+          "serverCpuPercentOfMachine": 52.5,
+          "serverPeakWorkingSetMb": 194.7
+        }
+      },
+      "pooled": {
+        "1": {
+          "requestsPerSecond": 7120,
+          "p50Ms": 0.13,
+          "p95Ms": 0.2,
+          "p99Ms": 0.33,
+          "errors": 0,
+          "serverCpuPercentOfMachine": 9.1,
+          "serverPeakWorkingSetMb": 84.9
+        },
+        "10": {
+          "requestsPerSecond": 26363,
+          "p50Ms": 0.35,
+          "p95Ms": 0.57,
+          "p99Ms": 1.18,
+          "errors": 0,
+          "serverCpuPercentOfMachine": 34.8,
+          "serverPeakWorkingSetMb": 80.4
+        },
+        "50": {
+          "requestsPerSecond": 36091,
+          "p50Ms": 1.07,
+          "p95Ms": 2.82,
+          "p99Ms": 7.03,
+          "errors": 0,
+          "serverCpuPercentOfMachine": 33.5,
+          "serverPeakWorkingSetMb": 83.6
+        },
+        "100": {
+          "requestsPerSecond": 35776,
+          "p50Ms": 1.66,
+          "p95Ms": 7.17,
+          "p99Ms": 30.35,
+          "errors": 0,
+          "serverCpuPercentOfMachine": 28.6,
+          "serverPeakWorkingSetMb": 88.1
+        }
+      }
+    },
+    "repeatRuns": {
+      "order": [
+        "Pooled-1",
+        "New-1",
+        "Pooled-2",
+        "New-2"
+      ],
+      "levels": "10 and 50 clients, 60 s each",
+      "runs": {
+        "New-1": {
+          "10": {
+            "requestsPerSecond": 790,
+            "p50Ms": 11.34,
+            "p95Ms": 21.39,
+            "p99Ms": 33.96,
+            "errors": 0,
+            "serverCpuPercentOfMachine": 56.1,
+            "serverPeakWorkingSetMb": 142.3
+          },
+          "50": {
+            "requestsPerSecond": 781,
+            "p50Ms": 60.15,
+            "p95Ms": 101.36,
+            "p99Ms": 128.3,
+            "errors": 0,
+            "serverCpuPercentOfMachine": 60.5,
+            "serverPeakWorkingSetMb": 194.8
+          }
+        },
+        "New-2": {
+          "10": {
+            "requestsPerSecond": 720,
+            "p50Ms": 13.36,
+            "p95Ms": 21.03,
+            "p99Ms": 25.92,
+            "errors": 0,
+            "serverCpuPercentOfMachine": 63.6,
+            "serverPeakWorkingSetMb": 161.6
+          },
+          "50": {
+            "requestsPerSecond": 708,
+            "p50Ms": 66.87,
+            "p95Ms": 104.8,
+            "p99Ms": 119.88,
+            "errors": 0,
+            "serverCpuPercentOfMachine": 63.9,
+            "serverPeakWorkingSetMb": 183.8
+          }
+        },
+        "Pooled-1": {
+          "10": {
+            "requestsPerSecond": 17835,
+            "p50Ms": 0.48,
+            "p95Ms": 1.01,
+            "p99Ms": 1.82,
+            "errors": 0,
+            "serverCpuPercentOfMachine": 29.4,
+            "serverPeakWorkingSetMb": 87.1
+          },
+          "50": {
+            "requestsPerSecond": 27269,
+            "p50Ms": 1.03,
+            "p95Ms": 4.63,
+            "p99Ms": 16.4,
+            "errors": 0,
+            "serverCpuPercentOfMachine": 25.8,
+            "serverPeakWorkingSetMb": 84.7
+          }
+        },
+        "Pooled-2": {
+          "10": {
+            "requestsPerSecond": 21783,
+            "p50Ms": 0.4,
+            "p95Ms": 0.84,
+            "p99Ms": 1.65,
+            "errors": 0,
+            "serverCpuPercentOfMachine": 30.4,
+            "serverPeakWorkingSetMb": 87.5
+          },
+          "50": {
+            "requestsPerSecond": 33742,
+            "p50Ms": 0.88,
+            "p95Ms": 3.74,
+            "p99Ms": 16.34,
+            "errors": 0,
+            "serverCpuPercentOfMachine": 30,
+            "serverPeakWorkingSetMb": 91.2
+          }
+        }
+      },
+      "averageRequestsPerSecond": {
+        "10": {
+          "newEngine": 755,
+          "pooled": 19809
+        },
+        "50": {
+          "newEngine": 744,
+          "pooled": 30506
+        }
+      }
+    },
+    "inProcess": {
+      "modelLoadMsCold": 238,
+      "predictionsIdenticalInBothModes": true,
+      "newEnginePerRequest": {
+        "1": {
+          "callsPerSecond": 961,
+          "p99Ms": 2.636,
+          "allocatedBytesPerCall": 335220
+        },
+        "10": {
+          "callsPerSecond": 964,
+          "p99Ms": 25.341,
+          "allocatedBytesPerCall": 335837
+        },
+        "50": {
+          "callsPerSecond": 486,
+          "p99Ms": 254.747,
+          "allocatedBytesPerCall": 335623
+        },
+        "100": {
+          "callsPerSecond": 491,
+          "p99Ms": 470.966,
+          "allocatedBytesPerCall": 335391
+        }
+      },
+      "pooled": {
+        "1": {
+          "callsPerSecond": 2141512,
+          "p99Ms": 0.001,
+          "allocatedBytesPerCall": 108
+        },
+        "10": {
+          "callsPerSecond": 2658596,
+          "p99Ms": 0.008,
+          "allocatedBytesPerCall": 108
+        },
+        "50": {
+          "callsPerSecond": 2414426,
+          "p99Ms": 0.009,
+          "allocatedBytesPerCall": 108
+        },
+        "100": {
+          "callsPerSecond": 2107271,
+          "p99Ms": 0.008,
+          "allocatedBytesPerCall": 114
+        }
+      },
+      "createAndDisposeOneEngine": {
+        "meanMicroseconds": 497,
+        "allocatedBytes": 335211
+      },
+      "predictOnReusedEngineMeanMicroseconds": 0.4
+    },
+    "serverAllocationPerRequestOverHttp": {
+      "method": "dotnet-counters total allocated bytes of the server process divided by requests in a 30 s window",
+      "10Clients": {
+        "newEngine": 340683,
+        "pooled": 3822
+      },
+      "50Clients": {
+        "newEngine": 340222,
+        "pooled": 3792
+      }
+    }
+  },
+  "poolingDecision": {
+    "decision": "Pooled",
+    "reason": "Creating a PredictionEngine allocates about 335 KB and takes about 0.5 ms. A new engine per request kept throughput near 650 to 930 requests per second at any concurrency. Pooling gave 7,120 to 36,091 requests per second, with lower latency, less CPU and less memory.",
+    "predictionsIdentical": true,
+    "configuration": "RiskModel:InferenceMode = Pooled (default). EnginePerRequest stays available.",
+    "caveat": "The load generator shared the machine with the server, so the pooled throughput is a lower bound of the server and not a capacity figure."
+  },
+  "step7Overhead": {
+    "method": "Same machine, alternating order (Step 6 code, Step 7 code, Step 7 with the per-request log off), two rounds, 15 s per level, 4 s warm-up.",
+    "requestsPerSecond": {
+      "step6Code": {
+        "10Clients": [
+          23250,
+          23346
+        ],
+        "50Clients": [
+          33901,
+          34657
+        ]
+      },
+      "step7PerRequestLogOn": {
+        "10Clients": [
+          16266,
+          16972
+        ],
+        "50Clients": [
+          25990,
+          25105
+        ]
+      },
+      "step7PerRequestLogOff": {
+        "10Clients": [
+          21948,
+          22597
+        ],
+        "50Clients": [
+          32577,
+          32224
+        ]
+      }
+    },
+    "finding": "The structured log line for every request costs about 23 to 30% of throughput at these rates (it is written to the console, one line each). The middleware and the metrics cost about 3 to 7%.",
+    "setting": "Logging:LogLevel:RiskInference.Api.Operations.RequestObservabilityMiddleware = Warning turns the per-request line off."
+  },
+  "consistency": {
+    "samples": 2000,
+    "samplesDescription": "Every 5th record of chapter-06/train-5000.csv (1,000) and all 1,000 records of chapter-06/test-1000.csv. The test records were only scored.",
+    "reference": "The frozen Chapter 6 model, loaded with the Chapter 6 FinalModelStore, one batch Transform, High score read by slot name.",
+    "scoreTolerance": 1e-05,
+    "localApiWindows": {
+      "responsesCompared": 194000,
+      "mismatches": 0,
+      "maxAbsScoreDifference": 0.0
+    },
+    "dockerApiLinux": {
+      "responsesCompared": 194000,
+      "mismatches": 0,
+      "maxAbsScoreDifference": 0.0
+    },
+    "localEqualsDockerBitForBit": true,
+    "flaggedInReference": 141,
+    "flaggedButPredictedLowOrMedium": 63
+  },
+  "containerValidation": {
+    "image": {
+      "tag": "risk-inference:chapter-07",
+      "id": "sha256:40fec27e6b74d3e045b4cf7ae1bd74b7ec5ca0debc6071762791ad9e23711703",
+      "sizeBytes": 398924905,
+      "user": "app (UID 1654, not root)",
+      "port": 8080
+    },
+    "coldStartMsToReady": [
+      2646,
+      2254,
+      2280
+    ],
+    "restartMsToReady": 2135,
+    "restartPredictionsIdentical": true,
+    "restartRecordsCompared": 2000,
+    "concurrentVerification": "32 workers, 194,000 responses, 0 mismatches",
+    "badArtifactsAtStart": {
+      "corruptedModel": {
+        "exitCode": 1,
+        "listening": false
+      },
+      "wrongHash": {
+        "exitCode": 1,
+        "listening": false
+      },
+      "thresholdOf1.5": {
+        "exitCode": 1,
+        "listening": false
+      },
+      "missingModel": {
+        "exitCode": 1,
+        "listening": false
+      },
+      "unsupportedPolicyVersion": {
+        "exitCode": 1,
+        "listening": false
+      },
+      "missingManifest": {
+        "exitCode": 1,
+        "listening": false
+      }
+    },
+    "modelDeletedWhileRunning": {
+      "ready": 503,
+      "reason": "model_unavailable",
+      "live": 200,
+      "predict": 503,
+      "afterRestoringTheFile": {
+        "ready": 200,
+        "predict": 200
+      }
+    },
+    "stopUnderLoad": {
+      "clients": 50,
+      "dockerStopSeconds": 1.38,
+      "exitCode": 0,
+      "beforeStop": {
+        "http200": 5994
+      },
+      "afterStopBegan": {
+        "http200": 508,
+        "httpErrors": 0,
+        "answersCutInTheMiddle": 0,
+        "idleKeepAliveConnectionsClosedByServer": 27,
+        "newConnectionsClosedAtOnce": 405,
+        "newConnectionsRefused": 200
+      },
+      "limit": "A connection that closes with no answer cannot be told from a request that was never read. The unit test with slow requests covers requests in progress."
+    },
+    "startupTimeNote": "The cold start was 1.1 to 1.8 s in Step 6 and 2.1 to 2.6 s in Step 7. I did not isolate the cause (machine state, the JSON console formatter or the background monitor).",
+    "containerThroughputNote": "Through Docker Desktop on Windows the container gave about 2,700 requests per second at 10 clients and 5,700 at 50. I did not compare this with a Step 6 container, so I cannot say how much comes from the Docker Desktop network proxy."
+  },
+  "operationalReadiness": {
+    "healthChecks": [
+      "GET /health/live",
+      "GET /health/ready"
+    ],
+    "structuredLogFields": [
+      "RequestId",
+      "ModelVersion",
+      "PolicyVersion",
+      "DurationMs",
+      "Outcome",
+      "StatusCode",
+      "Method",
+      "Route",
+      "PredictedRisk",
+      "Flagged"
+    ],
+    "logFormat": "One JSON object per line on the console.",
+    "neverLogged": "Transaction fields, customer data, scores, query strings.",
+    "metrics": [
+      "requests by outcome",
+      "server error rate",
+      "client error rate",
+      "latency p50, p95, p99, max, mean",
+      "predictions by risk level",
+      "flagged High count",
+      "High-risk flag rate"
+    ],
+    "latencyPercentileAccuracy": "Within 10% above the exact value (log-spaced buckets with 10% growth). A test checks this on 20,000 values.",
+    "integrityCheck": "Every 30 s (RiskModel:IntegrityCheckIntervalSeconds): manifest on disk equals the loaded one, model file hash and loadability, and the answer for a fixed test input.",
+    "readinessReasonCodes": [
+      "model_unavailable",
+      "model_hash_mismatch",
+      "model_invalid",
+      "manifest_unavailable",
+      "manifest_invalid",
+      "manifest_changed",
+      "test_prediction_changed",
+      "test_prediction_failed",
+      "shutting_down"
+    ],
+    "sanitizedErrors": "A client gets a fixed message and a request ID. The log has the exception, the request ID and the versions.",
+    "shutdown": "RiskModel:ShutdownTimeoutSeconds (default 30). Requests in progress finish. A host that is stopping reports not ready but still answers requests that reach it."
+  },
+  "failureTests": [
+    {
+      "scenario": "1. Missing or corrupted model artifact",
+      "atStart": "7 tests (missing model, corrupted model, wrong hash, and more). The host is never built. In the container: exit code 1, never listens.",
+      "whileRunning": "6 tests: ready 503 with the reason, live 200, predictions 503, recovery without a restart. In the container: model deleted, ready 503, model restored, ready 200.",
+      "result": "pass"
+    },
+    {
+      "scenario": "2. Invalid model manifest or threshold",
+      "tests": "Manifest parser tests (thresholds 0, 1, 1.5, -0.1; wrong versions; paths in modelFile; unknown fields) and start-up tests. In the container: threshold 1.5 and policy v9 give exit code 1.",
+      "result": "pass"
+    },
+    {
+      "scenario": "3. Invalid prediction request",
+      "tests": "400 with field errors, malformed JSON, empty body, wrong types; request ID in the body and the header; one log line with no input value.",
+      "result": "pass"
+    },
+    {
+      "scenario": "4. Concurrent traffic during shutdown",
+      "tests": "30 clients on a real port during StopAsync: only 200 answers, no answer cut in the middle, stop in under 10 s. In the container: 50 clients, docker stop 1.38 s, exit code 0.",
+      "result": "pass"
+    },
+    {
+      "scenario": "5. Restart with an unchanged model",
+      "tests": "Two service starts, two host starts and a docker restart all give the same versions and the same answers for 2,000 samples.",
+      "result": "pass"
+    },
+    {
+      "scenario": "6. Controlled inference exception",
+      "tests": "A wrapped service throws for one amount: sanitized 500 with request ID, full exception in the log, metrics count one error, the next request is 200. A null input in the real engine does not break the pool, in both inference modes.",
+      "result": "pass"
+    }
+  ],
+  "tests": {
+    "project": "tests/RiskInference.Api.Tests",
+    "total": 140,
+    "passed": 140,
+    "failed": 0,
+    "foundDuringStep7": [
+      "In a Production host the framework answered an unreadable body with an empty 400 and skipped the request ID, the log and the metric. Fixed with RouteHandlerOptions.ThrowOnBadRequest = true.",
+      "Predictions were refused with 503 while the host was stopping. Now only a failed integrity check refuses predictions."
+    ]
+  },
+  "limitations": [
+    "The model and the data are the synthetic Chapter 6 ones. The service does not make them better.",
+    "All measurements come from one Windows machine. The load generator shared it with the server. The pooled throughput is a lower bound.",
+    "Each benchmark level ran once in the first run. The repeat runs show pooled throughput varying by about 20% between runs.",
+    "The per-request log line costs about 23 to 30% of throughput at 16,000 to 26,000 requests per second. The console logger is synchronous.",
+    "GET /metrics is a JSON snapshot in memory. It resets on restart and is not a Prometheus endpoint. The same data goes to a System.Diagnostics.Metrics Meter named RiskInference.Api.",
+    "/metrics and /health/ready have no authentication. Keep them off the public network.",
+    "The integrity check finds a changed file only every 30 s, and it cannot find a change in memory.",
+    "The image has no HEALTHCHECK instruction. The ASP.NET image has no curl. Use the orchestrator probes on /health/live and /health/ready.",
+    "Docker stop waits 10 s by default. The application waits up to 30 s. Use --stop-timeout 35 if requests can last longer than 10 s.",
+    "The service has no authentication, rate limit or TLS. Put it behind a gateway.",
+    "The model is not retrained or reloaded while the service runs. A new model needs a new manifest and a new deployment."
+  ]
+}

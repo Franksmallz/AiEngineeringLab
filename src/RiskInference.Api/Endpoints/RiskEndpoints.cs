@@ -1,5 +1,6 @@
 using RiskInference.Api.Contracts;
 using RiskInference.Api.Model;
+using RiskInference.Api.Operations;
 
 namespace RiskInference.Api.Endpoints;
 
@@ -9,28 +10,42 @@ public static class RiskEndpoints
 {
     public static IEndpointRouteBuilder MapRiskEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/risk/predict", (RiskPredictionRequest request, IRiskModelService model) =>
+        app.MapPost("/risk/predict", (RiskPredictionRequest request, IRiskModelService model, IModelHealth health, HttpContext http) =>
         {
+            // Do not serve predictions from a model that failed its integrity check.
+            // A host that is stopping is not ready, but it still answers the requests that
+            // reach it until the shutdown period ends. A load balancer needs a moment to notice.
+            var readiness = health.Current;
+            if (!readiness.Ready && readiness.Reason != ReadinessStatus.ShuttingDown)
+            {
+                http.SetOutcome(RequestOutcome.NotReady);
+                return Results.Problem(
+                    statusCode: StatusCodes.Status503ServiceUnavailable,
+                    title: "The service is not ready to serve predictions.",
+                    extensions: new Dictionary<string, object?>
+                    {
+                        ["requestId"] = http.TraceIdentifier,
+                        ["reason"] = readiness.Reason
+                    });
+            }
+
             var errors = request.Validate();
             if (errors.Count > 0)
-                return Results.ValidationProblem(errors.ToDictionary(e => e.Key, e => e.Value));
+            {
+                http.SetOutcome(RequestOutcome.ValidationFailed);
+                return Results.ValidationProblem(
+                    errors.ToDictionary(e => e.Key, e => e.Value),
+                    extensions: new Dictionary<string, object?> { ["requestId"] = http.TraceIdentifier });
+            }
 
-            return Results.Ok(model.Predict(request.ToModelInput()));
+            var response = model.Predict(request.ToModelInput());
+            http.SetOutcome(RequestOutcome.Predicted);
+            http.SetPrediction(response.PredictedRisk, response.FlaggedHighRisk);
+            return Results.Ok(response);
         })
         .Produces<RiskPredictionResponse>(StatusCodes.Status200OK)
-        .ProducesValidationProblem();
-
-        // The model loads in the constructor of the singleton. The app creates
-        // it before it listens, so a reachable app has a loaded model. The body
-        // names the versions in use, so an operator can see what is deployed.
-        app.MapGet("/health", (IRiskModelService model) => Results.Ok(new
-        {
-            status = "Healthy",
-            modelVersion = model.Active.ModelVersion,
-            decisionPolicyVersion = model.Active.DecisionPolicyVersion,
-            featureSchemaVersion = model.Active.FeatureSchemaVersion,
-            threshold = model.Active.Threshold
-        }));
+        .ProducesValidationProblem()
+        .ProducesProblem(StatusCodes.Status503ServiceUnavailable);
 
         return app;
     }

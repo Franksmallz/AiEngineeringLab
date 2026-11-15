@@ -155,9 +155,9 @@ async Task RunHttp(string baseUrl)
     })
     { BaseAddress = new Uri(baseUrl), Timeout = TimeSpan.FromSeconds(30) };
 
-    var health = await client.GetAsync("/health");
+    var health = await client.GetAsync("/health/ready");
     if (health.StatusCode != HttpStatusCode.OK)
-        throw new InvalidOperationException($"{baseUrl}/health returned {(int)health.StatusCode}. Start the API first.");
+        throw new InvalidOperationException($"{baseUrl}/health/ready returned {(int)health.StatusCode}. Start the API first.");
 
     async Task<string> Post(int i)
     {

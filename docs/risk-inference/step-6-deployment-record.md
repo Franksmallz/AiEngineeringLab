@@ -1,5 +1,7 @@
 # Chapter 7, Step 6: Container deployment record
 
+> **Note (Step 7):** This record describes the Step 6 image `risk-inference:chapter-06-v1`. In Step 7 the `/health` endpoint was replaced by `/health/live` and `/health/ready`. The final image is `risk-inference:chapter-07`. See `docs/dmls/chapter-07.md` for the final results.
+
 This record shows how the risk inference service was packaged and checked in a Docker container.
 The measurements come from one machine. They show that the container works. They are not a capacity statement.
 

@@ -76,6 +76,13 @@ internal sealed class TempArtifact : IDisposable
         File.WriteAllText(ManifestFile, JsonSerializer.Serialize(manifest));
     }
 
+    // Puts the manifest and the model back to the original, valid state.
+    public void Restore()
+    {
+        File.Copy(Path.Combine(TestSupport.RepoRoot(), TestSupport.ModelPath), ModelFile, overwrite: true);
+        WriteManifest();
+    }
+
     public RiskModelOptions Options(InferenceMode mode = InferenceMode.Pooled) =>
         TestSupport.Options(ManifestFile, mode);
 
@@ -85,5 +92,28 @@ internal sealed class TempArtifact : IDisposable
     public void Dispose()
     {
         try { System.IO.Directory.Delete(Directory, recursive: true); } catch (IOException) { }
+    }
+}
+
+// Ways to damage a model file, for the tests.
+internal static class ArtifactTamper
+{
+    // Changes the content of the model. The zip stays a valid zip, but the hash is different.
+    public static void ChangeOneByteInTheLargestEntry(string zipFile)
+    {
+        using var archive = System.IO.Compression.ZipFile.Open(zipFile, System.IO.Compression.ZipArchiveMode.Update);
+        var entry = archive.Entries.OrderByDescending(e => e.Length).First();
+        byte[] content;
+        using (var read = entry.Open())
+        using (var buffer = new MemoryStream())
+        {
+            read.CopyTo(buffer);
+            content = buffer.ToArray();
+        }
+        content[content.Length / 2] ^= 0xFF;
+        var name = entry.FullName;
+        entry.Delete();
+        using var write = archive.CreateEntry(name).Open();
+        write.Write(content);
     }
 }

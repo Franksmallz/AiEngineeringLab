@@ -32,11 +32,28 @@ public sealed class RiskModelService : IRiskModelService, IDisposable
     private readonly int _highScoreSlot;
     private readonly double _threshold;
     private readonly ObjectPool<PredictionEngine<TransactionRiskData, TransactionRiskPrediction>>? _pool;
+    private readonly IPathResolver _pathResolver;
+    private readonly string _manifestPath;
+    private readonly (string Risk, float HighScore) _expectedTestAnswer;
+
+    // A fixed test input. Its answer at start-up is the reference for VerifyIntegrity.
+    // It is not a real transaction.
+    private static readonly TransactionRiskData TestInput = new()
+    {
+        Amount = 100,
+        TransactionHour = 12,
+        CustomerTransactionCount24h = 1,
+        RecentFailureCount = 0,
+        BeneficiaryAgeDays = 365,
+        IsHighRiskCountry = false
+    };
 
     public RiskModelService(IOptions<RiskModelOptions> options, IPathResolver pathResolver)
     {
         var settings = options.Value;
         var manifestPath = pathResolver.ResolveConfiguredPath(settings.ManifestPath);
+        _pathResolver = pathResolver;
+        _manifestPath = manifestPath;
 
         try
         {
@@ -68,7 +85,7 @@ public sealed class RiskModelService : IRiskModelService, IDisposable
             }
 
             _highScoreSlot = FindScoreSlot(_mlContext, _model, PositiveClass);
-            SelfCheck();
+            _expectedTestAnswer = SelfCheck();
         }
         catch (Exception ex)
         {
@@ -158,22 +175,63 @@ public sealed class RiskModelService : IRiskModelService, IDisposable
     }
 
     // One test prediction. It proves the whole pipeline runs, including the
-    // custom feature mapping, before the service accepts traffic.
-    private void SelfCheck()
+    // custom feature mapping, before the service accepts traffic. The answer is
+    // kept, so that VerifyIntegrity can check later that it did not change.
+    private (string Risk, float HighScore) SelfCheck()
     {
-        var (risk, highScore) = Score(new TransactionRiskData
-        {
-            Amount = 100,
-            TransactionHour = 12,
-            CustomerTransactionCount24h = 1,
-            RecentFailureCount = 0,
-            BeneficiaryAgeDays = 365,
-            IsHighRiskCountry = false
-        });
+        var (risk, highScore) = Score(TestInput);
 
         if (string.IsNullOrEmpty(risk))
             throw new InvalidOperationException("The self-check prediction has no risk level.");
         if (!(highScore >= 0f && highScore <= 1f))
             throw new InvalidOperationException($"The self-check High score {highScore} is not in [0, 1].");
+        return (risk, highScore);
+    }
+
+    public string? VerifyIntegrity()
+    {
+        try
+        {
+            // 1. The manifest on disk must be the one that was loaded.
+            ModelManifest manifest;
+            if (!File.Exists(_manifestPath)) return "manifest_unavailable";
+            try { manifest = ModelManifest.Load(_manifestPath); }
+            catch (Exception) { return "manifest_invalid"; }
+
+            if (manifest.ModelVersion != Active.ModelVersion
+                || manifest.DecisionPolicyVersion != Active.DecisionPolicyVersion
+                || manifest.FeatureSchemaVersion != Active.FeatureSchemaVersion
+                || !string.Equals(manifest.ModelSha256, Active.ModelSha256, StringComparison.OrdinalIgnoreCase)
+                || manifest.Threshold != Active.Threshold)
+                return "manifest_changed";
+
+            // 2. The model file on disk must still have the hash of the manifest and must load.
+            var modelPath = Path.Combine(Path.GetDirectoryName(_manifestPath)!, manifest.ModelFile);
+            if (!File.Exists(modelPath)) return "model_unavailable";
+            try
+            {
+                // A separate MLContext, so the loaded model is not touched.
+                new FinalModelStore(_pathResolver).LoadModel(new MLContext(), modelPath, Active.ModelSha256);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("does not match the frozen"))
+            {
+                return "model_hash_mismatch";
+            }
+            catch (Exception)
+            {
+                return "model_invalid";
+            }
+
+            // 3. The loaded model must still give the same answer for the fixed test input.
+            var (risk, highScore) = Score(TestInput);
+            if (risk != _expectedTestAnswer.Risk || highScore != _expectedTestAnswer.HighScore)
+                return "test_prediction_changed";
+
+            return null;
+        }
+        catch (Exception)
+        {
+            return "test_prediction_failed";
+        }
     }
 }
