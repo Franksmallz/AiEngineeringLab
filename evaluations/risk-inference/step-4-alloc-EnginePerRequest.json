@@ -1,0 +1,71 @@
+{
+  "environment": {
+    "mode": "http",
+    "label": "alloc-EnginePerRequest",
+    "processors": 12,
+    "os": "Microsoft Windows 10.0.26200",
+    "runtime": ".NET 10.0.15",
+    "debugBuild": false,
+    "recordsUsed": 1000,
+    "secondsPerLevel": 30,
+    "warmupSeconds": 5,
+    "measuredAtUtc": "2026-11-15T16:05:06.3091468Z"
+  },
+  "responseDigestSha256": "eaf71a0561153328df2ad8afbcaa026739d186590aa46357f57531ca6ab854dd",
+  "concurrencySweep": [
+    {
+      "result": {
+        "Name": "POST /risk/predict x10",
+        "Concurrency": 10,
+        "Seconds": 30.007,
+        "Calls": 25218,
+        "Errors": 0,
+        "CallsPerSecond": 840.4,
+        "MeanUs": 11896.3,
+        "P50Us": 11172.4,
+        "P95Us": 18505.5,
+        "P99Us": 23166.5,
+        "MaxUs": 40527.3,
+        "AllocBytesPerCall": 3778,
+        "Gen0Collections": 15,
+        "Gen1Collections": 1,
+        "Gen2Collections": 0
+      },
+      "serverUsage": {
+        "AverageCpuPercentOfMachine": 64.6,
+        "AverageCpuPercentOfOneCore": 775,
+        "PeakWorkingSetMb": 157.9,
+        "PeakPrivateMb": 106.6
+      },
+      "windowStartLocal": "2026-11-15T09:05:13.561394-07:00",
+      "windowEndLocal": "2026-11-15T09:05:43.6023804-07:00"
+    },
+    {
+      "result": {
+        "Name": "POST /risk/predict x50",
+        "Concurrency": 50,
+        "Seconds": 30.054,
+        "Calls": 22932,
+        "Errors": 0,
+        "CallsPerSecond": 763,
+        "MeanUs": 65508.4,
+        "P50Us": 61516.3,
+        "P95Us": 98950.9,
+        "P99Us": 117910.1,
+        "MaxUs": 157054.6,
+        "AllocBytesPerCall": 3785,
+        "Gen0Collections": 14,
+        "Gen1Collections": 1,
+        "Gen2Collections": 0
+      },
+      "serverUsage": {
+        "AverageCpuPercentOfMachine": 62.6,
+        "AverageCpuPercentOfOneCore": 751.7,
+        "PeakWorkingSetMb": 191.4,
+        "PeakPrivateMb": 135.9
+      },
+      "windowStartLocal": "2026-11-15T09:05:48.7853449-07:00",
+      "windowEndLocal": "2026-11-15T09:06:18.8759054-07:00"
+    }
+  ]
+}

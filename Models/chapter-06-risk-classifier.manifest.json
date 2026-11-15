@@ -1,0 +1,8 @@
+{
+  "modelVersion": "chapter-06-v1",
+  "modelFile": "chapter-06-risk-classifier.zip",
+  "modelSha256": "0fd45f32162ab491340192b4023e1990a3d13935cd050f7b133745e8e309b571",
+  "threshold": 0.1121373102068901,
+  "featureSchemaVersion": "risk-features-v1",
+  "decisionPolicyVersion": "risk-policy-v1"
+}
