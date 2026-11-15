@@ -1,0 +1,71 @@
+{
+  "environment": {
+    "mode": "http",
+    "label": "alloc-Pooled",
+    "processors": 12,
+    "os": "Microsoft Windows 10.0.26200",
+    "runtime": ".NET 10.0.15",
+    "debugBuild": false,
+    "recordsUsed": 1000,
+    "secondsPerLevel": 30,
+    "warmupSeconds": 5,
+    "measuredAtUtc": "2026-11-15T16:03:14.8355546Z"
+  },
+  "responseDigestSha256": "eaf71a0561153328df2ad8afbcaa026739d186590aa46357f57531ca6ab854dd",
+  "concurrencySweep": [
+    {
+      "result": {
+        "Name": "POST /risk/predict x10",
+        "Concurrency": 10,
+        "Seconds": 30.001,
+        "Calls": 715028,
+        "Errors": 0,
+        "CallsPerSecond": 23833.6,
+        "MeanUs": 419.2,
+        "P50Us": 372.6,
+        "P95Us": 691.1,
+        "P99Us": 1442.5,
+        "MaxUs": 20005.3,
+        "AllocBytesPerCall": 3690,
+        "Gen0Collections": 429,
+        "Gen1Collections": 2,
+        "Gen2Collections": 0
+      },
+      "serverUsage": {
+        "AverageCpuPercentOfMachine": 43.1,
+        "AverageCpuPercentOfOneCore": 516.8,
+        "PeakWorkingSetMb": 90.1,
+        "PeakPrivateMb": 40.7
+      },
+      "windowStartLocal": "2026-11-15T09:03:20.3777194-07:00",
+      "windowEndLocal": "2026-11-15T09:03:50.5061429-07:00"
+    },
+    {
+      "result": {
+        "Name": "POST /risk/predict x50",
+        "Concurrency": 50,
+        "Seconds": 30.002,
+        "Calls": 1051728,
+        "Errors": 0,
+        "CallsPerSecond": 35054.9,
+        "MeanUs": 1425.8,
+        "P50Us": 977.5,
+        "P95Us": 3241.5,
+        "P99Us": 11219.3,
+        "MaxUs": 72397,
+        "AllocBytesPerCall": 3685,
+        "Gen0Collections": 647,
+        "Gen1Collections": 2,
+        "Gen2Collections": 0
+      },
+      "serverUsage": {
+        "AverageCpuPercentOfMachine": 34.3,
+        "AverageCpuPercentOfOneCore": 411.8,
+        "PeakWorkingSetMb": 96.9,
+        "PeakPrivateMb": 47.2
+      },
+      "windowStartLocal": "2026-11-15T09:03:55.5487799-07:00",
+      "windowEndLocal": "2026-11-15T09:04:25.7202471-07:00"
+    }
+  ]
+}

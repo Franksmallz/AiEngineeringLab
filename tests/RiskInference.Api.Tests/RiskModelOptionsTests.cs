@@ -44,6 +44,8 @@ public class RiskModelOptionsTests
         Assert.Empty(Validate(options));
         Assert.Equal("chapter-06-v1", options.ModelVersion);
         Assert.Equal(0.1121373102068901, options.HighRiskThreshold);
+        // Chapter 7, Step 4: pooled inference is the measured choice.
+        Assert.Equal(InferenceMode.Pooled, options.InferenceMode);
     }
 
     [Theory]

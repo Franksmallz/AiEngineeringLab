@@ -13,6 +13,7 @@
     <Project Path="src/RAGDemo/RAGDemo.csproj" Id="72e4c7f3-e493-400f-8f94-ea387de45919" />
     <Project Path="src/RiskClassificationLab/RiskClassificationLab.csproj" Id="5ce9518e-d233-40ef-bd8e-bb7f214bcc20" />
     <Project Path="src/RiskInference.Api/RiskInference.Api.csproj" />
+    <Project Path="src/RiskInference.Benchmark/RiskInference.Benchmark.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/FoundationalModel.API.Tests/FoundationalModel.API.Tests.csproj" />

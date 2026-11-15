@@ -1,3 +1,4 @@
+using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.Options;
 using Microsoft.ML;
 using Microsoft.ML.Data;
@@ -14,9 +15,12 @@ namespace RiskInference.Api.Model;
 // so a bad model stops the application before it accepts any request.
 //
 // Thread safety: after construction, the MLContext and the ITransformer are
-// only read. Each Predict call makes its own PredictionEngine, which is not
-// thread-safe, and disposes it at the end of the call. No request shares one.
-public sealed class RiskModelService : IRiskModelService
+// only read. A PredictionEngine is not thread-safe, so a request never shares
+// one with another request at the same time:
+//  - EnginePerRequest: each call makes its own engine and disposes it.
+//  - Pooled: each call rents an engine that no other call holds, and gives it
+//    back after the prediction. A pool never hands one engine to two callers.
+public sealed class RiskModelService : IRiskModelService, IDisposable
 {
     // The positive class of the Chapter 6 decision rule.
     public const string PositiveClass = "High";
@@ -26,6 +30,7 @@ public sealed class RiskModelService : IRiskModelService
     private readonly int _highScoreSlot;
     private readonly string _modelVersion;
     private readonly double _threshold;
+    private readonly ObjectPool<PredictionEngine<TransactionRiskData, TransactionRiskPrediction>>? _pool;
 
     public RiskModelService(IOptions<RiskModelOptions> options, IPathResolver pathResolver)
     {
@@ -41,6 +46,14 @@ public sealed class RiskModelService : IRiskModelService
             // feature mapping, and then calls MLContext.Model.Load.
             _model = new FinalModelStore(pathResolver)
                 .LoadModel(_mlContext, settings.ModelPath, settings.ModelContentSha256);
+
+            if (settings.InferenceMode == InferenceMode.Pooled)
+            {
+                // The pool keeps at most this many idle engines. A burst above
+                // this number makes extra engines that are dropped after use.
+                var provider = new DefaultObjectPoolProvider { MaximumRetained = Environment.ProcessorCount * 4 };
+                _pool = provider.Create(new EnginePolicy(_mlContext, _model));
+            }
 
             _highScoreSlot = FindScoreSlot(_mlContext, _model, PositiveClass);
             SelfCheck();
@@ -66,10 +79,48 @@ public sealed class RiskModelService : IRiskModelService
 
     private (string PredictedRisk, float HighScore) Score(TransactionRiskData input)
     {
-        using var engine = _mlContext.Model
-            .CreatePredictionEngine<TransactionRiskData, TransactionRiskPrediction>(_model);
-        var prediction = engine.Predict(input);
-        return (prediction.RiskLevel, prediction.Score[_highScoreSlot]);
+        if (_pool is null)
+        {
+            using var engine = _mlContext.Model
+                .CreatePredictionEngine<TransactionRiskData, TransactionRiskPrediction>(_model);
+            return Read(engine.Predict(input));
+        }
+
+        var rented = _pool.Get();
+        try
+        {
+            var result = Read(rented.Predict(input));
+            _pool.Return(rented);
+            return result;
+        }
+        catch
+        {
+            // After an error the engine state is unknown. Do not reuse it.
+            rented.Dispose();
+            throw;
+        }
+    }
+
+    private (string PredictedRisk, float HighScore) Read(TransactionRiskPrediction prediction) =>
+        (prediction.RiskLevel, prediction.Score[_highScoreSlot]);
+
+    public void Dispose() => (_pool as IDisposable)?.Dispose();
+
+    private sealed class EnginePolicy : IPooledObjectPolicy<PredictionEngine<TransactionRiskData, TransactionRiskPrediction>>
+    {
+        private readonly MLContext _mlContext;
+        private readonly ITransformer _model;
+
+        public EnginePolicy(MLContext mlContext, ITransformer model)
+        {
+            _mlContext = mlContext;
+            _model = model;
+        }
+
+        public PredictionEngine<TransactionRiskData, TransactionRiskPrediction> Create() =>
+            _mlContext.Model.CreatePredictionEngine<TransactionRiskData, TransactionRiskPrediction>(_model);
+
+        public bool Return(PredictionEngine<TransactionRiskData, TransactionRiskPrediction> engine) => true;
     }
 
     // The Score column is an unnamed array. The model stores one class name per

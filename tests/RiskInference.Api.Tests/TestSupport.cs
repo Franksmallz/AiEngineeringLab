@@ -25,12 +25,14 @@ internal static class TestSupport
     public static IPathResolver PathResolver() => new PathResolver(new TestEnvironment());
 
     public static RiskModelOptions Options(
-        string? modelPath = null, string? sha256 = null, double threshold = Threshold) => new()
+        string? modelPath = null, string? sha256 = null, double threshold = Threshold,
+        InferenceMode mode = InferenceMode.EnginePerRequest) => new()
     {
         ModelPath = modelPath ?? ModelPath,
         ModelVersion = "chapter-06-v1",
         HighRiskThreshold = threshold,
-        ModelContentSha256 = sha256 ?? ModelSha256
+        ModelContentSha256 = sha256 ?? ModelSha256,
+        InferenceMode = mode
     };
 
     public static RiskModelService CreateService(RiskModelOptions? options = null) =>

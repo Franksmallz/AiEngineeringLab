@@ -1,0 +1,117 @@
+{
+  "environment": {
+    "mode": "http",
+    "label": "EnginePerRequest",
+    "processors": 12,
+    "os": "Microsoft Windows 10.0.26200",
+    "runtime": ".NET 10.0.15",
+    "debugBuild": false,
+    "recordsUsed": 1000,
+    "secondsPerLevel": 60,
+    "warmupSeconds": 5,
+    "measuredAtUtc": "2026-11-15T13:11:17.9617515Z"
+  },
+  "responseDigestSha256": "eaf71a0561153328df2ad8afbcaa026739d186590aa46357f57531ca6ab854dd",
+  "concurrencySweep": [
+    {
+      "result": {
+        "Name": "POST /risk/predict x1",
+        "Concurrency": 1,
+        "Seconds": 60.001,
+        "Calls": 40215,
+        "Errors": 0,
+        "CallsPerSecond": 670.2,
+        "MeanUs": 1491.8,
+        "P50Us": 1397.1,
+        "P95Us": 1997.6,
+        "P99Us": 4391,
+        "MaxUs": 22175.6,
+        "AllocBytesPerCall": 3770,
+        "Gen0Collections": 26,
+        "Gen1Collections": 13,
+        "Gen2Collections": 0
+      },
+      "serverUsage": {
+        "AverageCpuPercentOfMachine": 8.4,
+        "AverageCpuPercentOfOneCore": 101.3,
+        "PeakWorkingSetMb": 116.8,
+        "PeakPrivateMb": 66.2
+      }
+    },
+    {
+      "result": {
+        "Name": "POST /risk/predict x10",
+        "Concurrency": 10,
+        "Seconds": 60.01,
+        "Calls": 55647,
+        "Errors": 0,
+        "CallsPerSecond": 927.3,
+        "MeanUs": 10783.1,
+        "P50Us": 10129.6,
+        "P95Us": 17766.3,
+        "P99Us": 23279.3,
+        "MaxUs": 83746.6,
+        "AllocBytesPerCall": 3774,
+        "Gen0Collections": 35,
+        "Gen1Collections": 2,
+        "Gen2Collections": 1
+      },
+      "serverUsage": {
+        "AverageCpuPercentOfMachine": 63.8,
+        "AverageCpuPercentOfOneCore": 765.7,
+        "PeakWorkingSetMb": 150.3,
+        "PeakPrivateMb": 101.4
+      }
+    },
+    {
+      "result": {
+        "Name": "POST /risk/predict x50",
+        "Concurrency": 50,
+        "Seconds": 60.03,
+        "Calls": 41498,
+        "Errors": 0,
+        "CallsPerSecond": 691.3,
+        "MeanUs": 72313.2,
+        "P50Us": 68474.9,
+        "P95Us": 111067.8,
+        "P99Us": 130657.6,
+        "MaxUs": 337457.5,
+        "AllocBytesPerCall": 3791,
+        "Gen0Collections": 27,
+        "Gen1Collections": 2,
+        "Gen2Collections": 1
+      },
+      "serverUsage": {
+        "AverageCpuPercentOfMachine": 59.6,
+        "AverageCpuPercentOfOneCore": 715.2,
+        "PeakWorkingSetMb": 212.1,
+        "PeakPrivateMb": 155.7
+      }
+    },
+    {
+      "result": {
+        "Name": "POST /risk/predict x100",
+        "Concurrency": 100,
+        "Seconds": 60.061,
+        "Calls": 39015,
+        "Errors": 0,
+        "CallsPerSecond": 649.6,
+        "MeanUs": 153904.4,
+        "P50Us": 149320.6,
+        "P95Us": 206901.5,
+        "P99Us": 263032.7,
+        "MaxUs": 327261,
+        "AllocBytesPerCall": 3802,
+        "Gen0Collections": 27,
+        "Gen1Collections": 2,
+        "Gen2Collections": 1
+      },
+      "serverUsage": {
+        "AverageCpuPercentOfMachine": 52.5,
+        "AverageCpuPercentOfOneCore": 629.9,
+        "PeakWorkingSetMb": 194.7,
+        "PeakPrivateMb": 141
+      }
+    }
+  ]
+}

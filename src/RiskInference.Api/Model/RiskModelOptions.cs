@@ -2,6 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RiskInference.Api.Model;
 
+// How the service gets a PredictionEngine for each prediction.
+public enum InferenceMode
+{
+    // Create and dispose one engine for every prediction (the Step 2 design).
+    EnginePerRequest,
+    // Rent an engine from a pool and give it back after the prediction.
+    Pooled
+}
+
 // Configuration for the "RiskModel" section of appsettings.json.
 public sealed class RiskModelOptions
 {
@@ -27,4 +36,8 @@ public sealed class RiskModelOptions
     [Required]
     [RegularExpression("^[0-9a-fA-F]{64}$", ErrorMessage = "ModelContentSha256 must be 64 hex characters.")]
     public string ModelContentSha256 { get; set; } = string.Empty;
+
+    // Both modes give identical predictions. Only the speed and the memory use differ.
+    [EnumDataType(typeof(InferenceMode))]
+    public InferenceMode InferenceMode { get; set; } = InferenceMode.Pooled;
 }
