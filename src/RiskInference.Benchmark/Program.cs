@@ -34,6 +34,7 @@ var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
 var resolver = new SolutionPathResolver();
 
 if (mode == "compare") return Compare(args[1], args[2]);
+if (mode == "verify") return await Verify.Run(args, resolver, ArgValue);
 
 var records = new DatasetReader(resolver).Read("chapter-06/train-5000.csv")
     .Where((_, i) => i % 5 == 0).ToArray();   // 1,000 records

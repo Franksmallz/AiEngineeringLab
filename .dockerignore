@@ -1,0 +1,14 @@
+# Allow-list: the build context holds only what the risk inference image needs.
+**
+
+!src/RiskClassificationLab/**
+!src/RiskInference.Api/**
+!Models/chapter-06-risk-classifier.zip
+!Models/chapter-06-risk-classifier.manifest.json
+!Models/chapter-06-risk-classifier.policy.json
+
+# Never send build output or local state.
+**/bin
+**/obj
+**/.vs
+**/*.user
