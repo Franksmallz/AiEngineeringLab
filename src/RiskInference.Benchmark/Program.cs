@@ -97,7 +97,10 @@ void RunInProcess()
 
     // Where does one call spend its time? One thread, per-request engine.
     var ml = new MLContext();
-    var model = new FinalModelStore(resolver).LoadModel(ml, baseOptions.ModelPath, baseOptions.ModelContentSha256);
+    var manifestPath = resolver.ResolveConfiguredPath(baseOptions.ManifestPath);
+    var manifest = ModelManifest.Load(manifestPath);
+    var model = new FinalModelStore(resolver).LoadModel(
+        ml, Path.Combine(Path.GetDirectoryName(manifestPath)!, manifest.ModelFile), manifest.ModelSha256);
     using var sharedEngine = ml.Model.CreatePredictionEngine<TransactionRiskData, TransactionRiskPrediction>(model);
     Warm(() => { for (var i = 0; i < 3000; i++) sharedEngine.Predict(records[i % records.Length]); });
     Console.WriteLine("\nCost breakdown, one thread");

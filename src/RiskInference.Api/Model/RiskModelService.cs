@@ -10,7 +10,9 @@ using RiskInference.Api.Contracts;
 namespace RiskInference.Api.Model;
 
 // Loads the Chapter 6 model once, in the constructor, and scores with it.
-// The constructor throws if the model is missing, corrupted, changed or
+// The constructor reads the manifest and then the model file next to it. It
+// throws if the manifest is missing or not valid, if its versions are not
+// supported, or if the model is missing, changed (hash), corrupted or
 // incompatible. Register this class as a singleton and create it at startup,
 // so a bad model stops the application before it accepts any request.
 //
@@ -28,24 +30,34 @@ public sealed class RiskModelService : IRiskModelService, IDisposable
     private readonly MLContext _mlContext;
     private readonly ITransformer _model;
     private readonly int _highScoreSlot;
-    private readonly string _modelVersion;
     private readonly double _threshold;
     private readonly ObjectPool<PredictionEngine<TransactionRiskData, TransactionRiskPrediction>>? _pool;
 
     public RiskModelService(IOptions<RiskModelOptions> options, IPathResolver pathResolver)
     {
         var settings = options.Value;
-        _modelVersion = settings.ModelVersion;
-        _threshold = settings.HighRiskThreshold;
+        var manifestPath = pathResolver.ResolveConfiguredPath(settings.ManifestPath);
 
         try
         {
+            var manifest = ModelManifest.Load(manifestPath);
+            _threshold = manifest.Threshold;
+            Active = new ActiveModelInfo(
+                manifest.ModelVersion,
+                manifest.DecisionPolicyVersion,
+                manifest.FeatureSchemaVersion,
+                manifest.ModelSha256.ToLowerInvariant(),
+                manifest.Threshold);
+
+            // The model file must be next to the manifest.
+            var modelPath = Path.Combine(Path.GetDirectoryName(manifestPath)!, manifest.ModelFile);
+
             _mlContext = new MLContext();
 
             // FinalModelStore checks the content hash, registers the custom
             // feature mapping, and then calls MLContext.Model.Load.
             _model = new FinalModelStore(pathResolver)
-                .LoadModel(_mlContext, settings.ModelPath, settings.ModelContentSha256);
+                .LoadModel(_mlContext, modelPath, Active.ModelSha256);
 
             if (settings.InferenceMode == InferenceMode.Pooled)
             {
@@ -61,9 +73,11 @@ public sealed class RiskModelService : IRiskModelService, IDisposable
         catch (Exception ex)
         {
             throw new InvalidOperationException(
-                $"The risk model '{settings.ModelPath}' could not be loaded: {ex.Message}", ex);
+                $"The risk model from '{settings.ManifestPath}' could not be loaded: {ex.Message}", ex);
         }
     }
+
+    public ActiveModelInfo Active { get; }
 
     public RiskPredictionResponse Predict(TransactionRiskData input)
     {
@@ -73,8 +87,9 @@ public sealed class RiskModelService : IRiskModelService, IDisposable
             PredictedRisk: predictedRisk,
             HighRiskScore: highScore,
             FlaggedHighRisk: highScore >= _threshold,
-            ModelVersion: _modelVersion,
-            Threshold: _threshold);
+            ModelVersion: Active.ModelVersion,
+            Threshold: _threshold,
+            DecisionPolicyVersion: Active.DecisionPolicyVersion);
     }
 
     private (string PredictedRisk, float HighScore) Score(TransactionRiskData input)

@@ -21,9 +21,16 @@ public static class RiskEndpoints
         .ProducesValidationProblem();
 
         // The model loads in the constructor of the singleton. The app creates
-        // it before it listens, so a reachable app has a loaded model. Resolving
-        // IRiskModelService here keeps that dependency explicit.
-        app.MapGet("/health", (IRiskModelService model) => Results.Ok(new { status = "Healthy" }));
+        // it before it listens, so a reachable app has a loaded model. The body
+        // names the versions in use, so an operator can see what is deployed.
+        app.MapGet("/health", (IRiskModelService model) => Results.Ok(new
+        {
+            status = "Healthy",
+            modelVersion = model.Active.ModelVersion,
+            decisionPolicyVersion = model.Active.DecisionPolicyVersion,
+            featureSchemaVersion = model.Active.FeatureSchemaVersion,
+            threshold = model.Active.Threshold
+        }));
 
         return app;
     }

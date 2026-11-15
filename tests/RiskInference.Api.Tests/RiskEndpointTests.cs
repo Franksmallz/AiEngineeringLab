@@ -44,6 +44,7 @@ public class RiskEndpointTests : IClassFixture<WebApplicationFactory<RiskModelSe
         Assert.Contains(body.PredictedRisk, new[] { "Low", "Medium", "High" });
         Assert.InRange(body.HighRiskScore, 0f, 1f);
         Assert.Equal("chapter-06-v1", body.ModelVersion);
+        Assert.Equal("risk-policy-v1", body.DecisionPolicyVersion);
         Assert.Equal(0.1121373102068901, body.Threshold);
         Assert.Equal(body.HighRiskScore >= body.Threshold, body.FlaggedHighRisk);
     }
@@ -56,7 +57,7 @@ public class RiskEndpointTests : IClassFixture<WebApplicationFactory<RiskModelSe
 
         var names = doc.RootElement.EnumerateObject().Select(p => p.Name).OrderBy(n => n);
         Assert.Equal(
-            new[] { "flaggedHighRisk", "highRiskScore", "modelVersion", "predictedRisk", "threshold" },
+            new[] { "decisionPolicyVersion", "flaggedHighRisk", "highRiskScore", "modelVersion", "predictedRisk", "threshold" },
             names);
     }
 
@@ -161,6 +162,12 @@ public class RiskEndpointTests : IClassFixture<WebApplicationFactory<RiskModelSe
         var response = await _client.GetAsync("/health");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("Healthy", await response.Content.ReadAsStringAsync());
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var root = doc.RootElement;
+        Assert.Equal("Healthy", root.GetProperty("status").GetString());
+        Assert.Equal("chapter-06-v1", root.GetProperty("modelVersion").GetString());
+        Assert.Equal("risk-policy-v1", root.GetProperty("decisionPolicyVersion").GetString());
+        Assert.Equal("risk-features-v1", root.GetProperty("featureSchemaVersion").GetString());
+        Assert.Equal(0.1121373102068901, root.GetProperty("threshold").GetDouble());
     }
 }

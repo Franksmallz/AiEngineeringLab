@@ -12,7 +12,9 @@ public sealed record RiskPredictionResponse(
     float HighRiskScore,
     // The business decision: HighRiskScore >= Threshold.
     bool FlaggedHighRisk,
-    // The configured model version, for example "chapter-06-v1".
+    // The version of the model that gave this answer, for example "chapter-06-v1".
     string ModelVersion,
     // The threshold used for this decision.
-    double Threshold);
+    double Threshold,
+    // The version of the decision rule, for example "risk-policy-v1".
+    string DecisionPolicyVersion);

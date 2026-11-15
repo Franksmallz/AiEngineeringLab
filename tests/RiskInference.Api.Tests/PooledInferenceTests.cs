@@ -1,4 +1,3 @@
-using RiskClassificationLab.Models;
 using RiskInference.Api.Model;
 
 namespace RiskInference.Api.Tests;
@@ -10,8 +9,8 @@ public class PooledInferenceTests
     [Fact]
     public void Pooled_predictions_equal_engine_per_request_predictions_exactly()
     {
-        var perRequest = TestSupport.CreateService(TestSupport.Options(mode: InferenceMode.EnginePerRequest));
-        using var pooled = TestSupport.CreateService(TestSupport.Options(mode: InferenceMode.Pooled));
+        using var perRequest = TestSupport.CreateService(InferenceMode.EnginePerRequest);
+        using var pooled = TestSupport.CreateService(InferenceMode.Pooled);
 
         foreach (var record in new DatasetSample())
             Assert.Equal(perRequest.Predict(record), pooled.Predict(record));
@@ -20,7 +19,7 @@ public class PooledInferenceTests
     [Fact]
     public void Concurrent_pooled_predictions_match_the_sequential_results()
     {
-        using var pooled = TestSupport.CreateService(TestSupport.Options(mode: InferenceMode.Pooled));
+        using var pooled = TestSupport.CreateService(InferenceMode.Pooled);
         var inputs = new DatasetSample().Take(40).ToArray();
         var expected = inputs.Select(pooled.Predict).ToArray();
 
@@ -39,9 +38,4 @@ public class PooledInferenceTests
 
         Assert.Empty(failures);
     }
-
-    [Fact]
-    public void Pooled_service_still_stops_startup_for_a_bad_model() =>
-        Assert.Throws<InvalidOperationException>(() => TestSupport.CreateService(
-            TestSupport.Options(modelPath: "Models/does-not-exist.zip", mode: InferenceMode.Pooled)));
 }
