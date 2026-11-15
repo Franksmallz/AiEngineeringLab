@@ -86,6 +86,19 @@ Takeaway: ML wins overall accuracy but loses high-risk recall — the eval set i
 
 Takeaway: normalization, not the model family, was SDCA's limit, and a cost-based threshold beat F1-based choices. The held-out test result matched the nested estimate. Caveat: the data is synthetic, and the engineered features copy the label rules.
 
+**ML lab: deploying the risk classifier (DMLS Chapter 7)** ([write-up](docs/dmls/chapter-07.md), [results](evaluations/risk-classification/chapter-07-results.json))
+Served the frozen Chapter 6 model as an ASP.NET Core inference service in a Docker image, with a model manifest, health checks, structured logs, metrics and graceful shutdown. 140 automated tests.
+
+| Check | Result |
+|---|---|
+| Match with the Chapter 6 pipeline (2,000 samples, local API and Docker) | 0 mismatches, largest score difference 0 |
+| New `PredictionEngine` per request, 50 clients | 744 requests/s, p95 about 105 ms |
+| Pooled `PredictionEngine`, 50 clients | 30,506 requests/s, p95 about 4 ms |
+| Bad model or manifest at start | exit code 1, never listens |
+| Model file lost while running | `/health/ready` 503, `/health/live` 200 |
+
+Takeaway: creating a `PredictionEngine` costs about 335 KB and 0.5 ms, so pooling made the service 26 to 41 times faster with identical predictions. Caveat: one Windows machine, and the load generator shared it with the server, so the throughput is a lower bound. The per-request log line costs 23 to 30% of throughput.
+
 Also in the lab: sampling-parameter experiments (temperature, top-p, max tokens, structured output, run-to-run consistency) in [`experiments/week-02`](experiments/week-02/), prompt versioning in [`experiments/week-05`](experiments/week-05/), and weekly reflection notes in [`docs`](docs/).
 
 ## Repository layout

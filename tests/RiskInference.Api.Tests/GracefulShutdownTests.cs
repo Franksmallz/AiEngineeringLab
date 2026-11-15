@@ -30,6 +30,8 @@ public class GracefulShutdownTests
 
         public ActiveModelInfo Active => _inner.Active;
 
+        public string? VerifyIntegrity() => _inner.VerifyIntegrity();
+
         public RiskPredictionResponse Predict(TransactionRiskData input)
         {
             Thread.Sleep(_delay);

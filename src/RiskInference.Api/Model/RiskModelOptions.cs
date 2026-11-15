@@ -28,6 +28,11 @@ public sealed class RiskModelOptions
     [EnumDataType(typeof(InferenceMode))]
     public InferenceMode InferenceMode { get; set; } = InferenceMode.Pooled;
 
+    // How often the service checks the manifest and the model file again (seconds).
+    // A failed check makes the service not ready (GET /health/ready returns 503).
+    [Range(1, 3600)]
+    public int IntegrityCheckIntervalSeconds { get; set; } = 30;
+
     // How long the host waits for requests in progress when it stops.
     [Range(1, 600)]
     public int ShutdownTimeoutSeconds { get; set; } = 30;
