@@ -157,17 +157,33 @@ public class RiskEndpointTests : IClassFixture<WebApplicationFactory<RiskModelSe
     // ---- Health --------------------------------------------------------------
 
     [Fact]
-    public async Task Health_returns_200_when_the_model_is_loaded()
+    public async Task Ready_returns_200_with_the_versions_when_the_model_is_loaded()
     {
-        var response = await _client.GetAsync("/health");
+        var response = await _client.GetAsync("/health/ready");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var root = doc.RootElement;
-        Assert.Equal("Healthy", root.GetProperty("status").GetString());
+        Assert.Equal("Ready", root.GetProperty("status").GetString());
         Assert.Equal("chapter-06-v1", root.GetProperty("modelVersion").GetString());
         Assert.Equal("risk-policy-v1", root.GetProperty("decisionPolicyVersion").GetString());
         Assert.Equal("risk-features-v1", root.GetProperty("featureSchemaVersion").GetString());
         Assert.Equal(0.1121373102068901, root.GetProperty("threshold").GetDouble());
+    }
+
+    [Fact]
+    public async Task Live_returns_200()
+    {
+        var response = await _client.GetAsync("/health/live");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("Alive", await response.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public async Task The_old_health_path_is_gone()
+    {
+        var response = await _client.GetAsync("/health");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 }

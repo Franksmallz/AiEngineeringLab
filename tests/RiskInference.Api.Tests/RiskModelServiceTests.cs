@@ -60,7 +60,7 @@ public class RiskModelServiceTests
     public void A_model_whose_content_changed_after_the_manifest_was_made_stops_startup()
     {
         using var artifact = new TempArtifact();
-        ChangeOneByteInTheLargestEntry(artifact.ModelFile);
+        ArtifactTamper.ChangeOneByteInTheLargestEntry(artifact.ModelFile);
 
         AssertLoadFails(artifact.Options(), "SHA-256");
     }
@@ -75,25 +75,6 @@ public class RiskModelServiceTests
 
         using var service = artifact.CreateService();
         Assert.Equal(TestSupport.ModelSha256, service.Active.ModelSha256);
-    }
-
-    private static void ChangeOneByteInTheLargestEntry(string zipFile)
-    {
-        using var archive = System.IO.Compression.ZipFile.Open(zipFile, System.IO.Compression.ZipArchiveMode.Update);
-        var entry = archive.Entries.OrderByDescending(e => e.Length).First();
-        byte[] content;
-        using (var read = entry.Open())
-        using (var buffer = new MemoryStream())
-        {
-            read.CopyTo(buffer);
-            content = buffer.ToArray();
-        }
-        content[content.Length / 2] ^= 0xFF;
-        var name = entry.FullName;
-        entry.Delete();
-        var changed = archive.CreateEntry(name);
-        using var write = changed.Open();
-        write.Write(content);
     }
 
     private static void RewriteEveryEntryWithSameContent(string zipFile)
